@@ -59,17 +59,36 @@
         <h1 class="glitch-text" style="text-align: center;">GREST Among Us</h1>
         <p class="subtitle">Multiplayer Platform</p>
 
-        <div class="auth-status" id="auth-status">
-            Stato: <span id="user-status-text">Non loggato</span>
-            <button id="btn-logout" class="btn btn-danger hidden" style="padding: 0.5rem; font-size: 0.7rem; margin-left: 1rem;">Esci</button>
+        <!-- HOME SECTION -->
+        <div id="section-home" class="section-container" style="text-align: center;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <div class="auth-status" id="auth-status" style="margin: 0; text-align: left;">
+                    Stato: <span id="user-status-text">Non loggato</span>
+                    <button id="btn-logout" class="btn btn-danger hidden" style="padding: 0.5rem; font-size: 0.7rem; margin-left: 1rem;">Esci</button>
+                </div>
+                <button id="btn-show-auth" class="btn" style="background: #3f51b5; padding: 0.5rem 1rem; font-size: 0.8rem;">ACCEDI / REGISTRATI</button>
+            </div>
+
+            <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+                <button id="btn-go-create" class="btn" style="flex:1; background: var(--accent-cyan); color: black; font-size: 1.5rem; padding: 2rem;">CREA<br><span style="font-size:0.8rem">Manager</span></button>
+                <button id="btn-go-join" class="btn" style="flex:1; background: var(--accent-green); font-size: 1.5rem; padding: 2rem;">UNISCITI<br><span style="font-size:0.8rem">Giocatore</span></button>
+            </div>
         </div>
 
-        <div style="margin-bottom: 2rem;">
-            <a href="public/assets/intro.mp4" target="_blank" class="btn" style="background: #9c27b0; text-decoration: none; display: inline-block;">▶ Guarda Video Promo</a>
+        <!-- AUTH MODAL (Popup) -->
+        <div id="modal-auth-prompt" class="overlay-screen hidden" style="background: rgba(0,0,0,0.8); z-index: 100;">
+            <div class="section-container" style="background: #222; border: 2px solid var(--accent-cyan);">
+                <h2 style="text-align: center; margin-bottom: 1rem;">Vuoi accedere?</h2>
+                <p style="text-align: center; font-size: 0.9rem; color: #ccc; margin-bottom: 2rem;">Accedendo potrai salvare i tuoi template per le prossime partite.</p>
+                <div style="display: flex; gap: 1rem; justify-content: center;">
+                    <button id="btn-prompt-login" class="btn" style="background: var(--accent-green);">SÌ, ACCEDI</button>
+                    <button id="btn-prompt-guest" class="btn btn-danger">NO, OSPITE</button>
+                </div>
+            </div>
         </div>
 
-        <!-- AUTH SECTION -->
-        <div id="section-auth" class="section-container">
+        <!-- AUTH SECTION (Login/Register Form) -->
+        <div id="section-auth" class="section-container hidden">
             <h2>Account / Accesso</h2>
             <div class="form-group" style="margin-top: 1rem;">
                 <input type="email" id="auth-email" placeholder="Email">
@@ -81,13 +100,28 @@
                 <button id="btn-login" class="btn" style="flex:1;">Accedi</button>
                 <button id="btn-register" class="btn" style="flex:1; background: #3f51b5;">Registrati</button>
             </div>
-            <hr style="border-color: #333; margin: 1rem 0;">
-            <button id="btn-guest" class="btn" style="width: 100%; background: var(--dead-gray);">Continua come Ospite</button>
+            <button id="btn-auth-back" class="btn btn-danger" style="width: 100%; margin-top: 1rem;">Torna alla Home</button>
+        </div>
+
+        <!-- TEMPLATES DASHBOARD -->
+        <div id="section-templates" class="section-container hidden" style="max-width: 800px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2>I Tuoi Template</h2>
+                <button id="btn-tpl-back" class="btn btn-danger" style="padding: 0.5rem 1rem;">Indietro</button>
+            </div>
+            <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 2rem;">Seleziona un template per avviare istantaneamente la stanza, oppure creane uno nuovo.</p>
+            
+            <div id="templates-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+                <!-- Template cards dynamically injected here -->
+            </div>
         </div>
 
         <!-- JOIN ROOM SECTION -->
         <div id="section-join" class="section-container hidden">
-            <h2>Unisciti a una Stanza</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2>Unisciti a una Stanza</h2>
+                <button id="btn-join-back" class="btn btn-danger" style="padding: 0.5rem 1rem;">Indietro</button>
+            </div>
             <div class="form-group" style="margin-top: 1rem;">
                 <input type="text" id="join-code" placeholder="Codice Stanza (es. ABCDE)" style="text-transform: uppercase;" maxlength="5">
             </div>
@@ -97,19 +131,19 @@
             <button id="btn-join-room" class="btn" style="width: 100%; background: var(--accent-green);">ENTRA IN PARTITA</button>
         </div>
 
-        <!-- CREATE ROOM SECTION -->
+        <!-- CREATE NEW / EDIT TEMPLATE SETTINGS -->
         <div id="section-create" class="section-container hidden">
-            <h2>Crea Partita (Manager)</h2>
-            <p style="font-size: 0.8rem; margin-bottom: 1rem; color: #aaa;">Crea una stanza e fai entrare i giocatori.</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2>Impostazioni Template</h2>
+                <button id="btn-create-back" class="btn btn-danger" style="padding: 0.5rem 1rem;">Annulla</button>
+            </div>
             
             <div class="form-group">
-                <label>Template Partita</label>
-                <select id="template-select">
-                    <option value="base">Standard Grest (Default)</option>
-                    <option value="empty">Vuoto (Crea da zero)</option>
-                    <!-- User templates populated dynamically -->
-                </select>
+                <label>Nome Template *</label>
+                <input type="text" id="create-template-name" placeholder="es. Grest Estivo 2026">
             </div>
+            
+            <hr style="border-color: #333; margin: 1.5rem 0;">
             
             <div class="form-group">
                 <label>Numero Impostori</label>
@@ -180,12 +214,7 @@
                 <button id="btn-add-text-task" class="btn" style="padding: 0.5rem; font-size: 0.8rem; margin-top: 0.5rem;">+ Aggiungi Task</button>
             </div>
 
-            <div class="form-group hidden" id="save-template-group" style="margin-top: 1rem;">
-                <input type="text" id="template-name" placeholder="Nome Template da Salvare">
-                <button id="btn-save-template" class="btn" style="width: 100%; background: #9c27b0; margin-top: 0.5rem;">Salva come Template</button>
-            </div>
-            
-            <button id="btn-create-room" class="btn" style="width: 100%; margin-top: 1.5rem;">AVVIA STANZA</button>
+            <button id="btn-save-start-room" class="btn" style="width: 100%; margin-top: 1.5rem; background: var(--accent-cyan); color: black;">SALVA E AVVIA STANZA</button>
         </div>
     </div>
 

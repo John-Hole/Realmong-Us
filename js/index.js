@@ -1,28 +1,44 @@
 import { db, auth } from './firebase-config.js';
-import { ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+import { ref, set, get, child, remove } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
 
-// DOM Elements
+// DOM Elements - Sections
+const homeSection = document.getElementById('section-home');
 const authSection = document.getElementById('section-auth');
 const joinSection = document.getElementById('section-join');
 const createSection = document.getElementById('section-create');
+const templatesSection = document.getElementById('section-templates');
+const authModal = document.getElementById('modal-auth-prompt');
+
+// DOM Elements - Navigation & Auth
 const authStatus = document.getElementById('user-status-text');
 const btnLogout = document.getElementById('btn-logout');
+const btnShowAuth = document.getElementById('btn-show-auth');
+const btnGoCreate = document.getElementById('btn-go-create');
+const btnGoJoin = document.getElementById('btn-go-join');
+const btnPromptLogin = document.getElementById('btn-prompt-login');
+const btnPromptGuest = document.getElementById('btn-prompt-guest');
+const btnAuthBack = document.getElementById('btn-auth-back');
+const btnTplBack = document.getElementById('btn-tpl-back');
+const btnJoinBack = document.getElementById('btn-join-back');
+const btnCreateBack = document.getElementById('btn-create-back');
 
 // Auth inputs
 const emailInput = document.getElementById('auth-email');
 const passwordInput = document.getElementById('auth-password');
 const btnLogin = document.getElementById('btn-login');
 const btnRegister = document.getElementById('btn-register');
-const btnGuest = document.getElementById('btn-guest');
 
 // Join inputs
 const joinCode = document.getElementById('join-code');
 const joinName = document.getElementById('join-name');
 const btnJoinRoom = document.getElementById('btn-join-room');
 
-// Create inputs
-const templateSelect = document.getElementById('template-select');
+// Templates Grid
+const templatesGrid = document.getElementById('templates-grid');
+
+// Settings / Create Inputs
+const createTemplateName = document.getElementById('create-template-name');
 const createImpostors = document.getElementById('create-impostors');
 const createScientist = document.getElementById('create-scientist');
 const createKillCooldown = document.getElementById('create-kill-cooldown');
@@ -39,25 +55,96 @@ const mapCanvas = document.getElementById('map-canvas');
 const uploadStatus = document.getElementById('upload-status');
 const textTasksContainer = document.getElementById('text-tasks-container');
 const btnAddTextTask = document.getElementById('btn-add-text-task');
-const saveTemplateGroup = document.getElementById('save-template-group');
-const templateNameInput = document.getElementById('template-name');
-const btnSaveTemplate = document.getElementById('btn-save-template');
-const btnCreateRoom = document.getElementById('btn-create-room');
+const btnSaveStartRoom = document.getElementById('btn-save-start-room');
 
 let currentUser = null;
 let currentBase64Image = null;
+let userTemplates = {};
+
+// Default Templates
+const baseTemplate = {
+    name: "Standard Grest",
+    impostorCount: 3,
+    killCooldown: 120,
+    maxMeetings: 1,
+    meetingDuration: 120,
+    scientistEnabled: true,
+    videoIntro: true,
+    maxPlayers: 15,
+    mapMode: 'photo',
+    mapImage: null
+};
+
+const emptyTemplate = {
+    name: "Vuoto",
+    impostorCount: 1,
+    killCooldown: 120,
+    maxMeetings: 1,
+    meetingDuration: 120,
+    scientistEnabled: false,
+    videoIntro: true,
+    maxPlayers: 15,
+    mapMode: 'photo',
+    mapImage: null
+};
 
 // Handle Unlimited Checkbox
 createUnlimitedPlayers.addEventListener('change', (e) => {
     createMaxPlayers.disabled = e.target.checked;
 });
 
-// Auto-fill join code from URL if present (from QR code)
+// Auto-fill join code from URL if present
 const urlParams = new URLSearchParams(window.location.search);
 const roomParam = urlParams.get('room');
 if (roomParam) {
     joinCode.value = roomParam;
+    showSection('join');
 }
+
+// --- NAVIGATION LOGIC ---
+function hideAllSections() {
+    homeSection.classList.add('hidden');
+    authSection.classList.add('hidden');
+    joinSection.classList.add('hidden');
+    createSection.classList.add('hidden');
+    templatesSection.classList.add('hidden');
+    authModal.classList.add('hidden');
+}
+
+function showSection(sectionName) {
+    hideAllSections();
+    if (sectionName === 'home') homeSection.classList.remove('hidden');
+    if (sectionName === 'auth') authSection.classList.remove('hidden');
+    if (sectionName === 'join') joinSection.classList.remove('hidden');
+    if (sectionName === 'create') createSection.classList.remove('hidden');
+    if (sectionName === 'templates') templatesSection.classList.remove('hidden');
+}
+
+btnShowAuth.addEventListener('click', () => showSection('auth'));
+btnGoJoin.addEventListener('click', () => showSection('join'));
+btnAuthBack.addEventListener('click', () => showSection('home'));
+btnTplBack.addEventListener('click', () => showSection('home'));
+btnJoinBack.addEventListener('click', () => showSection('home'));
+btnCreateBack.addEventListener('click', () => showSection('templates'));
+
+btnGoCreate.addEventListener('click', () => {
+    if (currentUser) {
+        showSection('templates');
+    } else {
+        authModal.classList.remove('hidden');
+    }
+});
+
+btnPromptLogin.addEventListener('click', () => {
+    authModal.classList.add('hidden');
+    showSection('auth');
+});
+
+btnPromptGuest.addEventListener('click', () => {
+    authModal.classList.add('hidden');
+    showSection('templates');
+});
+
 
 // --- AUTH LOGIC ---
 onAuthStateChanged(auth, (user) => {
@@ -65,38 +152,22 @@ onAuthStateChanged(auth, (user) => {
         currentUser = user;
         authStatus.textContent = `Loggato come: ${user.email}`;
         btnLogout.classList.remove('hidden');
-        showMainSections(true);
+        btnShowAuth.classList.add('hidden');
         loadUserTemplates(user.uid);
     } else {
         currentUser = null;
         authStatus.textContent = "Non loggato";
         btnLogout.classList.add('hidden');
-        showAuthSection();
+        btnShowAuth.classList.remove('hidden');
+        userTemplates = {};
+        renderTemplatesGrid();
     }
 });
-
-function showAuthSection() {
-    authSection.classList.remove('hidden');
-    joinSection.classList.add('hidden');
-    createSection.classList.add('hidden');
-    saveTemplateGroup.classList.add('hidden');
-}
-
-function showMainSections(isLoggedIn) {
-    authSection.classList.add('hidden');
-    joinSection.classList.remove('hidden');
-    createSection.classList.remove('hidden');
-    if (isLoggedIn) {
-        saveTemplateGroup.classList.remove('hidden');
-    } else {
-        saveTemplateGroup.classList.add('hidden');
-        authStatus.textContent = "Ospite";
-    }
-}
 
 btnLogin.addEventListener('click', async () => {
     try {
         await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
+        showSection('home');
     } catch (error) {
         alert("Errore login: " + error.message);
     }
@@ -105,6 +176,7 @@ btnLogin.addEventListener('click', async () => {
 btnRegister.addEventListener('click', async () => {
     try {
         await createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
+        showSection('home');
     } catch (error) {
         alert("Errore registrazione: " + error.message);
     }
@@ -112,11 +184,9 @@ btnRegister.addEventListener('click', async () => {
 
 btnLogout.addEventListener('click', async () => {
     await signOut(auth);
+    showSection('home');
 });
 
-btnGuest.addEventListener('click', () => {
-    showMainSections(false);
-});
 
 // --- TEMPLATES LOGIC ---
 async function loadUserTemplates(uid) {
@@ -124,101 +194,164 @@ async function loadUserTemplates(uid) {
     try {
         const snapshot = await get(child(dbRef, `users/${uid}/templates`));
         if (snapshot.exists()) {
-            const templates = snapshot.val();
-            // Clear previous user templates (keep base and empty)
-            Array.from(templateSelect.options).forEach(opt => {
-                if (opt.value !== 'base' && opt.value !== 'empty') {
-                    opt.remove();
-                }
-            });
-            
-            for (const key in templates) {
-                const opt = document.createElement('option');
-                opt.value = key;
-                opt.textContent = templates[key].name || key;
-                opt.dataset.templateData = JSON.stringify(templates[key]);
-                templateSelect.appendChild(opt);
-            }
+            userTemplates = snapshot.val();
+        } else {
+            userTemplates = {};
         }
+        renderTemplatesGrid();
     } catch (error) {
         console.error("Error loading templates:", error);
     }
 }
 
-btnSaveTemplate.addEventListener('click', async () => {
-    if (!currentUser) return;
-    const name = templateNameInput.value.trim();
-    if (!name) return alert("Inserisci un nome per il template");
-    
-    const templateData = getRoomConfigFromUI();
-    templateData.name = name;
-    
-    const templateId = Date.now().toString();
-    try {
-        await set(ref(db, `users/${currentUser.uid}/templates/${templateId}`), templateData);
-        alert("Template salvato con successo!");
-        templateNameInput.value = '';
-        loadUserTemplates(currentUser.uid);
-    } catch (error) {
-        alert("Errore salvataggio template: " + error.message);
-    }
-});
+function renderTemplatesGrid() {
+    templatesGrid.innerHTML = '';
 
-templateSelect.addEventListener('change', () => {
-    const val = templateSelect.value;
-    if (val === 'empty') {
+    // Add Create New Button
+    const createBtn = document.createElement('div');
+    createBtn.style = `border: 2px dashed var(--accent-cyan); border-radius: 12px; padding: 2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--accent-cyan); font-weight: bold; flex-direction: column;`;
+    createBtn.innerHTML = `<span style="font-size: 3rem;">+</span><span>CREA NUOVO</span>`;
+    createBtn.onclick = () => openCreateSettings(null, null);
+    templatesGrid.appendChild(createBtn);
+
+    // Add Base Templates
+    createTemplateCard('base', baseTemplate, false);
+    createTemplateCard('empty', emptyTemplate, false);
+
+    // Add User Templates
+    for (const key in userTemplates) {
+        createTemplateCard(key, userTemplates[key], true);
+    }
+}
+
+function createTemplateCard(id, data, isCustom) {
+    const card = document.createElement('div');
+    card.style = `background: var(--card-bg); border-radius: 12px; padding: 1.5rem; position: relative; border: 2px solid #333; transition: border-color 0.2s; cursor: pointer;`;
+    card.onmouseover = () => card.style.borderColor = 'var(--accent-cyan)';
+    card.onmouseout = () => card.style.borderColor = '#333';
+    card.onclick = () => startRoomWithConfig(data);
+
+    const title = document.createElement('h3');
+    title.textContent = data.name || id;
+    title.style.marginBottom = '1rem';
+    card.appendChild(title);
+
+    const details = document.createElement('div');
+    details.style.fontSize = '0.8rem';
+    details.style.color = '#aaa';
+    details.innerHTML = `
+        <p>Impostori: ${data.impostorCount}</p>
+        <p>Limite: ${data.maxPlayers === 'unlimited' ? '∞' : data.maxPlayers}</p>
+        <p>Mappa: ${data.mapMode === 'text' ? 'Testuale' : 'Visiva'}</p>
+    `;
+    card.appendChild(details);
+
+    if (isCustom) {
+        const menuBtn = document.createElement('button');
+        menuBtn.innerHTML = '&#8942;'; // 3 vertical dots
+        menuBtn.style = `position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; z-index: 10;`;
+        
+        const menuDrop = document.createElement('div');
+        menuDrop.className = 'hidden';
+        menuDrop.style = `position: absolute; top: 3rem; right: 1rem; background: #222; border: 1px solid #444; border-radius: 8px; z-index: 20; display: flex; flex-direction: column; overflow: hidden;`;
+        
+        const dupeBtn = document.createElement('button');
+        dupeBtn.textContent = 'Duplica e Modifica';
+        dupeBtn.style = `background: none; border: none; color: white; padding: 0.8rem 1rem; text-align: left; cursor: pointer;`;
+        dupeBtn.onmouseover = () => dupeBtn.style.background = '#333';
+        dupeBtn.onmouseout = () => dupeBtn.style.background = 'none';
+        dupeBtn.onclick = (e) => { e.stopPropagation(); openCreateSettings(id, data, true); };
+        
+        const delBtn = document.createElement('button');
+        delBtn.textContent = 'Elimina';
+        delBtn.style = `background: none; border: none; color: red; padding: 0.8rem 1rem; text-align: left; cursor: pointer;`;
+        delBtn.onmouseover = () => delBtn.style.background = '#333';
+        delBtn.onmouseout = () => delBtn.style.background = 'none';
+        delBtn.onclick = async (e) => { 
+            e.stopPropagation(); 
+            if(confirm("Sicuro di voler eliminare questo template?")) {
+                await remove(ref(db, `users/${currentUser.uid}/templates/${id}`));
+                loadUserTemplates(currentUser.uid);
+            }
+        };
+
+        menuDrop.appendChild(dupeBtn);
+        menuDrop.appendChild(delBtn);
+
+        menuBtn.onclick = (e) => {
+            e.stopPropagation();
+            menuDrop.classList.toggle('hidden');
+        };
+
+        // Close dropdown on click outside
+        document.addEventListener('click', () => menuDrop.classList.add('hidden'));
+
+        card.appendChild(menuBtn);
+        card.appendChild(menuDrop);
+    }
+
+    templatesGrid.appendChild(card);
+}
+
+// --- CREATE SETTINGS LOGIC ---
+let currentEditId = null;
+
+function openCreateSettings(id, data, isDuplicate = false) {
+    currentEditId = isDuplicate ? null : id; // If duplicating, save as new. If editing, we overwrite (not implemented yet, but keeping structure). Actually we just save a new one.
+
+    if (data) {
+        createTemplateName.value = (data.name || "") + (isDuplicate ? " (Copia)" : "");
+        createImpostors.value = data.impostorCount || 1;
+        createKillCooldown.value = data.killCooldown || 120;
+        createMaxMeetings.value = data.maxMeetings !== undefined ? data.maxMeetings : 1;
+        createMeetingDuration.value = data.meetingDuration || 120;
+        createVideoIntro.checked = data.videoIntro !== undefined ? data.videoIntro : true;
+        createScientist.checked = !!data.scientistEnabled;
+        
+        if (data.maxPlayers === 'unlimited') {
+            createUnlimitedPlayers.checked = true;
+            createMaxPlayers.disabled = true;
+        } else {
+            createUnlimitedPlayers.checked = false;
+            createMaxPlayers.disabled = false;
+            createMaxPlayers.value = data.maxPlayers || 15;
+        }
+
+        if (data.mapMode === 'text') {
+            mapRadios[1].checked = true;
+            currentBase64Image = null;
+            uploadStatus.textContent = '';
+            textTasksContainer.innerHTML = '';
+            if (data.tasks) {
+                data.tasks.forEach(task => addTextTask(task));
+            }
+        } else {
+            mapRadios[0].checked = true;
+            currentBase64Image = data.mapImage || null;
+            uploadStatus.textContent = currentBase64Image ? "Immagine caricata dal template." : "";
+        }
+    } else {
+        // Reset to empty
+        createTemplateName.value = "";
         createImpostors.value = 1;
         createKillCooldown.value = 120;
         createMaxMeetings.value = 1;
         createMeetingDuration.value = 120;
+        createVideoIntro.checked = true;
         createScientist.checked = false;
-        createVideoIntro.checked = true;
-        mapRadios[0].checked = true; // Photo default
-        textTasksContainer.innerHTML = '';
+        createUnlimitedPlayers.checked = false;
+        createMaxPlayers.disabled = false;
+        createMaxPlayers.value = 15;
+        mapRadios[0].checked = true;
         currentBase64Image = null;
         uploadStatus.textContent = '';
-        toggleMapMode();
-    } else if (val === 'base') {
-        createImpostors.value = 3;
-        createKillCooldown.value = 120;
-        createMaxMeetings.value = 1;
-        createMeetingDuration.value = 120;
-        createScientist.checked = true;
-        createVideoIntro.checked = true;
-        mapRadios[0].checked = true; // Photo default
         textTasksContainer.innerHTML = '';
-        currentBase64Image = null;
-        uploadStatus.textContent = '';
-        toggleMapMode();
-    } else {
-        // Load user template
-        const opt = templateSelect.options[templateSelect.selectedIndex];
-        if (opt.dataset.templateData) {
-            const data = JSON.parse(opt.dataset.templateData);
-            createImpostors.value = data.impostorCount || 1;
-            createKillCooldown.value = data.killCooldown || 120;
-            createMaxMeetings.value = data.maxMeetings !== undefined ? data.maxMeetings : 1;
-            createMeetingDuration.value = data.meetingDuration || 120;
-            createVideoIntro.checked = data.videoIntro !== undefined ? data.videoIntro : true;
-            createScientist.checked = !!data.scientistEnabled;
-            
-            if (data.mapMode === 'text') {
-                mapRadios[1].checked = true;
-                currentBase64Image = null;
-                uploadStatus.textContent = '';
-                textTasksContainer.innerHTML = '';
-                if (data.tasks) {
-                    data.tasks.forEach(task => addTextTask(task));
-                }
-            } else {
-                mapRadios[0].checked = true;
-                currentBase64Image = data.mapImage || null;
-                uploadStatus.textContent = currentBase64Image ? "Immagine caricata dal template." : "";
-            }
-            toggleMapMode();
-        }
     }
-});
+    
+    toggleMapMode();
+    showSection('create');
+}
+
 
 // --- IMAGE COMPRESSION LOGIC ---
 mapImageUpload.addEventListener('change', (e) => {
@@ -252,7 +385,7 @@ mapImageUpload.addEventListener('change', (e) => {
             const ctx = mapCanvas.getContext('2d');
             ctx.drawImage(img, 0, 0, width, height);
 
-            currentBase64Image = mapCanvas.toDataURL('image/jpeg', 0.6); // Compress to 60% quality JPEG
+            currentBase64Image = mapCanvas.toDataURL('image/jpeg', 0.6);
             uploadStatus.textContent = "Immagine pronta e compressa!";
         };
         img.src = event.target.result;
@@ -309,6 +442,7 @@ function getRoomConfigFromUI() {
     let maxPlayers = createUnlimitedPlayers.checked ? 'unlimited' : parseInt(createMaxPlayers.value) || 15;
 
     return {
+        name: createTemplateName.value.trim() || "Template Custom",
         impostorCount: parseInt(createImpostors.value) || 1,
         killCooldown: parseInt(createKillCooldown.value) || 120,
         maxMeetings: parseInt(createMaxMeetings.value) || 1,
@@ -331,20 +465,41 @@ function generateRoomCode() {
     return code;
 }
 
-btnCreateRoom.addEventListener('click', async () => {
+btnSaveStartRoom.addEventListener('click', async () => {
     const config = getRoomConfigFromUI();
-    if (config.mapMode === 'photo' && !config.mapImage && templateSelect.value !== 'base') {
+    if (config.mapMode === 'photo' && !config.mapImage) {
         if (!confirm("Non hai caricato nessuna immagine mappa. Continuare comunque?")) return;
     }
 
+    if (!config.name) {
+        return alert("Inserisci un Nome Template per salvarlo.");
+    }
+
+    // Save template if user is logged in
+    if (currentUser) {
+        const templateId = Date.now().toString();
+        try {
+            await set(ref(db, `users/${currentUser.uid}/templates/${templateId}`), config);
+            alert("Template salvato con successo! Avvio stanza in corso...");
+        } catch(e) {
+            console.error("Errore salvataggio:", e);
+        }
+    }
+
+    // Start Room
+    startRoomWithConfig(config);
+});
+
+async function startRoomWithConfig(config) {
     const imageToSave = config.mapImage;
-    delete config.mapImage; // Separiamo l'immagine dal nodo principale
+    const roomConfig = { ...config };
+    delete roomConfig.mapImage; // Separiamo l'immagine dal nodo principale
+    delete roomConfig.name; // Non serve nella stanza
 
     const roomCode = generateRoomCode();
     
-    // Initial state for the room
     const roomData = {
-        config: config,
+        config: roomConfig,
         state: {
             game_status: 'waiting',
             round: 1,
@@ -365,7 +520,7 @@ btnCreateRoom.addEventListener('click', async () => {
     } catch (error) {
         alert("Errore creazione stanza: " + error.message);
     }
-});
+}
 
 btnJoinRoom.addEventListener('click', async () => {
     const code = joinCode.value.trim().toUpperCase();
@@ -394,9 +549,6 @@ btnJoinRoom.addEventListener('click', async () => {
             return alert("Impossibile accedere: la stanza è al completo!");
         }
 
-        // Add player to room (initially alive, crewmate, empty tasks)
-        // Wait, the real assignment happens on 'game start' in master.js. 
-        // Here we just register the player in the room lobby.
         await set(ref(db, `rooms/${code}/players/${name}`), {
             status: 'alive',
             role: 'crewmate',
