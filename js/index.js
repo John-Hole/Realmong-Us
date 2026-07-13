@@ -11,8 +11,8 @@ const templatesSection = document.getElementById('section-templates');
 const authModal = document.getElementById('modal-auth-prompt');
 
 // DOM Elements - Navigation & Auth
-const authStatus = document.getElementById('user-status-text');
-const btnLogout = document.getElementById('btn-logout');
+const authStatus = document.getElementById('nav-auth-status');
+const btnLogout = document.getElementById('nav-btn-logout');
 const btnShowAuth = document.getElementById('btn-show-auth');
 const btnGoCreate = document.getElementById('btn-go-create');
 const btnGoJoin = document.getElementById('btn-go-join');

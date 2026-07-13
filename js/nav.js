@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+(function() {
     const navHTML = `
         <div id="hamburger-btn" class="hamburger-btn">☰</div>
         <div id="side-nav" class="side-nav">
@@ -8,6 +8,9 @@ document.addEventListener('DOMContentLoaded', () => {
             <a href="#" id="nav-home">Homepage</a>
             <a href="#" id="nav-teatro">Dashboard</a>
             <a href="#" id="nav-account">Account (Template)</a>
+            <div style="flex-grow: 1;"></div>
+            <div id="nav-auth-status" style="font-size: 0.8rem; color: #ccc; margin-bottom: 10px;">Non loggato</div>
+            <button id="nav-btn-logout" class="btn btn-danger hidden" style="padding: 10px; font-size: 0.8rem; border-radius: 50px;">ESCI</button>
         </div>
     `;
     document.body.insertAdjacentHTML('beforeend', navHTML);
@@ -58,4 +61,4 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         handleNavigate('index.html?go=account');
     });
-});
+})();
