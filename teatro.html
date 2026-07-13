@@ -14,7 +14,7 @@
     <audio id="siren-audio" src="audio/siren.mp3" loop preload="auto"></audio>
     <audio id="meeting-audio" src="audio/meeting.mp3" preload="auto"></audio>
 
-    <div id="join-overlay" class="overlay-screen" style="background: var(--bg-dark); padding: 2rem;">
+    <div id="join-overlay" class="overlay-screen" style="padding: 2rem;">
         <div class="section-container" style="background: var(--card-bg); border-radius: 20px; padding: 2rem; border: 2px solid var(--accent-cyan); max-width: 400px; width: 100%; text-align: center;">
             <h1 style="margin-bottom: 1rem; color: var(--accent-cyan); font-family: var(--font-ui); font-size: 2rem;">Dashboard</h1>
             <p style="font-size: 1rem; margin-bottom: 2rem; color: #ccc; font-family: var(--font-ui);">Inserisci il codice stanza per avviare il maxischermo:</p>
@@ -24,15 +24,15 @@
     </div>
 
     <!-- Role Assignment Overlay -->
-    <div id="role-assignment-overlay" class="overlay-screen hidden" style="z-index: 2000; background: var(--bg-dark); display: flex; align-items: center; justify-content: center;">
+    <div id="role-assignment-overlay" class="overlay-screen hidden" style="z-index: 2000; display: flex; align-items: center; justify-content: center;">
         <h1 class="role-animation-text" style="color: var(--accent-red); font-size: clamp(2rem, 6vw, 5rem); letter-spacing: 5px; text-align: center; text-transform: uppercase;">ASSEGNAZIONE RUOLI...</h1>
     </div>
 
     <!-- Generic Overlays (Emergency, Ejected, Victory) -->
-    <div id="overlay-meeting" class="overlay-screen hidden" style="z-index: 1500; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center;">
+    <div id="overlay-meeting" class="overlay-screen hidden" style="z-index: 1500; display: flex; align-items: center; justify-content: center;">
         <h1 id="overlay-text" class="alert-text" style="font-size: clamp(3rem, 8vw, 6rem); text-align: center;">RIUNIONE CHIAMATA</h1>
     </div>
-    <div id="overlay-ejected" class="overlay-screen hidden" style="z-index: 1500; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center;">
+    <div id="overlay-ejected" class="overlay-screen hidden" style="z-index: 1500; display: flex; align-items: center; justify-content: center;">
         <h1 id="ejected-text" style="color: white; font-size: clamp(2rem, 5vw, 4rem); text-align: center;">Nessuno è stato espulso</h1>
     </div>
 
