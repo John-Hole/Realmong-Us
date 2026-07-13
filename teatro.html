@@ -35,29 +35,7 @@
     <div id="overlay-ejected" class="overlay-screen hidden" style="z-index: 1500; display: flex; align-items: center; justify-content: center;">
         <h1 id="ejected-text" style="color: white; font-size: clamp(2rem, 5vw, 4rem); text-align: center;">Nessuno è stato espulso</h1>
     </div>
-
-    <!-- Waiting Screen -->
-    <div id="waiting-screen" class="overlay-screen hidden">
-        <h1 class="glitch-text" style="font-size: clamp(3rem, 8vw, 6rem);">SALA D'ATTESA</h1>
-        <div style="display: flex; gap: 4rem; align-items: center; margin-top: 3rem;">
-            <!-- QR Code Section -->
-            <div style="background: white; padding: 20px; border-radius: 12px; border: 4px solid var(--accent-cyan);">
-                <div id="qrcode"></div>
-                <h2 style="color: black; margin-top: 15px; font-size: 2rem;">STANZA: <span id="waiting-room-code" style="color: var(--accent-red);">---</span></h2>
-                <p style="color: #666; font-family: var(--font-ui); font-weight: bold; margin-top: 10px;">Inquadra per unirti al gioco!</p>
-            </div>
-            
-            <!-- Players List -->
-            <div style="background: var(--card-bg); padding: 2rem; border-radius: 12px; min-width: 300px; text-align: left; border: 2px solid var(--accent-blue);">
-                <h2 style="margin-bottom: 1rem; color: var(--accent-cyan); font-size: 1.5rem;">GIOCATORI (<span id="waiting-players-count">0 / ?</span>)</h2>
-                <div id="waiting-players-list" style="display: flex; flex-wrap: wrap; gap: 0.5rem; max-height: 400px; overflow-y: auto;">
-                    <!-- Badges -->
-                </div>
-            </div>
-        </div>
-        <p style="margin-top: 3rem; font-size: 1.5rem; color: #888;">In attesa dell'avvio dal Master...</p>
-    </div>
-
+    <!-- Waiting Screen Removed (Replaced by Dashboard Layout in waiting mode) -->
     <!-- Meeting Screen -->
     <div id="meeting-screen" class="overlay-screen hidden">
         <h1 class="alert-text">DISCUSSIONE IN CORSO</h1>
@@ -95,7 +73,7 @@
             </div>
             
             <!-- Footer: Task Progress Bar -->
-            <div class="task-bar-container" style="margin-top: auto; background: var(--card-bg); padding: 1rem; border-radius: 12px; border: 2px solid #333;">
+            <div id="taskbar-container" class="task-bar-container" style="margin-top: auto; background: var(--card-bg); padding: 1rem; border-radius: 12px; border: 2px solid #333;">
                 <h2 style="font-size: 1rem; text-align: center; margin-bottom: 0.5rem; color: var(--accent-cyan);">Task Globali</h2>
                 <div class="task-progress-wrap" style="width: 100%; height: 30px; background: #222; border-radius: 15px; overflow: hidden; position: relative;">
                     <div id="task-progress-fill" class="task-progress-fill" style="height: 100%; width: 0%; background: var(--accent-green); transition: width 0.5s;"></div>
@@ -105,10 +83,19 @@
         </div>
 
         <!-- Right: Player List -->
-        <div class="players-sidebar" style="background: var(--card-bg); padding: 1.5rem; border-radius: 12px; border: 2px solid var(--accent-blue); overflow-y: auto; max-height: 80vh;">
-            <h2 style="font-size: 1.5rem; text-align: center; margin-bottom: 1rem; color: var(--accent-cyan);">Equipaggio</h2>
-            <div id="players-list-container" style="display: flex; flex-direction: column; gap: 0.5rem;">
-                <!-- Populated by JS -->
+        <div class="players-sidebar" style="background: var(--card-bg); padding: 1.5rem; border-radius: 12px; border: 2px solid var(--accent-blue); overflow-y: auto; max-height: 80vh; display: flex; flex-direction: column;">
+            <div style="flex-grow: 1; overflow-y: auto; margin-bottom: 1rem;">
+                <h2 style="font-size: 1.5rem; text-align: center; margin-bottom: 1rem; color: var(--accent-cyan);">Equipaggio <span id="waiting-players-count" style="font-size: 1rem; color: #888;"></span></h2>
+                <div id="players-list-container" style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: flex-start; align-content: flex-start;">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- QR Code Section (Visible in Waiting) -->
+            <div id="qr-code-container" style="background: white; padding: 1.5rem; border-radius: 12px; border: 4px solid var(--accent-cyan); text-align: center; flex-shrink: 0;">
+                <div id="qrcode" style="display: inline-block;"></div>
+                <h2 style="color: black; margin-top: 10px; font-size: 1.5rem;">STANZA: <span id="waiting-room-code" style="color: var(--accent-red);">---</span></h2>
+                <p style="color: #666; font-family: var(--font-ui); font-weight: bold; margin-top: 5px; font-size: 0.9rem;">Inquadra per unirti!</p>
             </div>
         </div>
     </div>

@@ -53,11 +53,9 @@ let currentTimerEndTime = 0;
 
 let currentMapMode = null;
 
-// Initialize players list on the right (and in the lobby)
+// Initialize players list
 function renderPlayers(playersData, votesData, maxPlayers) {
     playersListContainer.innerHTML = '';
-    const lobbyRoster = document.getElementById('waiting-players-list');
-    if (lobbyRoster) lobbyRoster.innerHTML = '';
     
     let playerCount = 0;
 
@@ -102,7 +100,7 @@ function renderPlayers(playersData, votesData, maxPlayers) {
     
     const countDisplay = document.getElementById('waiting-players-count');
     if (countDisplay) {
-        countDisplay.textContent = `Giocatori: ${playerCount} / ${maxPlayers === 'unlimited' ? '∞' : (maxPlayers || '?')}`;
+        countDisplay.textContent = `(${playerCount} / ${maxPlayers === 'unlimited' ? '∞' : (maxPlayers || '?')})`;
     }
 }
 
@@ -235,22 +233,31 @@ onValue(roomRef, (snapshot) => {
                 if(overlayEjected) overlayEjected.classList.add('hidden');
                 
                 const mainDashboard = document.getElementById('main-dashboard-layout');
-                if (mainDashboard) mainDashboard.classList.add('hidden');
+                if (mainDashboard) mainDashboard.classList.remove('hidden');
                 
-                const waitingScreen = document.getElementById('waiting-screen');
-                if (waitingScreen) waitingScreen.classList.remove('hidden');
+                const taskbar = document.getElementById('taskbar-container');
+                if(taskbar) taskbar.classList.add('hidden');
+                
+                const qrContainer = document.getElementById('qr-code-container');
+                if(qrContainer) qrContainer.classList.remove('hidden');
                 
                 clearInterval(timerInterval);
+                globalTimer.textContent = "SALA D'ATTESA";
+                globalTimer.style.color = "white";
+                
                 renderPlayers(players, votes, maxPlayers);
-                updateTaskBar(players);
             } 
             else if (status === 'playing') {
                 if(overlayMeeting) overlayMeeting.classList.add('hidden');
-                const waitingScreen = document.getElementById('waiting-screen');
-                if (waitingScreen) waitingScreen.classList.add('hidden');
                 
                 const mainDashboard = document.getElementById('main-dashboard-layout');
                 if (mainDashboard) mainDashboard.classList.remove('hidden');
+                
+                const taskbar = document.getElementById('taskbar-container');
+                if(taskbar) taskbar.classList.remove('hidden');
+                
+                const qrContainer = document.getElementById('qr-code-container');
+                if(qrContainer) qrContainer.classList.add('hidden');
                 
                 if (previousStatus === 'waiting') {
                     const roleOverlay = document.getElementById('role-assignment-overlay');
