@@ -58,15 +58,7 @@
         <p style="margin-top: 2rem; font-size: 1.5rem;">Segui il maxischermo e attendi disposizioni.</p>
     </div>
 
-    <!-- Login Screen -->
-    <div id="login-screen" class="login-screen">
-        <h1 style="color: var(--accent-cyan); font-size: 1.5rem; margin-bottom: 2rem; text-align: center;">SELEZIONA GIOCATORE</h1>
-        <select id="player-select">
-            <option value="">-- Scegli nome --</option>
-            <!-- Populated by JS -->
-        </select>
-        <button id="btn-login" class="btn">CONFERMA</button>
-    </div>
+    <!-- Login screen removed. Handled by index.html -->
 
     <!-- Role Reveal Screen -->
     <div id="role-screen" class="role-screen hidden">
@@ -75,11 +67,20 @@
         <button id="btn-hide-role" class="btn">HO CAPITO (Nascondi)</button>
     </div>
 
+    <!-- Siren Audio for Emergencies -->
+    <audio id="siren-audio" src="public/assets/sirena.mp3" preload="auto"></audio>
+
+    <!-- Death Overlay -->
+    <div id="overlay-dead" class="overlay-screen hidden" style="background: rgba(255,0,0,0.8);">
+        <h1 class="alert-text" style="font-size: 4rem;">SEI MORTO</h1>
+        <p style="margin-top: 1rem; font-size: 1.5rem; text-align: center;">Attendi la fine della partita in silenzio.</p>
+    </div>
+
     <!-- Main Game App -->
     <div id="game-screen" class="mobile-app hidden">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-            <h2 id="player-name-display" style="color: var(--accent-cyan); font-size: 1.2rem;">Nome</h2>
-            <div id="status-badge" style="background: var(--accent-green); padding: 0.5rem; border-radius: 4px; font-weight: bold;">ALIVE</div>
+            <h2 id="player-name-display" style="color: var(--accent-cyan); font-size: clamp(1rem, 4vw, 1.2rem); cursor: pointer; padding: 0.5rem; border-radius: 4px; background: rgba(255,255,255,0.1); word-break: break-all; max-width: 70%;">Nome</h2>
+            <div id="status-badge" style="background: var(--accent-green); padding: 0.5rem clamp(0.5rem, 2vw, 1rem); border-radius: 4px; font-weight: bold; font-size: clamp(0.8rem, 3vw, 1rem);">ALIVE</div>
         </div>
 
         <div id="crewmate-ui" class="hidden">
@@ -89,35 +90,65 @@
             </ul>
         </div>
 
-        <div id="impostor-ui" class="hidden">
-            <h3 style="margin-bottom: 1rem; color: var(--accent-red);">Task Finte (Copertura)</h3>
-            <ul id="fake-task-list" class="task-list">
-                <!-- Fake Tasks populated by JS -->
-            </ul>
-
-            <div style="margin-top: 3rem; background: rgba(255,0,0,0.1); padding: 1rem; border-radius: 8px; border: 1px solid var(--accent-red);">
-                <h3 style="color: var(--accent-red); margin-bottom: 1rem;">Uccidi Giocatore</h3>
-                <select id="kill-target-select" style="width: 100%; max-width: 100%; margin-bottom: 1rem;">
-                    <!-- Populated by JS -->
-                </select>
-                <button id="btn-kill" class="btn btn-danger kill-btn">KILL (2:00)</button>
-            </div>
+        <!-- Hidden Kill Section for Impostors -->
+        <div id="kill-section" class="hidden" style="margin-top: 2rem; margin-bottom: 2rem; background: rgba(255,0,0,0.2); padding: clamp(1rem, 4vw, 1.5rem); border-radius: 8px; border: 1px solid var(--accent-red);">
+            <h3 style="color: var(--accent-red); margin-bottom: 1rem;">Menu Segreto (Impostore)</h3>
+            <select id="kill-target-select" style="width: 100%; max-width: 100%; margin-bottom: 1rem; background: #222; border: 1px solid var(--accent-red); color: white; padding: clamp(0.8rem, 3vw, 1rem); font-size: clamp(1rem, 4vw, 1.2rem);">
+                <!-- Populated by JS -->
+            </select>
+            <button id="btn-kill" class="btn btn-danger kill-btn">KILL</button>
         </div>
 
         <div id="scientist-ui" class="hidden" style="margin-top: 2rem; border-top: 2px solid var(--accent-cyan); padding-top: 1rem;">
             <h3 style="color: var(--accent-cyan); margin-bottom: 1rem;">Monitor Parametri Vitali</h3>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <p id="game-status-text" style="font-size: 0.9rem; font-weight: bold;"></p>
-                <button id="btn-emergency" class="btn btn-call-meeting" disabled style="padding: 0.5rem 1rem; font-size: 0.9rem;">CHIAMA RIUNIONE</button>
+                <p id="game-status-text" style="font-size: clamp(0.8rem, 3vw, 0.9rem); font-weight: bold;"></p>
             </div>
             <div id="vitals-container" class="vitals-grid">
                 <!-- Populated by JS -->
             </div>
         </div>
-        
-        <div id="waiting-screen" class="hidden" style="text-align: center; margin-top: 5rem;">
-            <h2>In attesa dell'inizio della partita...</h2>
+
+        <div style="margin-top: 2rem; text-align: center;">
+            <p id="meetings-left-text" style="color: #aaa; margin-bottom: 0.5rem; font-size: clamp(0.8rem, 3vw, 0.9rem);">Riunioni rimanenti: -</p>
+            <button id="btn-report" class="btn btn-call-meeting">SEGNALA / RIUNIONE</button>
         </div>
+        
+        <div id="waiting-screen" class="hidden" style="display: flex; flex-direction: column; gap: 1rem; padding-top: 2rem;">
+            <div style="background: var(--card-bg); border: 2px solid var(--accent-cyan); border-radius: 12px; padding: 1rem; text-align: center;">
+                <h2 style="color: var(--accent-cyan); margin-bottom: 0.5rem;">SALA D'ATTESA</h2>
+                <p id="waiting-connection-status" style="color: var(--accent-green); font-weight: bold;">✔ Connesso come <span id="waiting-player-name"></span></p>
+                <p id="waiting-room-code" style="margin-top: 0.5rem; font-family: var(--font-pixel); font-size: 1.2rem;"></p>
+            </div>
+
+            <div style="background: rgba(0,0,0,0.5); padding: 1rem; border-radius: 12px;">
+                <h3 style="margin-bottom: 1rem; color: #aaa;">Anteprima Missione</h3>
+                <div id="waiting-map-preview" style="text-align: center; color: var(--accent-cyan);">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <div style="background: var(--card-bg); padding: 1rem; border-radius: 12px; flex-grow: 1;">
+                <h3 style="margin-bottom: 1rem; color: #aaa;">Compagni Connessi (<span id="waiting-players-count">0</span>)</h3>
+                <div id="waiting-players-list" style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+            
+            <p style="text-align: center; color: #777; margin-top: 1rem; font-size: 0.9rem;">Il Master avvierà la partita a breve...</p>
+        </div>
+    </div>
+
+    <!-- Voting UI (Replaces main game UI during meetings) -->
+    <div id="voting-ui" class="mobile-app hidden" style="padding-top: 2rem;">
+        <h2 style="color: var(--accent-red); text-align: center; margin-bottom: 1rem;">VOTAZIONE</h2>
+        <p style="text-align: center; margin-bottom: 2rem;">Confrontati con gli altri e decidi chi espellere.</p>
+        
+        <div id="voting-options" style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem;">
+            <!-- Populated by JS -->
+        </div>
+
+        <div style="text-align: center;" id="voting-status"></div>
     </div>
 
     <!-- Script as module -->

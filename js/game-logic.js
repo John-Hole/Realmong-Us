@@ -1,13 +1,4 @@
-export const PLAYERS_LIST = [
-    "Paolo", "Sebastian", "Gioele", "Serena", "Chloe", 
-    "Margherita", "Ludovica", "Leonardo (Toniol)", "Christ", 
-    "Leonardo Caprai", "Diego", "Alessandro", "Cardoni", 
-    "Pio", "Nicolas", "Eleonora", "Luca"
-];
-
-export const IMPOSTORS_LIST = ["Ludovica", "Paolo", "Cardoni"];
-export const SCIENTIST_LIST = ["Diego"];
-
+// Liste giocatori rimosse (gestite dinamicamente dal Realtime Database)
 export const TASKS_LIST = [
     "1. Canestri: 3 canestri da tiro libero (canestro oratorio)",
     "2. Trova l'oggetto: trova 10 oggetti dentro la scatola piena di acqua sporca (panchine rosse)",
@@ -35,8 +26,9 @@ export const ROUND_TIMES = [
 ];
 
 // Utility function to get 8 random tasks
-export function getRandomTasks() {
-    const shuffled = [...TASKS_LIST].sort(() => 0.5 - Math.random());
+export function getRandomTasks(customList = null) {
+    const sourceList = customList && customList.length > 0 ? customList : TASKS_LIST;
+    const shuffled = [...sourceList].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, 8);
 }
 

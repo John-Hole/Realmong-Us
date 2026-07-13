@@ -1,6 +1,14 @@
 import { db } from './firebase-config.js';
-import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
-import { PLAYERS_LIST, formatTime } from './game-logic.js';
+import { ref, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+import { formatTime } from './game-logic.js';
+
+const urlParams = new URLSearchParams(window.location.search);
+const roomCode = urlParams.get('room');
+
+if (!roomCode) {
+    alert("Nessun codice stanza fornito.");
+    window.location.href = "index.html";
+}
 
 // Elements
 const video = document.getElementById('intro-video');
@@ -14,154 +22,276 @@ const taskProgressText = document.getElementById('task-progress-text');
 const playersListContainer = document.getElementById('players-list-container');
 const sirenAudio = document.getElementById('siren-audio');
 
+const mapImage = document.getElementById('map-image');
+const textMapContainer = document.getElementById('text-map-container');
+const textTasksBody = document.getElementById('text-tasks-body');
+
 let previousStatus = null;
 let timerInterval = null;
 let currentTimerEndTime = 0;
 
-// Initialize players list on the right
-function renderPlayers(playersData) {
+let currentMapMode = null;
+
+// Initialize players list on the right (and in the lobby)
+function renderPlayers(playersData, votesData, maxPlayers) {
     playersListContainer.innerHTML = '';
-    PLAYERS_LIST.forEach(playerName => {
-        const pData = playersData ? playersData[playerName] : null;
-        const isRevealedDead = pData && pData.status === 'killed_revealed';
-        
-        const div = document.createElement('div');
-        div.className = `player-row ${isRevealedDead ? 'dead' : ''}`;
-        div.innerHTML = `
-            <span>${playerName}</span>
-            ${isRevealedDead ? '<span style="margin-left:auto; color: red;">❌</span>' : ''}
-        `;
-        playersListContainer.appendChild(div);
-    });
+    const lobbyRoster = document.getElementById('lobby-roster');
+    if (lobbyRoster) lobbyRoster.innerHTML = '';
+    
+    let playerCount = 0;
+
+    if(playersData) {
+        for (const playerName in playersData) {
+            playerCount++;
+            const pData = playersData[playerName];
+            const isRevealedDead = pData.status === 'killed_revealed';
+            const hasVoted = votesData && votesData[playerName] !== undefined;
+            
+            // In-game sidebar
+            const div = document.createElement('div');
+            div.className = `player-row ${isRevealedDead ? 'dead' : ''}`;
+            
+            let statusHtml = '';
+            if (isRevealedDead) {
+                statusHtml = '<span style="margin-left:auto; color: red;">❌</span>';
+            } else if (previousStatus === 'meeting_in_progress') {
+                statusHtml = hasVoted ? '<span style="margin-left:auto; color: var(--accent-green); font-size: 0.8rem;">VOTATO</span>' : '<span style="margin-left:auto; color: var(--dead-gray); font-size: 0.8rem;">IN ATTESA</span>';
+            }
+
+            div.innerHTML = `
+                <span>${playerName}</span>
+                ${statusHtml}
+            `;
+            playersListContainer.appendChild(div);
+
+            // Lobby Roster
+            if (lobbyRoster) {
+                const badge = document.createElement('div');
+                badge.style.background = 'var(--card-bg)';
+                badge.style.padding = '1rem 2rem';
+                badge.style.borderRadius = '20px';
+                badge.style.fontSize = '1.2rem';
+                badge.style.fontWeight = 'bold';
+                badge.style.border = '2px solid var(--accent-cyan)';
+                badge.textContent = playerName;
+                lobbyRoster.appendChild(badge);
+            }
+        }
+    }
+    
+    const countDisplay = document.getElementById('lobby-players-count');
+    if (countDisplay) {
+        countDisplay.textContent = `Giocatori: ${playerCount} / ${maxPlayers === 'unlimited' ? '∞' : (maxPlayers || '?')}`;
+    }
 }
 
+// ... keeping existing updateTaskBar, renderMapConfig, updateTimerUI functions unchanged ...
 function updateTaskBar(playersData) {
     if (!playersData) return;
     let totalTasks = 0;
     let completedTasks = 0;
 
-    PLAYERS_LIST.forEach(name => {
+    for (const name in playersData) {
         const pData = playersData[name];
-        if (pData && pData.role !== 'impostor') { // Impostors don't contribute to the real task bar
-            totalTasks += 8;
-            completedTasks += pData.completed_tasks ? pData.completed_tasks.length : 0;
+        if (pData.role !== 'impostor' && pData.role !== 'scientist' && pData.tasks) { 
+            const tasksKeys = Object.keys(pData.tasks);
+            totalTasks += tasksKeys.length;
+            tasksKeys.forEach(key => {
+                if(pData.tasks[key].completed) completedTasks++;
+            });
         }
-    });
+    }
 
     const percentage = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
     taskProgressFill.style.height = `${percentage}%`;
     taskProgressText.textContent = `${Math.round(percentage)}%`;
 }
 
-function startTimer(timerValue) {
-    clearInterval(timerInterval);
-    currentTimerEndTime = timerValue; // timerValue is the timestamp when it ends
+async function renderMapConfig(config) {
+    if (config.mapMode === currentMapMode) return; // Only update if changed
+    currentMapMode = config.mapMode;
 
+    if (config.mapMode === 'text') {
+        mapImage.classList.add('hidden');
+        textMapContainer.classList.remove('hidden');
+        
+        textTasksBody.innerHTML = '';
+        if (config.tasks) {
+            config.tasks.forEach(t => {
+                const tr = document.createElement('tr');
+                tr.style.borderBottom = "1px solid #333";
+                tr.innerHTML = `
+                    <td style="padding: 0.5rem;">${t.num}</td>
+                    <td style="padding: 0.5rem; font-weight: bold; color: var(--accent-cyan);">${t.name}</td>
+                    <td style="padding: 0.5rem;">${t.obj}</td>
+                    <td style="padding: 0.5rem;">${t.pos}</td>
+                `;
+                textTasksBody.appendChild(tr);
+            });
+        }
+    } else {
+        mapImage.classList.remove('hidden');
+        textMapContainer.classList.add('hidden');
+        
+        // Fetch image separately
+        const imgSnapshot = await get(ref(db, `images/${roomCode}`));
+        if (imgSnapshot.exists()) {
+            mapImage.src = imgSnapshot.val();
+        } else {
+            mapImage.src = "public/assets/mappa.jpg";
+        }
+    }
+}
+
+function updateTimerUI(endTime, isPaused, remaining) {
+    clearInterval(timerInterval);
+    
+    if (isPaused) {
+        if (remaining <= 0) {
+            globalTimer.textContent = "00:00";
+            globalTimer.style.color = "red";
+        } else {
+            globalTimer.textContent = "PAUSA - " + formatTime(remaining);
+            globalTimer.style.color = "#ff9800";
+        }
+        return;
+    }
+
+    currentTimerEndTime = endTime;
     timerInterval = setInterval(() => {
         const now = Date.now();
-        const remaining = currentTimerEndTime - now;
+        const rem = currentTimerEndTime - now;
         
-        if (remaining <= 0) {
+        if (rem <= 0) {
             globalTimer.textContent = "00:00";
             globalTimer.style.color = "red";
             clearInterval(timerInterval);
         } else {
-            globalTimer.textContent = formatTime(remaining);
+            globalTimer.textContent = formatTime(rem);
             globalTimer.style.color = "white";
         }
     }, 1000);
 }
 
-// Intro Video Logic on first load
-// Note: Autoplay might be blocked by browsers if not muted. 
-// We handle this gracefully, and spacebar can be used to resume it.
-if(video) {
-    video.volume = 1.0;
-    video.classList.remove('hidden');
-    video.play().catch(e => console.log("Autoplay blocked. Use spacebar to play.", e));
-    video.onended = () => {
-        video.classList.add('hidden');
-    };
-
-    // Toggle play/pause with Spacebar
-    document.addEventListener('keydown', (e) => {
-        if (e.code === 'Space') {
-            e.preventDefault();
-            if (!video.classList.contains('hidden')) {
-                if (video.paused) {
-                    video.play();
-                } else {
-                    video.pause();
-                }
-            }
-        }
-    });
-}
+// Init QR Code
+let qrInitialized = false;
+document.getElementById('lobby-room-code').textContent = roomCode;
 
 // Initial render
-renderPlayers(null);
+renderPlayers(null, null, null);
 
-// Listen to Firestore
-const gameRef = doc(db, 'game', 'state');
-onSnapshot(gameRef, (docSnap) => {
-    if (docSnap.exists()) {
-        const data = docSnap.data();
-        const status = data.game_status;
-        const players = data.players || {};
-
-        // Handle State Transitions
-        if (status === 'waiting') {
-            overlayMeeting.classList.add('hidden');
-            overlayEjected.classList.add('hidden');
-            globalTimer.textContent = "IN ATTESA";
-            clearInterval(timerInterval);
-            renderPlayers(players);
-            updateTaskBar(players);
-        } 
-        else if (status === 'playing') {
-            overlayMeeting.classList.add('hidden');
-            
-            // Check if we just transitioned from meeting_called/in_progress to playing
-            if (previousStatus === 'meeting_in_progress' || previousStatus === 'meeting_called') {
-                // Show ejected screen temporarily
-                overlayEjected.classList.remove('hidden');
-                ejectedText.textContent = data.last_ejected ? `${data.last_ejected} è stato espulso` : "Nessuno è stato espulso";
-                setTimeout(() => {
-                    overlayEjected.classList.add('hidden');
-                }, 5000); // Hide after 5 seconds
-            }
-
-            renderPlayers(players);
-            updateTaskBar(players);
-            
-            // Start countdown
-            if(data.timer) {
-                startTimer(data.timer);
-            }
+const roomRef = ref(db, `rooms/${roomCode}`);
+onValue(roomRef, (snapshot) => {
+    if (snapshot.exists()) {
+        const data = snapshot.val();
+        
+        if (!qrInitialized && typeof QRCode !== 'undefined') {
+            qrInitialized = true;
+            const joinUrl = `${window.location.origin}${window.location.pathname.replace('teatro.html', 'index.html')}?room=${roomCode}`;
+            new QRCode(document.getElementById("qrcode"), {
+                text: joinUrl,
+                width: 128,
+                height: 128,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
         }
-        else if (status === 'meeting_called') {
-            overlayMeeting.classList.remove('hidden');
-            overlayText.textContent = "RIUNIONE CHIAMATA";
-            overlayText.classList.add('alert-text');
-            clearInterval(timerInterval);
-            
-            // Play siren if we just entered this state
-            if (previousStatus !== 'meeting_called' && sirenAudio) {
-                sirenAudio.volume = 1.0;
-                sirenAudio.play().catch(e => console.log("Siren autoplay blocked", e));
-            }
-        }
-        else if (status === 'meeting_in_progress') {
-            overlayMeeting.classList.add('hidden'); // map and players become visible again
-            globalTimer.textContent = "RIUNIONE IN CORSO";
-            globalTimer.style.color = "var(--accent-red)";
-            clearInterval(timerInterval);
-            renderPlayers(players); // Update players list in case some were found dead
+        
+        if(data.config) {
+            renderMapConfig(data.config);
         }
 
-        previousStatus = status;
+        if(data.state && data.players) {
+            const status = data.state.game_status;
+            const players = data.players;
+            const votes = data.votes || {};
+            const maxPlayers = data.config ? data.config.maxPlayers : null;
+
+            if (status === 'waiting') {
+                overlayMeeting.classList.add('hidden');
+                overlayEjected.classList.add('hidden');
+                if(video) video.classList.add('hidden');
+                
+                document.querySelector('.teatro-layout').classList.add('hidden');
+                document.querySelector('.teatro-header').classList.add('hidden');
+                document.getElementById('waiting-lobby').classList.remove('hidden');
+                
+                clearInterval(timerInterval);
+                renderPlayers(players, votes, maxPlayers);
+                updateTaskBar(players);
+            } 
+            else if (status === 'video_playing') {
+                overlayMeeting.classList.add('hidden');
+                overlayEjected.classList.add('hidden');
+                
+                document.getElementById('waiting-lobby').classList.add('hidden');
+                document.querySelector('.teatro-layout').classList.remove('hidden');
+                document.querySelector('.teatro-header').classList.remove('hidden');
+                
+                if(video && previousStatus !== 'video_playing') {
+                    video.classList.remove('hidden');
+                    video.volume = 1.0;
+                    video.currentTime = 0;
+                    video.play().catch(e => console.log("Autoplay blocked su teatro.", e));
+                }
+                
+                updateTimerUI(data.state.timer, data.state.timer_paused, data.state.timer_remaining);
+            }
+            else if (status === 'playing') {
+                overlayMeeting.classList.add('hidden');
+                if(video) video.classList.add('hidden');
+                
+                if (previousStatus === 'meeting_in_progress' || previousStatus === 'meeting_called') {
+                    overlayEjected.classList.remove('hidden');
+                    ejectedText.textContent = data.state.last_ejected && data.state.last_ejected !== 'SKIP' 
+                        ? `${data.state.last_ejected} è stato espulso` 
+                        : "Nessuno è stato espulso";
+                    setTimeout(() => {
+                        overlayEjected.classList.add('hidden');
+                    }, 5000);
+                }
+
+                renderPlayers(players, votes);
+                updateTaskBar(players);
+                
+                updateTimerUI(data.state.timer, data.state.timer_paused, data.state.timer_remaining);
+            }
+            else if (status === 'meeting_called') {
+                overlayMeeting.classList.remove('hidden');
+                overlayText.textContent = "RIUNIONE CHIAMATA";
+                overlayText.style.color = "var(--accent-red)";
+                if(video) video.classList.add('hidden');
+                clearInterval(timerInterval);
+                
+                if (previousStatus !== 'meeting_called' && sirenAudio) {
+                    sirenAudio.volume = 1.0;
+                    sirenAudio.play().catch(e => console.log("Siren autoplay blocked", e));
+                }
+            }
+            else if (status === 'meeting_in_progress') {
+                overlayMeeting.classList.add('hidden'); 
+                globalTimer.textContent = "VOTAZIONE";
+                globalTimer.style.color = "var(--accent-red)";
+                clearInterval(timerInterval);
+                renderPlayers(players, votes);
+            }
+            else if (status === 'impostors_win') {
+                overlayMeeting.classList.remove('hidden');
+                overlayText.textContent = "VITTORIA IMPOSTORI";
+                overlayText.style.color = "var(--accent-red)";
+                clearInterval(timerInterval);
+                globalTimer.textContent = "GAME OVER";
+            }
+            else if (status === 'crewmates_win') {
+                overlayMeeting.classList.remove('hidden');
+                overlayText.textContent = "VITTORIA CREWMATE";
+                overlayText.style.color = "var(--accent-cyan)";
+                clearInterval(timerInterval);
+                globalTimer.textContent = "GAME OVER";
+            }
+
+            previousStatus = status;
+        }
     }
-}, (error) => {
-    console.error("Firestore Listen Error:", error);
-    // In caso di problemi di autorizzazione/inesistenza
 });
