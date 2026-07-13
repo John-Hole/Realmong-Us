@@ -148,7 +148,7 @@ h1, h2, h3 {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100vw;
+    width: 100%;
     height: 100vh;
     background-color: rgba(0, 0, 0, 0.95);
     z-index: 9999;
@@ -219,6 +219,7 @@ h1, h2, h3 {
     top: 60px;
     left: 0;
     width: 250px;
+    max-width: 70vw;
     height: calc(100vh - 60px);
     background: var(--bg-color);
     border-right: 2px solid var(--accent-cyan);
@@ -235,7 +236,6 @@ h1, h2, h3 {
     transform: translateX(0);
 }
 .nav-close {
-    align-self: flex-end;
     background: none;
     border: none;
     color: var(--accent-red);
@@ -273,7 +273,7 @@ h1, h2, h3 {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100vw;
+    width: 100%;
     height: 100vh;
     object-fit: cover;
     z-index: 10000;

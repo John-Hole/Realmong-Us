@@ -20,8 +20,10 @@
             </div>
         </div>
         <div id="side-nav" class="side-nav">
-            <button id="nav-close" class="nav-close">✖</button>
-            <h2 style="font-size: 1.2rem; color: var(--accent-cyan); margin-bottom: 0;">Menu</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <h2 style="font-size: 1.2rem; color: var(--accent-cyan); margin: 0;">Menu</h2>
+                <button id="nav-close" class="nav-close">✖</button>
+            </div>
             <hr style="border-color: #333; margin-bottom: 1rem;">
             <a href="#" id="nav-home">Homepage</a>
             <a href="#" id="nav-teatro">Dashboard</a>

@@ -6,19 +6,43 @@
     <title>GREST Among Us - Dashboard Master</title>
     <link rel="stylesheet" href="css/global.css">
     <style>
+        body {
+            overflow-x: hidden;
+        }
         .master-container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 2rem;
-            background: var(--card-bg);
-            border-radius: 12px;
-            margin-top: 2rem;
-        }
-        .controls {
+            padding: 1rem;
+            width: 100%;
+            box-sizing: border-box;
             display: flex;
+            flex-direction: column;
             gap: 1rem;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
+        }
+        .dashboard-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            box-sizing: border-box;
+            width: 100%;
+        }
+        .dashboard-card h2 {
+            font-size: 1.2rem;
+            color: var(--accent-cyan);
+            margin-bottom: 1rem;
+            border-bottom: 2px solid rgba(0, 229, 255, 0.2);
+            padding-bottom: 0.5rem;
+        }
+        .controls-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        @media (max-width: 600px) {
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
         }
         .status-badge {
             display: inline-block;
@@ -26,80 +50,81 @@
             border-radius: 20px;
             background: var(--dead-gray);
             font-weight: bold;
-            margin-bottom: 1rem;
-        }
-        .voting-section {
-            background: rgba(0,0,0,0.3);
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin-top: 2rem;
+            margin-bottom: 0.5rem;
         }
         .danger-zone {
-            margin-top: 3rem;
             border-top: 2px solid var(--accent-red);
             padding-top: 1rem;
+            margin-top: 1rem;
         }
     </style>
 </head>
 <body>
     <div class="master-container">
-        <h1 style="margin-bottom: 1rem; color: var(--accent-cyan);">DASHBOARD MASTER</h1>
+        <h1 style="margin-bottom: 0.5rem; color: var(--accent-cyan); font-size: clamp(1.5rem, 5vw, 2.5rem); text-align: center;">DASHBOARD MASTER</h1>
         
-        <div>Stato Attuale: <span id="current-status" class="status-badge">Caricamento...</span></div>
-        <div>Round: <span id="current-round">1</span></div>
-        <div style="margin-top: 1rem;">
-            <button id="btn-projector" class="btn" style="background: var(--accent-cyan); color: black; font-size: 0.8rem; padding: 0.5rem 1rem;">VAI ALLA DASHBOARD</button>
+        <!-- Info Card -->
+        <div class="dashboard-card">
+            <h2>Informazioni Partita</h2>
+            <div style="margin-bottom: 0.5rem;">Stato Attuale: <span id="current-status" class="status-badge">Caricamento...</span></div>
+            <div>Round: <strong id="current-round" style="color: var(--accent-green); font-size: 1.2rem;">1</strong></div>
         </div>
 
-        <div class="controls" style="margin-top: 2rem;">
-            <button id="btn-start" class="btn hidden">Avvia Gioco (Ruoli Fissi)</button>
-            <button id="btn-start-random" class="btn" style="background-color: #3f51b5;">Nuova Partita Casuale</button>
-            <button id="btn-call-meeting" class="btn" style="background-color: #ff9800;">Chiama Riunione (Forzata)</button>
-            <button id="btn-start-meeting" class="btn" style="background-color: #9c27b0;">Inizia Discussione</button>
-        </div>
-
-        <!-- Timer Controls -->
-        <div id="timer-controls" class="hidden" style="margin-bottom: 2rem; background: rgba(0,255,255,0.1); padding: 1rem; border-radius: 8px; border: 1px solid var(--accent-cyan);">
-            <h2 style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--accent-cyan);">Gestione Timer</h2>
-            <div style="display: flex; gap: 1rem;">
-                <button id="btn-timer-pause" class="btn" style="flex:1;">Pausa / Riprendi</button>
-                <button id="btn-timer-add" class="btn" style="flex:1; background: #4caf50;">+ 30s</button>
-                <button id="btn-timer-sub" class="btn" style="flex:1; background: #f44336;">- 30s</button>
+        <!-- Actions Card -->
+        <div class="dashboard-card">
+            <h2>Azioni Rapide</h2>
+            <button id="btn-projector" class="btn" style="width: 100%; margin-bottom: 1rem; background: var(--accent-cyan); color: black;">VAI ALLA DASHBOARD (PROIETTORE)</button>
+            <div class="controls-grid">
+                <button id="btn-start" class="btn hidden">Avvia Gioco (Ruoli Fissi)</button>
+                <button id="btn-start-random" class="btn" style="background-color: #3f51b5;">Nuova Partita Casuale</button>
+                <button id="btn-call-meeting" class="btn" style="background-color: #ff9800;">Chiama Riunione</button>
+                <button id="btn-start-meeting" class="btn" style="background-color: #9c27b0;">Inizia Discussione</button>
+            </div>
+            
+            <div id="voting-section" class="hidden" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #444;">
+                <p style="margin-bottom: 1rem; font-size: 0.9rem; color: #ccc;">Termina anticipatamente la riunione forzando il calcolo sui voti parziali.</p>
+                <button id="btn-end-meeting" class="btn btn-danger" style="width: 100%;">Termina Votazione</button>
             </div>
         </div>
 
-        <div id="voting-section" class="voting-section hidden">
-            <h2 style="font-size: 1.2rem; margin-bottom: 1rem;">Risoluzione Riunione</h2>
-            <p style="margin-bottom: 1rem;">Il sistema calcolerà i voti in automatico quando tutti avranno votato. Oppure puoi terminare anticipatamente forzando il calcolo sui voti parziali.</p>
-            <button id="btn-end-meeting" class="btn">Termina Votazione e Forza Calcolo</button>
+        <!-- Timer Controls Card -->
+        <div id="timer-controls" class="dashboard-card hidden">
+            <h2>Gestione Timer</h2>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button id="btn-timer-pause" class="btn" style="flex:1; min-width: 120px;">Pausa / Riprendi</button>
+                <button id="btn-timer-add" class="btn" style="flex:1; background: #4caf50; min-width: 80px;">+ 30s</button>
+                <button id="btn-timer-sub" class="btn" style="flex:1; background: #f44336; min-width: 80px;">- 30s</button>
+            </div>
         </div>
 
-        <!-- Monitor & Logs -->
-        <div style="display: flex; gap: 2rem; margin-top: 2rem; flex-wrap: wrap;">
+        <!-- Monitor & Logs Wrapper -->
+        <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
             <!-- Monitor -->
-            <div style="flex: 1; min-width: 300px;">
-                <h2 style="font-size: 1.2rem; margin-bottom: 1rem; color: #ffeb3b;">Monitor Giocatori</h2>
-                <div id="monitor-container" style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <div class="dashboard-card" style="flex: 1; min-width: 300px;">
+                <h2 style="color: #ffeb3b;">Monitor Giocatori</h2>
+                <div id="monitor-container" style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 400px; overflow-y: auto;">
                     <!-- Populated by JS -->
                 </div>
             </div>
 
             <!-- Logs -->
-            <div style="flex: 1; min-width: 300px;">
-                <h2 style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--accent-cyan);">Log Eventi (Locale)</h2>
-                <div id="log-container" style="background: black; padding: 1rem; border-radius: 8px; max-height: 150px; height: auto; overflow-y: auto; font-family: monospace; font-size: 0.9rem; border: 1px solid #333;">
+            <div class="dashboard-card" style="flex: 1; min-width: 300px;">
+                <h2 style="color: var(--accent-cyan);">Log Eventi</h2>
+                <div id="log-container" style="background: black; padding: 1rem; border-radius: 8px; max-height: 150px; overflow-y: auto; font-family: monospace; font-size: 0.8rem; border: 1px solid #333; line-height: 1.4;">
                     <!-- Populated by JS -->
                 </div>
             </div>
         </div>
         
-        <div class="danger-zone">
-            <h2 style="font-size: 1rem; color: var(--accent-red); margin-bottom: 1rem;">Zona Pericolo (Reset)</h2>
-            <button id="btn-reset" class="btn btn-danger">Azzera Tutto (Torna in attesa)</button>
+        <!-- Danger Zone -->
+        <div class="dashboard-card danger-zone">
+            <h2 style="color: var(--accent-red); border-bottom-color: rgba(255, 75, 75, 0.2);">Zona Pericolo</h2>
+            <button id="btn-reset" class="btn btn-danger" style="width: 100%;">Azzera Tutto (Torna in attesa)</button>
         </div>
     </div>
 
     <!-- Script as module -->
     <script type="module" src="js/master.js"></script>
-<script src="js/nav.js"></script></body>
+    <script src="js/nav.js"></script>
+</body>
 </html>
