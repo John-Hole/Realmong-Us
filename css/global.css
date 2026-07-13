@@ -70,15 +70,15 @@ h1, h2, h3 {
 
 .hub-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+    gap: 1rem;
 }
 
 .hub-btn {
     background-color: var(--card-bg);
     border: none;
-    border-radius: 20px;
-    padding: clamp(1.5rem, 5vw, 2rem);
+    border-radius: 15px;
+    padding: clamp(1rem, 3vw, 1.2rem);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -86,25 +86,25 @@ h1, h2, h3 {
     color: white;
     transition: all 0.3s ease;
     cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
 }
 
 .hub-btn:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 229, 255, 0.4);
+    box-shadow: 0 6px 15px rgba(0, 229, 255, 0.4);
     background-color: #2a3644;
 }
 
 .btn-icon {
-    font-size: clamp(2.5rem, 8vw, 3rem);
-    margin-bottom: 1rem;
+    font-size: clamp(2rem, 6vw, 2.5rem);
+    margin-bottom: 0.5rem;
 }
 
 .btn-text {
     font-family: var(--font-ui);
     font-weight: 600;
-    font-size: clamp(0.9rem, 3vw, 1rem);
-    line-height: 1.4;
+    font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+    line-height: 1.2;
 }
 
 /* COMMON UTILS */
@@ -118,20 +118,20 @@ h1, h2, h3 {
     background-color: var(--accent-cyan);
     color: var(--bg-color);
     border: none;
-    padding: clamp(1rem, 4vw, 1.2rem) clamp(1.5rem, 6vw, 2rem);
-    font-size: clamp(0.9rem, 3.5vw, 1rem);
+    padding: 0.6rem 1rem;
+    font-size: clamp(0.8rem, 3vw, 0.9rem);
     border-radius: 50px;
     cursor: pointer;
     transition: 0.2s;
     text-transform: uppercase;
-    min-height: 48px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    min-height: 38px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
 
 .btn:hover {
     background-color: #33eaff;
     transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.4);
 }
 
 .btn-danger {
@@ -173,37 +173,63 @@ h1, h2, h3 {
     to { opacity: 0.5; text-shadow: none; }
 }
 
-/* HAMBURGER MENU */
-.hamburger-btn {
-    position: fixed;
-    top: 15px;
-    right: 15px;
-    font-size: 2rem;
-    color: var(--accent-cyan);
-    cursor: pointer;
-    z-index: 1000;
-    background: var(--card-bg);
-    border: 2px solid var(--accent-cyan);
-    border-radius: 8px;
-    padding: 5px 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.5);
-    user-select: none;
-}
-.side-nav {
+/* TOP NAVBAR & MENU */
+.top-navbar {
     position: fixed;
     top: 0;
-    right: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background: rgba(11, 12, 16, 0.95);
+    border-bottom: 2px solid var(--accent-cyan);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1rem;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    box-sizing: border-box;
+}
+
+.hamburger-btn {
+    font-size: 1.8rem;
+    color: var(--accent-cyan);
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0 10px;
+    user-select: none;
+}
+
+.navbar-title {
+    flex-grow: 1;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.navbar-right {
+    display: flex;
+    align-items: center;
+}
+
+.side-nav {
+    position: fixed;
+    top: 60px;
+    left: 0;
     width: 250px;
-    height: 100vh;
+    height: calc(100vh - 60px);
     background: var(--bg-color);
-    border-left: 2px solid var(--accent-cyan);
+    border-right: 2px solid var(--accent-cyan);
     z-index: 1001;
     padding: 2rem 1rem;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    transform: translateX(100%);
+    transform: translateX(-100%);
     transition: transform 0.3s ease;
+    box-sizing: border-box;
 }
 .side-nav.open {
     transform: translateX(0);
