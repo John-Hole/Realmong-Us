@@ -329,6 +329,5 @@ onValue(roomRef, (snapshot) => {
             previousStatus = status;
         }
     }
-    }
 });
 }
