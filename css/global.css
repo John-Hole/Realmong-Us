@@ -1222,36 +1222,39 @@ body.schermo-body, body.teatro-body {
     width: 25%;
 }
 
-/* TASK PROGRESS BAR (IN GAME - LEFT PANEL) */
+/* TASK PROGRESS BAR (IN GAME - LEFT PANEL VERTICAL GAUGE) */
 .taskbar-card {
     flex: 1;
     background: rgba(18, 24, 37, 0.9);
-    padding: 1.5rem 1.2rem;
+    padding: 1.2rem;
     display: flex;
     flex-direction: column;
     align-items: stretch;
+    overflow: hidden;
 }
 
 .taskbar-content {
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    gap: 1.8rem;
-    padding: 1rem 0;
+    gap: 1.2rem;
+    padding-top: 0.5rem;
+    height: 100%;
+    min-height: 0;
 }
 
 .taskbar-main-stat {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
     text-align: center;
+    flex-shrink: 0;
 }
 
 .taskbar-pct {
-    font-size: 3.8rem;
+    font-size: 3.5rem;
     font-weight: 800;
     color: #22c55e;
     text-shadow: 0 0 25px rgba(34, 197, 94, 0.5);
@@ -1260,30 +1263,52 @@ body.schermo-body, body.teatro-body {
 }
 
 .taskbar-subtext {
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 700;
     color: #94a3b8;
     letter-spacing: 0.5px;
 }
 
+/* Vertical gauge tube container - fills from bottom to top */
 .task-progress-wrap {
     width: 100%;
-    height: 26px;
-    background: rgba(255, 255, 255, 0.06);
-    border-radius: 13px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    flex: 1;
+    min-height: 180px;
+    background: rgba(10, 15, 26, 0.7);
+    border-radius: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.12);
     overflow: hidden;
     position: relative;
-    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6);
+    box-shadow: inset 0 4px 15px rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
 }
 
+/* Optional level indicator lines */
+.task-progress-wrap::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 100% 25%;
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* Fill rising vertically from bottom upwards */
 .task-progress-fill {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #10b981, #22c55e, #4ade80);
-    border-radius: 13px;
-    transition: width 0.5s ease-in-out;
-    box-shadow: 0 0 18px rgba(34, 197, 94, 0.7);
+    width: 100%;
+    height: 0%;
+    background: linear-gradient(0deg, #059669 0%, #10b981 50%, #4ade80 100%);
+    border-radius: 12px 12px 0 0;
+    transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 -4px 20px rgba(52, 211, 153, 0.6);
+    position: relative;
+    z-index: 1;
 }
 
 /* PLAYERS SIDEBAR CARD */

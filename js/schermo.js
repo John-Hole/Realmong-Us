@@ -257,7 +257,10 @@ function startConnection() {
         }
 
         const percentage = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
-        if (taskProgressFill) taskProgressFill.style.width = `${percentage}%`;
+        if (taskProgressFill) {
+            taskProgressFill.style.height = `${percentage}%`;
+            taskProgressFill.style.width = '100%';
+        }
         if (taskProgressText) taskProgressText.textContent = `${Math.round(percentage)}%`;
 
         const taskCountText = document.getElementById('task-count-text');

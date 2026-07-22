@@ -75,6 +75,11 @@ const presetButtonsGrid = document.getElementById('preset-buttons-grid');
 const inputPresetCustomVal = document.getElementById('input-preset-custom-val');
 const btnApplyPresetCustom = document.getElementById('btn-apply-preset-custom');
 
+const modalLogs = document.getElementById('modal-logs');
+const btnOpenLogModal = document.getElementById('btn-open-log-modal');
+const cardOpenLogModal = document.getElementById('card-open-log-modal');
+const btnCloseLogModal = document.getElementById('btn-close-log-modal');
+
 const heroRoomCodeBanner = document.getElementById('hero-room-code-banner');
 const heroRoomCodeEl = document.getElementById('hero-room-code');
 
@@ -183,6 +188,28 @@ if (btnApplyPresetCustom) {
             currentTargetInput.value = val;
             closePresetPicker();
         }
+    });
+}
+
+// --- Pop-up 4: Log Eventi di Gioco ---
+function openLogModal() {
+    if (modalLogs) modalLogs.classList.remove('hidden');
+}
+
+function closeLogModal() {
+    if (modalLogs) modalLogs.classList.add('hidden');
+}
+
+if (btnOpenLogModal) btnOpenLogModal.addEventListener('click', openLogModal);
+if (cardOpenLogModal) {
+    cardOpenLogModal.addEventListener('click', (e) => {
+        if (e.target.id !== 'btn-open-log-modal') openLogModal();
+    });
+}
+if (btnCloseLogModal) btnCloseLogModal.addEventListener('click', closeLogModal);
+if (modalLogs) {
+    modalLogs.addEventListener('click', (e) => {
+        if (e.target === modalLogs) closeLogModal();
     });
 }
 

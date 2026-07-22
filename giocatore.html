@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Realmong Us - App Giocatore</title>
-    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/global.css?v=2">
     <style>
         body {
             touch-action: manipulation;
@@ -55,6 +55,81 @@
             flex-direction: column;
             gap: 1rem;
             box-sizing: border-box;
+        }
+
+        /* FORCE MOBILE OPTIMIZED PLAYER TASK CARDS */
+        .giocatore-task-item {
+            background: rgba(255, 255, 255, 0.04) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border-radius: 14px !important;
+            padding: 1rem !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 0.8rem !important;
+            margin-bottom: 0.85rem !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
+            box-sizing: border-box !important;
+            width: 100% !important;
+            overflow: hidden !important;
+        }
+
+        .giocatore-task-header {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            width: 100% !important;
+        }
+
+        .giocatore-task-item .task-info {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 4px !important;
+            width: 100% !important;
+            min-width: 0 !important;
+        }
+
+        .giocatore-task-item .task-title {
+            font-weight: 700 !important;
+            font-size: 0.95rem !important;
+            color: #f8fafc !important;
+            line-height: 1.45 !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            text-align: left !important;
+        }
+
+        .giocatore-task-item .task-btn {
+            background: linear-gradient(135deg, #10b981, #059669) !important;
+            color: #ffffff !important;
+            border: none !important;
+            padding: 0.75rem 1rem !important;
+            min-height: 48px !important;
+            width: 100% !important;
+            border-radius: 12px !important;
+            font-weight: 800 !important;
+            font-size: 0.9rem !important;
+            letter-spacing: 0.5px !important;
+            cursor: pointer !important;
+            text-transform: uppercase !important;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35) !important;
+            transition: all 0.2s ease !important;
+            white-space: normal !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            box-sizing: border-box !important;
+        }
+
+        .giocatore-task-item .task-btn.btn-done, 
+        .giocatore-task-item .task-btn:disabled {
+            background: rgba(16, 185, 129, 0.12) !important;
+            color: #10b981 !important;
+            border: 1px solid rgba(16, 185, 129, 0.35) !important;
+            box-shadow: none !important;
+            cursor: default !important;
+            transform: none !important;
+            opacity: 0.9 !important;
         }
     </style>
 </head>
@@ -198,8 +273,8 @@
         </div>
     </div>
 
-    <!-- Script as module -->
-    <script type="module" src="js/giocatore.js"></script>
+    <!-- Script as module with cache buster -->
+    <script type="module" src="js/giocatore.js?v=2"></script>
     <script src="js/nav.js"></script>
 </body>
 </html>
