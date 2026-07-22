@@ -39,7 +39,11 @@
        y="523.25903"
        width="121.04862"
        height="64.828838"
-       id="rect242-9-2" /></defs><sodipodi:namedview
+       id="rect242-9-2" /><pattern id="exterior-stripes" patternUnits="userSpaceOnUse" width="4" height="4" patternTransform="rotate(45)">
+      <rect width="4" height="4" fill="currentColor" opacity="0"/>
+      <line x1="0" y1="0" x2="0" y2="4" stroke="#000000" stroke-width="0.8" stroke-opacity="0.25"/>
+    </pattern>
+</defs><sodipodi:namedview
      id="namedview6"
      pagecolor="#ffffff"
      bordercolor="#000000"
@@ -243,21 +247,60 @@
        style="stroke:#000000;stroke-width:0.7;stroke-dasharray:none;stroke-opacity:1" /><path
        id="Strada Fuori Oratorio"
        d="M 30.402,132.55 10.477,142.559 -50.233,9.949 h 25.631 c 0,0 55.004,122.6 55.004,122.6 z"
-       fill="#4ade80"
-       style="fill:#4ade80;fill-opacity:0.9;fill-rule:nonzero;stroke:#000000;stroke-width:0.7;stroke-dasharray:none;stroke-opacity:1" /><path
+       fill="#94a3b8"
+       style="fill:#94a3b8;fill-opacity:0.7;fill-rule:nonzero;stroke:#000000;stroke-width:0.7;stroke-dasharray:none;stroke-opacity:1" /><path
        id="Strada Dietro Oratorio"
        d="m -10.66,41.141 199.04,-0.06476 0.0274,-31.129 h -213.01 z"
-       fill="#38bdf8"
-       style="fill:#38bdf8;fill-opacity:0.9;stroke:#000000;stroke-width:0.7;stroke-dasharray:none;stroke-opacity:1" /><path
+       fill="#94a3b8"
+       style="fill:#94a3b8;fill-opacity:0.7;stroke:#000000;stroke-width:0.7;stroke-dasharray:none;stroke-opacity:1" /><path
        id="Retro Cucina"
        d="m 188.41,9.9477 -0.03,31.12854 12.7876,-0.10395 -0.0935,27.502 7.0267,0.18709 13.273,23.079 16.416,-9.7021 -5e-5,-72.029 z"
-       fill="#fb923c"
+       fill="#a1a1aa"
        sodipodi:nodetypes="ccccccccc"
-       style="fill:#fb923c;fill-opacity:0.9;stroke:#000000;stroke-width:0.7;stroke-dasharray:none;stroke-opacity:1" /><path
+       style="fill:#a1a1aa;fill-opacity:0.7;stroke:#000000;stroke-width:0.7;stroke-dasharray:none;stroke-opacity:1" /><path
        id="Rampa strada Oratorio"
        d="m 10.477,142.56 33.208,71.374 22.918,-10.945 -20.767,-47.427 5.7997,-5.1449 2.4566,-0.0936 -0.0034,-17.779 -23.688,0.006 z"
-       fill="#f97316"
-       style="fill:#f97316;fill-opacity:0.9;stroke:#000000;stroke-width:0.7;stroke-dasharray:none;stroke-opacity:1" /></g><g
+       fill="#a1a1aa"
+       style="fill:#a1a1aa;fill-opacity:0.7;stroke:#000000;stroke-width:0.7;stroke-dasharray:none;stroke-opacity:1" /></g><g id="layer-building-border" inkscape:label="Bordo Edificio" style="display:inline" transform="translate(50.778168,-9.59724)">
+    <path d="m -10.66,41.141 71.249,-0.02318 v 59.165 h -6.5059 l 0.0063,32.263 -23.688,0.006 z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 60.589,66.858 28.086,0.02272 0.01964,-25.753 -28.106,-0.0092 z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 60.589,66.858 v 8.0852 h 34.396 l -0.03768,-8.0824 z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 60.589,74.943 h 34.396 l 0.06638,14.238 -6.3583,11.013 -28.104,0.0889 z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 88.684,41.104 h 28.293 V 66.84 l -28.301,0.04083 z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 124.2,58.927 v 7.9056 l 17.911,-0.01707 -0.005,-7.8913 z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 124.2,58.927 v 7.9056 l -7.2229,0.007 V 58.927 Z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 151.07,58.927 v 7.8804 l -8.9581,0.0085 -0.005,-7.8913 z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 124.2,58.927 9.0625,-0.0014 0.005,-17.804 h -9.0836 z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 124.2,53.706 v 5.221 h -7.2216 v -5.221 z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 124.2,48.876 v 4.8306 h -7.2216 v -4.8498 z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 116.98,41.104 7.2216,0.01302 v 7.7583 L 116.98,48.85613 Z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 133.26,58.926 8.8448,-0.0013 -0.0123,-17.809 h -8.8303 z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 151.07,52.749 v 6.1779 l -8.9631,-0.0024 -0.0113,-6.1755 z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 151.07,47.872 -6.8e-4,4.8773 h -8.9744 v -4.8814 z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 142.09,41.116 8.976,-0.0022 v 6.758 h -8.9697 z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 94.947,66.861 0.10406,22.32 12.073,6.6149 31.721,18.016 8.44,-14.702 3.7826,-0.0012 v -32.302 z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 151.07,41.114 37.315,-0.03707 -0.18545,49.316 -37.13,-0.0051 z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 188.38,41.077 12.785,-0.10441 -0.0935,27.502 7.0267,0.18709 13.273,23.079 -19.034,11.25 -2.116,-3.8375 -12.058,-0.044 z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 95.052,89.181 -6.3583,11.013 -34.61,0.0889 0.0097,50.043 19.152,-3.9289 10.383,-14.874 1.8709,1.2161 21.625,-36.943 z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 107.12,95.771 -6.1628,10.529 12.484,7.3704 6.2735,-10.725 z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 153.81,106.21 -14.122,24.721 67.402,0.5325 -14.038,-25.091 0.0151,-7.2465 -4.89949,-0.02177 0.0328,-8.7158 -29.155,-0.004 -0.0378,8.7325 -5.1974,-0.01211 z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 129.06,130.85 10.621,0.0845 14.122,-24.721 v -7.1053 l -6.522,0.0012 z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 193.0671,99.126 7.1592,0.02693 17.997,32.402 -11.133,-0.0874 -14.038,-25.091 z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 129.06,130.85 -8.2163,14.34 25.174,45.547 h 53.507 l 26.005,-46.024 -7.3153,-13.158 z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 164.36819,190.737 0.008,5.2481 1.6135,1.621 13.262,0.0331 2.3482,-2.4474 0.001,-4.4548 z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 170.904,220.574 -30.538,17.818 12.435,22.225 30.824,-18.256 z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 184.5462,222.73472 3.14626,5.57287 1.81074,-0.90124 13.692,3.638 14.18123,-8.60035 -13.44718,-23.12667 -19.38705,11.08892 z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="M 203.92925,199.31733 226.47921,186.4183 239.193,209.12669 217.37643,222.444 Z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 178.4,233.49 -18.389,-31.75 -14.87831,8.49745 -11.87672,-20.57872 9.00777,-5.71372 3.75396,6.79199 h 18.35049 l 0.008,5.2481 1.6135,1.621 13.262,0.0331 2.3482,-2.4474 0.001,-4.4548 17.94951,0.0144 22.147,-39.27 4.4117,2.6481 -13.211,23.185 12.192,6.706 1.3891,2.3978 c 0,0 -41.93701,23.98795 -41.928,23.986 l -0.005,12.33042 3.14626,5.57287 z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 128.9035,159.77249 -24.3215,14.21651 35.827,64.358 30.495,-17.773 -10.893,-18.834 -14.87831,8.49745 -11.87672,-20.57872 9.00777,-5.71372 z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 225.07,184 -12.161,-6.6884 4.9111,-8.7932 12.301,6.8755 z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 230.1211,175.3939 -12.3321,-6.9029 4.116,-7.0626 12.231,6.9924 z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 234.11,168.44 -12.208,-7.0158 4.2095,-7.3199 12.091,7.0626 z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 119.72,102.94 -18.025,30.816 19.155,11.43 17.997,-31.378 z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 202.34,102.99 23.196,41.723 8.6295,-5.2385 -2.4322,-4.5135 10.5,-6.1272 -14.032,-24.859 22.193,-13.143 -12.605,-8.7932 z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+    <path d="m 151.07,90.388 v 8.7215 l 7.9368,0.0121 0.0379,-8.7325 z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="pointer-events:none;" />
+</g>
+<g
      inkscape:groupmode="layer"
      id="layer1"
      inkscape:label="Etichette"
