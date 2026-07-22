@@ -1604,3 +1604,63 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="password"]:foc
         min-height: 52px;
     }
 }
+
+/* PLAYER HEADER CARD & STATUS BADGE STYLING */
+.header-player-card {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    padding: 0.75rem 1rem !important;
+}
+
+.header-player-status {
+    padding: 0.4rem 0.85rem !important;
+    border-radius: 50px !important;
+    font-weight: 800 !important;
+    font-size: 0.8rem !important;
+    letter-spacing: 0.5px !important;
+    white-space: nowrap !important;
+    text-transform: uppercase !important;
+    flex-shrink: 0 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+.status-badge-alive {
+    background: rgba(0, 230, 118, 0.15) !important;
+    color: #00e676 !important;
+    border: 1px solid rgba(0, 230, 118, 0.4) !important;
+}
+
+.status-badge-dead {
+    background: rgba(239, 68, 68, 0.15) !important;
+    color: #ef4444 !important;
+    border: 1px solid rgba(239, 68, 68, 0.4) !important;
+}
+
+.btn-call-meeting-nav {
+    background: linear-gradient(135deg, #ef4444, #b91c1c) !important;
+    color: white !important;
+    border-radius: 50px !important;
+    font-weight: 800 !important;
+    font-size: 0.75rem !important;
+    padding: 0.4rem 0.85rem !important;
+    border: none !important;
+    cursor: pointer !important;
+    white-space: nowrap !important;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4) !important;
+    text-transform: uppercase !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.btn-call-meeting-nav:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.5) !important;
+}
+
+.btn-call-meeting-nav:disabled {
+    opacity: 0.4 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    box-shadow: none !important;
+}

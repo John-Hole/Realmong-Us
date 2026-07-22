@@ -96,11 +96,12 @@ onValue(roomRef, (snapshot) => {
             );
 
             if (isKicked) {
-                statusBadge.textContent = "SEI STATO ESPULSO";
+                statusBadge.textContent = "🚫 ESPULSO";
+                statusBadge.className = "header-player-status status-badge-dead";
             } else {
-                statusBadge.textContent = "NON NELLA STANZA";
+                statusBadge.textContent = "❌ FUORI";
+                statusBadge.className = "header-player-status status-badge-dead";
             }
-            statusBadge.style.background = "var(--accent-red)";
 
             // Hide all game UIs
             crewmateUI.classList.add('hidden');
@@ -186,9 +187,13 @@ function updateUI(state, playersMap) {
         gameScreen.classList.remove('hidden');
     }
 
-    statusBadge.textContent = myData.status.toUpperCase();
-    if (myData.status === 'alive') statusBadge.style.background = 'var(--accent-green)';
-    else statusBadge.style.background = 'var(--accent-red)';
+    if (myData.status === 'alive') {
+        statusBadge.textContent = "🟢 VIVO";
+        statusBadge.className = "header-player-status status-badge-alive";
+    } else {
+        statusBadge.textContent = "💀 MORTO";
+        statusBadge.className = "header-player-status status-badge-dead";
+    }
 
     if (state.game_status === 'waiting') {
         crewmateUI.classList.add('hidden');
@@ -213,11 +218,15 @@ function updateUI(state, playersMap) {
         const maxMeetings = roomConfig.maxMeetings || 1;
         const meetingsCalled = myData.meetings_called || 0;
         const meetingsLeft = maxMeetings - meetingsCalled;
-        meetingsLeftText.textContent = `Riunioni rimanenti: ${meetingsLeft}`;
+        meetingsLeftText.textContent = `(${meetingsLeft}/${maxMeetings})`;
 
         if (meetingsLeft > 0 && myData.status === 'alive') {
             btnReport.disabled = false;
-            btnReport.textContent = "SEGNALA / RIUNIONE";
+            btnReport.textContent = "🚨 RIUNIONE";
+        } else {
+            btnReport.disabled = true;
+            btnReport.textContent = myData.status !== 'alive' ? "❌ MORTO" : "🚫 ESAURITE";
+        }
         } else {
             btnReport.disabled = true;
             btnReport.textContent = myData.status !== 'alive' ? "SEI MORTO" : "ESURITE";
