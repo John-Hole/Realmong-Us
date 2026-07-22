@@ -233,24 +233,22 @@ h1, h2, h3 {
 .navbar-title {
     position: absolute;
     left: 50%;
-    transform: translateX(-50%);
+    top: 50%;
+    transform: translate(-50%, -50%);
     text-align: center;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-family: var(--font-ui) !important;
-    font-weight: 900 !important;
-    font-size: 1.15rem !important;
-    letter-spacing: 2px !important;
+    font-family: var(--font-pixel) !important;
+    font-size: clamp(0.75rem, 3.5vw, 1.15rem) !important;
     color: #ffffff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+    text-shadow: 2px 2px var(--accent-red), -2px -2px var(--accent-blue) !important;
     text-transform: uppercase;
-    max-width: 55vw;
-    text-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
-}
-
-.navbar-logo-highlight {
-    color: #38bdf8;
-    text-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+    max-width: calc(100vw - 130px);
+    z-index: 10;
 }
 
 .navbar-right {
