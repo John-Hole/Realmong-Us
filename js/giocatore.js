@@ -240,10 +240,6 @@ function updateUI(state, playersMap) {
             btnReport.disabled = true;
             btnReport.textContent = myData.status !== 'alive' ? "❌ MORTO" : "🚫 ESAURITE";
         }
-        } else {
-            btnReport.disabled = true;
-            btnReport.textContent = myData.status !== 'alive' ? "SEI MORTO" : "ESURITE";
-        }
 
         if (!hasSeenRoleThisRound) {
             hasSeenRoleThisRound = true;
