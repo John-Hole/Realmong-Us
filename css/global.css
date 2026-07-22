@@ -221,12 +221,15 @@ h1, h2, h3 {
 }
 
 .navbar-title {
-    flex-grow: 1;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
     text-align: center;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     font-size: clamp(0.8rem, 3.5vw, 1.2rem) !important;
+    max-width: 50vw;
 }
 
 .navbar-right {
@@ -283,6 +286,31 @@ h1, h2, h3 {
     justify-content: center;
     margin-top: 1rem;
 }
+
+.btn-schermo {
+    background: rgba(41, 121, 255, 0.15);
+    border: 2px solid var(--accent-blue);
+    color: white;
+    font-size: 1.1rem;
+    padding: 0.9rem;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    width: 100%;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.btn-schermo:hover {
+    background: rgba(41, 121, 255, 0.3);
+    border-color: var(--accent-cyan);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 229, 255, 0.3);
+}
+
 @media (max-width: 600px) {
     .home-buttons, .auth-buttons {
         flex-direction: column;

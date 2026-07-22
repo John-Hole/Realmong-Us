@@ -16,6 +16,7 @@ const btnLogout = document.getElementById('nav-btn-logout');
 const btnShowAuth = document.getElementById('btn-show-auth');
 const btnGoCreate = document.getElementById('btn-go-create');
 const btnGoJoin = document.getElementById('btn-go-join');
+const btnGoSchermo = document.getElementById('btn-go-schermo');
 const btnPromptLogin = document.getElementById('btn-prompt-login');
 const btnPromptGuest = document.getElementById('btn-prompt-guest');
 const btnAuthBack = document.getElementById('btn-auth-back');
@@ -125,6 +126,9 @@ btnGoJoin.addEventListener('click', () => {
     const savedName = localStorage.getItem('lastNickname');
     if (savedName) joinName.value = savedName;
     showSection('join');
+});
+btnGoSchermo?.addEventListener('click', () => {
+    window.location.href = 'schermo.html';
 });
 btnAuthBack.addEventListener('click', () => showSection('home'));
 btnTplBack.addEventListener('click', () => showSection('home'));
