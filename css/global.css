@@ -237,6 +237,46 @@ h1, h2, h3 {
     align-items: center;
 }
 
+.btn-nav-auth {
+    background: #3f51b5;
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    border-radius: 50px;
+    line-height: 1.15;
+    text-align: center;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+
+.auth-text-mobile {
+    display: none;
+}
+
+.auth-text-desktop {
+    display: inline;
+}
+
+@media (max-width: 600px) {
+    .auth-text-desktop {
+        display: none;
+    }
+    .auth-text-mobile {
+        display: inline-block;
+        font-size: 0.65rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+    .btn-nav-auth {
+        padding: 0.3rem 0.6rem;
+        border-radius: 10px;
+    }
+    .navbar-title {
+        max-width: 40vw;
+        font-size: clamp(0.75rem, 3.2vw, 1rem) !important;
+    }
+}
+
 .side-nav {
     position: fixed;
     top: 0;
