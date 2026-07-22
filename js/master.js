@@ -26,7 +26,13 @@ const btnEndMeeting = document.getElementById('btn-end-meeting');
 const btnReset = document.getElementById('btn-reset');
 const votingSection = document.getElementById('voting-section');
 
-// Timer Modal & Controls Elements
+// Modals & Cards Elements
+const modalConfigTempi = document.getElementById('modal-config-tempi');
+const btnCloseConfigTempi = document.getElementById('btn-close-config-tempi');
+const btnOpenConfigTempiCard = document.getElementById('btn-open-config-tempi-card');
+const btnOpenConfigTempiFromModal = document.getElementById('btn-open-config-tempi-from-modal');
+const presetTimeConfigCard = document.getElementById('preset-time-config-card');
+
 const modalTimer = document.getElementById('modal-timer');
 const btnOpenTimerModal = document.getElementById('btn-open-timer-modal');
 const btnOpenTimerModalCard = document.getElementById('btn-open-timer-modal-card');
@@ -38,8 +44,6 @@ const masterModalClockEl = document.getElementById('master-modal-clock');
 
 const modalLiveTimerSection = document.getElementById('modal-live-timer-section');
 const modalVotingTimerSection = document.getElementById('modal-voting-timer-section');
-const liveTimerActions = document.getElementById('live-timer-actions');
-const votingTimerActions = document.getElementById('voting-timer-actions');
 
 const btnTimerPause = document.getElementById('btn-timer-pause');
 const btnTimerAdd = document.getElementById('btn-timer-add');
@@ -68,12 +72,43 @@ const presetButtonsGrid = document.getElementById('preset-buttons-grid');
 const inputPresetCustomVal = document.getElementById('input-preset-custom-val');
 const btnApplyPresetCustom = document.getElementById('btn-apply-preset-custom');
 
+const heroRoomCodeBanner = document.getElementById('hero-room-code-banner');
+const heroRoomCodeEl = document.getElementById('hero-room-code');
+
+if (heroRoomCodeEl && roomCode) {
+    heroRoomCodeEl.textContent = roomCode;
+}
+
 let currentTargetInput = null;
 
 const monitorContainer = document.getElementById('monitor-container');
 const logContainer = document.getElementById('log-container');
 const btnProjector = document.getElementById('btn-projector');
 
+// --- Pop-up 1: Configurazione Tempi Predefiniti ---
+function openConfigTempiModal() {
+    if (modalConfigTempi) modalConfigTempi.classList.remove('hidden');
+}
+
+function closeConfigTempiModal() {
+    if (modalConfigTempi) modalConfigTempi.classList.add('hidden');
+}
+
+if (btnOpenConfigTempiCard) btnOpenConfigTempiCard.addEventListener('click', openConfigTempiModal);
+if (btnOpenConfigTempiFromModal) {
+    btnOpenConfigTempiFromModal.addEventListener('click', () => {
+        closeTimerModal();
+        openConfigTempiModal();
+    });
+}
+if (btnCloseConfigTempi) btnCloseConfigTempi.addEventListener('click', closeConfigTempiModal);
+if (modalConfigTempi) {
+    modalConfigTempi.addEventListener('click', (e) => {
+        if (e.target === modalConfigTempi) closeConfigTempiModal();
+    });
+}
+
+// --- Pop-up 2: Gestione Tempo In Corso ---
 function openTimerModal() {
     if (modalTimer) modalTimer.classList.remove('hidden');
 }
@@ -93,6 +128,7 @@ if (modalTimer) {
     });
 }
 
+// --- Pop-up 3: Imposta un Tempo Esatto (Preset Picker) ---
 function openPresetPicker(targetInput, titleText, optionsArray, isSeconds = false) {
     currentTargetInput = targetInput;
     if (presetPickerTitle) presetPickerTitle.textContent = titleText;
@@ -146,32 +182,32 @@ if (btnApplyPresetCustom) {
     });
 }
 
-// Click Listeners for Preset Inputs
+// Click Listeners for Preset Inputs inside Pop-up 1
 const roundPresets = [3, 5, 7, 10, 12, 15];
 const votingPresets = [30, 45, 60, 90, 120, 180];
 
 if (cfgRound1) {
     const parentBox = cfgRound1.closest('.preset-input-box') || cfgRound1;
     parentBox.addEventListener('click', () => {
-        openPresetPicker(cfgRound1, "⏱️ TEMPO ROUND 1", roundPresets, false);
+        openPresetPicker(cfgRound1, "🎯 TEMPO ROUND 1", roundPresets, false);
     });
 }
 if (cfgRound2) {
     const parentBox = cfgRound2.closest('.preset-input-box') || cfgRound2;
     parentBox.addEventListener('click', () => {
-        openPresetPicker(cfgRound2, "⏱️ TEMPO ROUND 2", roundPresets, false);
+        openPresetPicker(cfgRound2, "🎯 TEMPO ROUND 2", roundPresets, false);
     });
 }
 if (cfgRound3) {
     const parentBox = cfgRound3.closest('.preset-input-box') || cfgRound3;
     parentBox.addEventListener('click', () => {
-        openPresetPicker(cfgRound3, "⏱️ TEMPO ROUND 3+", roundPresets, false);
+        openPresetPicker(cfgRound3, "🎯 TEMPO ROUND 3+", roundPresets, false);
     });
 }
 if (cfgVoting) {
     const parentBox = cfgVoting.closest('.preset-input-box') || cfgVoting;
     parentBox.addEventListener('click', () => {
-        openPresetPicker(cfgVoting, "🗳️ DURATA VOTAZIONE", votingPresets, true);
+        openPresetPicker(cfgVoting, "🎯 DURATA VOTAZIONE", votingPresets, true);
     });
 }
 
@@ -481,6 +517,34 @@ function updateUI(state, players) {
         statusBadge.style.color = statusColor;
     }
 
+    if (heroRoomCodeEl && roomCode) {
+        heroRoomCodeEl.textContent = roomCode;
+    }
+
+    if (heroRoomCodeBanner) {
+        if (state.game_status === 'waiting') {
+            heroRoomCodeBanner.classList.remove('hidden');
+        } else {
+            heroRoomCodeBanner.classList.add('hidden');
+        }
+    }
+
+    if (presetTimeConfigCard) {
+        if (state.game_status === 'waiting') {
+            presetTimeConfigCard.classList.remove('hidden');
+        } else {
+            presetTimeConfigCard.classList.add('hidden');
+        }
+    }
+
+    if (timerControls) {
+        if (state.game_status === 'waiting') {
+            timerControls.classList.add('hidden');
+        } else {
+            timerControls.classList.remove('hidden');
+        }
+    }
+
     // Reset buttons state
     btnStartRandom.disabled = false;
     btnCallMeeting.disabled = true;
@@ -492,8 +556,6 @@ function updateUI(state, players) {
     if (btnStartVoting) {
         btnStartVoting.textContent = `Inizio Votazioni (${roomConfig.meetingDuration || 60}s)`;
     }
-
-    if (timerControls) timerControls.classList.remove('hidden');
 
     if (modalLiveTimerSection) {
         if (state.game_status === 'playing') modalLiveTimerSection.classList.remove('hidden');
@@ -732,7 +794,8 @@ if (btnSaveTimeCfg) {
         });
 
         addLog(`⏱️ Tempi aggiornati dal Master: R1=${r1}m, R2=${r2}m, R3+=${r3}m, Votazione=${votingSec}s.`);
-        alert("Impostazioni tempi salvate!");
+        alert("✅ Impostazioni tempi salvate con successo!");
+        closeConfigTempiModal();
     });
 }
 

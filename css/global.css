@@ -238,8 +238,19 @@ h1, h2, h3 {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: clamp(0.8rem, 3.5vw, 1.2rem) !important;
-    max-width: 50vw;
+    font-family: var(--font-ui) !important;
+    font-weight: 900 !important;
+    font-size: 1.15rem !important;
+    letter-spacing: 2px !important;
+    color: #ffffff !important;
+    text-transform: uppercase;
+    max-width: 55vw;
+    text-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+}
+
+.navbar-logo-highlight {
+    color: #38bdf8;
+    text-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
 }
 
 .navbar-right {
@@ -403,45 +414,59 @@ h1, h2, h3 {
     width: 100%;
 }
 
-.task-item {
-    background: var(--card-bg);
-    padding: clamp(1rem, 4vw, 1.2rem);
-    border-radius: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-left: 5px solid var(--accent-cyan);
-    font-size: clamp(0.9rem, 3.5vw, 1rem);
-    line-height: 1.4;
-    gap: 1rem;
+/* GIOCATORI TASK ITEM STYLING (MATCHING SCHERMATA GENERALE) */
+.task-item, .giocatore-task-item {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.07) !important;
+    border-radius: 12px !important;
+    padding: 0.85rem 1rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 0.8rem !important;
+    margin-bottom: 0.75rem;
+    transition: background 0.2s ease, border-color 0.2s ease;
 }
 
-.task-item span {
-    flex: 1;
-    word-break: break-word;
+.task-item:hover, .giocatore-task-item:hover {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border-color: rgba(255, 255, 255, 0.14) !important;
 }
 
-.task-item.completed {
-    border-left-color: var(--accent-green);
-    opacity: 0.7;
+.task-item.completed, .giocatore-task-item.completed {
+    opacity: 0.55 !important;
+    background: rgba(255, 255, 255, 0.015) !important;
 }
 
 .task-btn {
-    background: var(--accent-green);
-    color: white;
-    border: none;
-    padding: 0.8rem clamp(0.8rem, 3vw, 1.2rem);
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-    font-family: var(--font-ui);
-    font-size: clamp(0.8rem, 3vw, 0.9rem);
-    min-height: 44px; /* Touch target */
-    white-space: nowrap;
+    background: linear-gradient(135deg, #10b981, #059669) !important;
+    color: #ffffff !important;
+    border: none !important;
+    padding: 0.55rem 1.1rem !important;
+    border-radius: 50px !important;
+    font-weight: 800 !important;
+    font-size: 0.8rem !important;
+    letter-spacing: 0.5px !important;
+    cursor: pointer !important;
+    text-transform: uppercase !important;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
+    transition: all 0.2s ease !important;
+    white-space: nowrap !important;
+    flex-shrink: 0;
 }
 
-.task-btn:disabled {
-    background: var(--dead-gray);
+.task-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4) !important;
+}
+
+.task-btn.btn-done, .task-btn:disabled {
+    background: rgba(0, 230, 118, 0.12) !important;
+    color: #00e676 !important;
+    border: 1px solid rgba(0, 230, 118, 0.3) !important;
+    box-shadow: none !important;
+    cursor: default !important;
+    transform: none !important;
 }
 
 .kill-btn {

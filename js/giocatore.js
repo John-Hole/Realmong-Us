@@ -337,16 +337,20 @@ function renderRealTasks(tasksObj) {
     taskList.innerHTML = '';
     if(!tasksObj) return;
     
+    let idx = 1;
     for(const taskId in tasksObj) {
         const taskData = tasksObj[taskId];
         const isDone = taskData.completed;
         const li = document.createElement('li');
-        li.className = `task-item ${isDone ? 'completed' : ''}`;
+        li.className = `giocatore-task-item ${isDone ? 'completed' : ''}`;
         
         li.innerHTML = `
-            <span>${taskData.desc}</span>
-            <button class="task-btn" ${isDone || myData.status !== 'alive' ? 'disabled' : ''} id="task-btn-${taskId}">
-                ${isDone ? 'Fatto' : 'Spunta'}
+            <span class="task-num">#${idx}</span>
+            <div class="task-info">
+                <div class="task-title">${taskData.desc}</div>
+            </div>
+            <button class="task-btn ${isDone ? 'btn-done' : ''}" ${isDone || myData.status !== 'alive' ? 'disabled' : ''} id="task-btn-${taskId}">
+                ${isDone ? '✔ FATTO' : 'SPUNTA'}
             </button>
         `;
         
@@ -354,11 +358,13 @@ function renderRealTasks(tasksObj) {
             const btn = li.querySelector(`#task-btn-${taskId}`);
             btn.onclick = async (e) => {
                 e.target.disabled = true;
-                e.target.textContent = 'Fatto';
+                e.target.classList.add('btn-done');
+                e.target.textContent = '✔ FATTO';
                 await completeTask(taskId);
             };
         }
         taskList.appendChild(li);
+        idx++;
     }
 }
 
@@ -366,21 +372,27 @@ function renderImpostorTasks(tasksObj) {
     taskList.innerHTML = '';
     if(!tasksObj) return;
     
+    let idx = 1;
     for(const taskId in tasksObj) {
         const taskData = tasksObj[taskId];
         const li = document.createElement('li');
-        li.className = `task-item`;
+        li.className = `giocatore-task-item`;
         li.innerHTML = `
-            <span>${taskData.desc}</span>
-            <button class="task-btn" id="fake-task-btn-${taskId}">Spunta</button>
+            <span class="task-num">#${idx}</span>
+            <div class="task-info">
+                <div class="task-title">${taskData.desc}</div>
+            </div>
+            <button class="task-btn" id="fake-task-btn-${taskId}">SPUNTA</button>
         `;
         const btn = li.querySelector(`#fake-task-btn-${taskId}`);
         btn.onclick = (e) => {
             li.classList.add('completed');
             btn.disabled = true;
-            btn.textContent = 'Fatto';
+            btn.classList.add('btn-done');
+            btn.textContent = '✔ FATTO';
         };
         taskList.appendChild(li);
+        idx++;
     }
 }
 
