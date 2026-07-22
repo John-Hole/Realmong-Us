@@ -17,7 +17,6 @@ const btnHideRole = document.getElementById('btn-hide-role');
 
 const gameScreen = document.getElementById('game-screen');
 const playerNameDisplay = document.getElementById('player-name-display');
-const statusBadge = document.getElementById('status-badge');
 const crewmateUI = document.getElementById('crewmate-ui');
 const waitingScreen = document.getElementById('waiting-screen');
 const overlayMeeting = document.getElementById('overlay-meeting');
@@ -107,11 +106,11 @@ onValue(roomRef, (snapshot) => {
             );
 
             if (isKicked) {
-                statusBadge.textContent = "🚫 ESPULSO";
-                statusBadge.className = "header-player-status status-badge-dead";
+                if (playerStatusIcon) playerStatusIcon.textContent = "🚫";
+                if (playerNameDisplay) playerNameDisplay.textContent = "ESPULSO";
             } else {
-                statusBadge.textContent = "❌ FUORI";
-                statusBadge.className = "header-player-status status-badge-dead";
+                if (playerStatusIcon) playerStatusIcon.textContent = "❌";
+                if (playerNameDisplay) playerNameDisplay.textContent = "FUORI";
             }
 
             // Hide all game UIs

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realmong Us - Anteprima Mappa Oratorio</title>
+    <link rel="stylesheet" href="css/global.css">
+    <!-- QR Code Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        /* Custom Styles for Map Inspector & Interactive SVG */
+        .map-toolbar {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 100;
+            display: flex;
+            gap: 6px;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 6px 12px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        .map-tool-btn {
+            background: #1e293b;
+            color: #e2e8f0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .map-tool-btn:hover {
+            background: var(--accent-cyan, #00f2fe);
+            color: #000;
+            transform: scale(1.1);
+        }
+
+        .map-tool-btn.active {
+            background: var(--accent-cyan, #00f2fe);
+            color: #000;
+            box-shadow: 0 0 10px var(--accent-cyan, #00f2fe);
+        }
+
+        .svg-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: auto;
+            position: relative;
+            cursor: grab;
+            transition: transform 0.1s ease-out;
+        }
+
+        .svg-container:active {
+            cursor: grabbing;
+        }
+
+        .svg-container svg {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            filter: drop-shadow(0 0 15px rgba(0,0,0,0.7));
+            transition: transform 0.2s ease;
+        }
+
+        /* SVG Interactive Path Hovering */
+        .svg-container svg path[id] {
+            cursor: pointer;
+            transition: fill-opacity 0.2s ease, stroke 0.2s ease, stroke-width 0.2s ease, filter 0.2s ease;
+        }
+
+        .svg-container svg path[id]:hover {
+            fill-opacity: 0.85 !important;
+            stroke: #00f2fe !important;
+            stroke-width: 1.5px !important;
+            filter: drop-shadow(0 0 8px #00f2fe);
+        }
+
+        .svg-container svg path.selected-room {
+            fill-opacity: 0.9 !important;
+            stroke: #ffe600 !important;
+            stroke-width: 2px !important;
+            filter: drop-shadow(0 0 12px #ffe600) !important;
+        }
+
+        /* Hover Tooltip */
+        .room-tooltip {
+            position: fixed;
+            pointer-events: none;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid var(--accent-cyan, #00f2fe);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            font-family: var(--font-ui, sans-serif);
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+            display: none;
+            transform: translate(-50%, -120%);
+        }
+
+        /* Room Inspector Panel */
+        .room-inspector-bar {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 90;
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 242, 254, 0.4);
+            border-radius: 12px;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #fff;
+            font-size: 0.85rem;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+            max-width: 90%;
+        }
+
+        .room-badge-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            border: 1px solid #fff;
+            display: inline-block;
+        }
+
+        /* Animated Task Ping on SVG */
+        @keyframes taskPing {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.6); opacity: 0.4; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .task-marker-ping {
+            animation: taskPing 1.8s infinite ease-in-out;
+        }
+
+        .edit-notes-box {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 8px;
+            margin-top: 8px;
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body class="schermo-body">
+    
+    <!-- Hover Tooltip -->
+    <div id="room-tooltip" class="room-tooltip">Stanza</div>
+
+    <!-- Main Dashboard Interface (Schermo Grid) -->
+    <div class="schermo-lobby-container" id="main-dashboard-layout">
+        
+        <!-- LEFT COLUMN: QR Code & Task List -->
+        <div class="schermo-left-col">
+            <!-- QR Code Section -->
+            <div id="qr-code-container" class="schermo-card qr-card">
+                <div class="qr-info-header">UNISCITI ALLA STANZA (DEMO)</div>
+                <div id="qrcode" class="qrcode-wrapper"></div>
+                <div class="qr-room-badge">
+                    <span class="qr-label">STANZA:</span>
+                    <span id="waiting-room-code" class="qr-code-text">ORATORIO</span>
+                </div>
+            </div>
+
+            <!-- Task List Box (Left) -->
+            <div id="left-tasks-container" class="schermo-card left-tasks-card">
+                <div class="schermo-card-header">
+                    <span class="header-icon">📋</span>
+                    <h2>TASK IN GIOCO (MAPPA)</h2>
+                </div>
+                <div id="left-tasks-scroll" class="auto-scroll-box">
+                    <ul id="left-tasks-list" class="schermo-tasks-ul">
+                        <!-- Populated by JS -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- CENTER COLUMN: Room Code & Interactive SVG Map -->
+        <div class="schermo-center-col">
+            <!-- Room Code / Timer Header -->
+            <div class="schermo-card center-header-card">
+                <div id="global-timer" class="game-timer">08:45</div>
+                <div class="room-code-display">
+                    <span class="code-title">ANTEPRIMA MAPPA ORATORIO</span>
+                    <span id="header-room-code" class="code-val">ORATORIO-2026</span>
+                </div>
+            </div>
+
+            <!-- Center Main Area: SVG Map View -->
+            <div class="schermo-card center-main-card" style="position: relative;">
+                
+                <!-- Map Controls Toolbar -->
+                <div class="map-toolbar">
+                    <button class="map-tool-btn" id="btn-zoom-in" title="Ingrandisci (+)">➕</button>
+                    <button class="map-tool-btn" id="btn-zoom-out" title="Riduci (-)">➖</button>
+                    <button class="map-tool-btn" id="btn-zoom-reset" title="Ripristina vista">🔄</button>
+                    <button class="map-tool-btn" id="btn-toggle-labels" title="Mostra/Nascondi Etichette">🏷️</button>
+                    <button class="map-tool-btn" id="btn-toggle-tasks" title="Simula Marker Task">📍</button>
+                </div>
+
+                <!-- Map View Wrapper -->
+                <div id="map-view-wrapper" class="map-view-wrapper">
+                    <div id="svg-map-container" class="svg-container">
+                        <!-- SVG map injected dynamically here -->
+                        <div style="color: #64748b; font-family: var(--font-ui);">Caricamento MappaOratotorio.svg...</div>
+                    </div>
+                </div>
+
+                <!-- Floating Room Inspector Bar -->
+                <div id="room-inspector-bar" class="room-inspector-bar">
+                    <span class="room-badge-color" id="inspect-color" style="background: #df3300;"></span>
+                    <div>
+                        <strong id="inspect-name" style="color: var(--accent-cyan);">Passa sopra una stanza</strong>
+                        <span id="inspect-details" style="opacity: 0.8; font-size: 0.75rem; margin-left: 8px;">(Clicca per selezionare)</span>
+                    </div>
+                    <button id="btn-copy-room" class="btn btn-sm" style="padding: 3px 8px; font-size: 0.7rem; background: #334155; margin-left: auto;">📋 Copia Nome</button>
+                </div>
+
+            </div>
+
+            <!-- Footer: Task Progress Bar (Shown during game) -->
+            <div id="taskbar-container" class="schermo-card taskbar-card">
+                <div class="taskbar-info">
+                    <span class="taskbar-title">PROGRESSO TASK GLOBALI</span>
+                    <span id="task-progress-text" class="taskbar-pct">58%</span>
+                </div>
+                <div class="task-progress-wrap">
+                    <div id="task-progress-fill" class="task-progress-fill" style="width: 58%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN: Players List -->
+        <div class="schermo-right-col">
+            <div class="schermo-card players-card">
+                <div class="schermo-card-header">
+                    <span class="header-icon">👥</span>
+                    <h2>GIOCATORI <span id="waiting-players-count" class="players-limit-badge">8/10</span></h2>
+                </div>
+                <div id="players-scroll-container" class="auto-scroll-box">
+                    <div id="players-list-container" class="players-grid-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+                
+                <!-- Quick Feedback Instructions Note -->
+                <div class="edit-notes-box">
+                    <strong style="color: var(--accent-green);">💡 Come usarlo:</strong><br>
+                    1. Esplora le stanze passando il mouse sopra l'SVG.<br>
+                    2. Clicca su qualsiasi stanza per evidenziarla.<br>
+                    3. Dimmi le modifiche da fare (es: cambiare colori, spostare etichette, aggiungere/ridimensionare stanze).
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Page script -->
+    <script type="module" src="js/mappa_oratorio.js"></script>
+    <script src="js/nav.js"></script>
+</body>
+</html>
