@@ -14,7 +14,7 @@
     const navHTML = `
         <div class="top-navbar ${isSchermo ? 'autohide' : ''}">
             <div id="hamburger-btn" class="hamburger-btn">☰</div>
-            <div class="navbar-title glitch-text" style="font-size: 1.2rem; margin: 0; text-shadow: 1px 1px var(--accent-red), -1px -1px var(--accent-blue);">REALMONG US</div>
+            <div class="navbar-title glitch-text">REALMONG US</div>
             <div class="navbar-right">
                 ${rightSideHTML}
             </div>
