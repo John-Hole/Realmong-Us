@@ -34,6 +34,11 @@ const btnReport = document.getElementById('btn-report');
 const gameStatusText = document.getElementById('game-status-text');
 const meetingsLeftText = document.getElementById('meetings-left-text');
 
+const playerNameBox = document.getElementById('player-name-box');
+const playerStatusIcon = document.getElementById('player-status-icon');
+const ghostBanner = document.getElementById('ghost-banner');
+const btnHideDead = document.getElementById('btn-hide-dead');
+
 const taskList = document.getElementById('task-list');
 
 const votingUI = document.getElementById('voting-ui');
@@ -63,6 +68,12 @@ let previousStatus = null;
 btnHideRole.addEventListener('click', () => {
     roleScreen.classList.add('hidden');
 });
+
+if (btnHideDead) {
+    btnHideDead.addEventListener('click', () => {
+        overlayDead.classList.add('hidden');
+    });
+}
 
 // Setup onDisconnect to remove ghost players and their votes
 const myPlayerRef = ref(db, `rooms/${roomCode}/players/${myPlayerName}`);
@@ -188,11 +199,13 @@ function updateUI(state, playersMap) {
     }
 
     if (myData.status === 'alive') {
-        statusBadge.textContent = "🟢 VIVO";
-        statusBadge.className = "header-player-status status-badge-alive";
+        if (playerNameBox) playerNameBox.className = "header-name-status-box name-box-alive";
+        if (playerStatusIcon) playerStatusIcon.textContent = "🟢";
+        if (ghostBanner) ghostBanner.classList.add('hidden');
     } else {
-        statusBadge.textContent = "💀 MORTO";
-        statusBadge.className = "header-player-status status-badge-dead";
+        if (playerNameBox) playerNameBox.className = "header-name-status-box name-box-dead";
+        if (playerStatusIcon) playerStatusIcon.textContent = "💀";
+        if (ghostBanner) ghostBanner.classList.remove('hidden');
     }
 
     if (state.game_status === 'waiting') {
@@ -333,7 +346,7 @@ async function castVote(voteTarget) {
 }
 
 async function completeTask(taskId) {
-    if (myData.status !== 'alive') return;
+    if (!myData) return;
     const taskData = myData.tasks[taskId];
     if (!taskData || taskData.completed) return;
 
@@ -358,12 +371,12 @@ function renderRealTasks(tasksObj) {
             <div class="task-info">
                 <div class="task-title">${taskData.desc}</div>
             </div>
-            <button class="task-btn ${isDone ? 'btn-done' : ''}" ${isDone || myData.status !== 'alive' ? 'disabled' : ''} id="task-btn-${taskId}">
+            <button class="task-btn ${isDone ? 'btn-done' : ''}" ${isDone ? 'disabled' : ''} id="task-btn-${taskId}">
                 ${isDone ? '✔ FATTO' : 'SPUNTA'}
             </button>
         `;
         
-        if (!isDone && myData.status === 'alive') {
+        if (!isDone) {
             const btn = li.querySelector(`#task-btn-${taskId}`);
             btn.onclick = async (e) => {
                 e.target.disabled = true;
