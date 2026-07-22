@@ -175,14 +175,14 @@
        style="fill:#f87171;fill-opacity:0.9;stroke:#000000;stroke-width:0.7;stroke-dasharray:none;stroke-opacity:1" /><path
        id="Rampa Palco SX"
        d="m 129.06,130.85 10.621,0.0845 14.122,-24.721 v -7.1053 l -6.522,0.0012 z"
-       fill="#fbbf24"
-       style="fill:#fbbf24;fill-opacity:0.9;stroke:#000000;stroke-width:0.7;stroke-dasharray:none;stroke-opacity:1"
+       fill="#000000"
+       style="fill:#000000;fill-opacity:1.0;stroke:#000000;stroke-width:0.7;stroke-dasharray:none;stroke-opacity:1"
        sodipodi:nodetypes="cccccc" /><path
        id="Rampa Palco DX"
        d="m 193.0671,99.126 7.1592,0.02693 17.997,32.402 -11.133,-0.0874 -14.038,-25.091 z"
-       fill="#fbbf24"
+       fill="#000000"
        sodipodi:nodetypes="cccccc"
-       style="fill:#fbbf24;fill-opacity:0.9;stroke:#000000;stroke-width:0.7;stroke-dasharray:none;stroke-opacity:1" /><path
+       style="fill:#000000;fill-opacity:1.0;stroke:#000000;stroke-width:0.7;stroke-dasharray:none;stroke-opacity:1" /><path
        id="Teatro"
        d="m 129.06,130.85 -8.2163,14.34 25.174,45.547 h 53.507 l 26.005,-46.024 -7.3153,-13.158 z"
        fill="#4ade80"
@@ -191,9 +191,9 @@
        inkscape:label="Teatro" /><path
        id="Regia"
        d="m 164.36819,190.737 0.008,5.2481 1.6135,1.621 13.262,0.0331 2.3482,-2.4474 0.001,-4.4548 z"
-       fill="#818cf8"
+       fill="#38bdf8"
        sodipodi:nodetypes="ccccccc"
-       style="fill:#818cf8;fill-opacity:0.9;stroke:#000000;stroke-width:0.7;stroke-dasharray:none;stroke-opacity:1" /><path
+       style="fill:#38bdf8;fill-opacity:0.9;stroke:#000000;stroke-width:0.7;stroke-dasharray:none;stroke-opacity:1" /><path
        id="Sala Gialla"
        d="m 170.904,220.574 -30.538,17.818 12.435,22.225 30.824,-18.256 z"
        fill="#facc15"
@@ -257,29 +257,26 @@
        d="m 10.477,142.56 33.208,71.374 22.918,-10.945 -20.767,-47.427 5.7997,-5.1449 2.4566,-0.0936 -0.0034,-17.779 -23.688,0.006 z"
        fill="#f97316"
        style="fill:#f97316;fill-opacity:0.9;stroke:#000000;stroke-width:0.7;stroke-dasharray:none;stroke-opacity:1" /></g><g inkscape:groupmode="layer" id="layer1" inkscape:label="Etichette" style="display:inline">
-  <text x="75.74" y="77.24" transform="rotate(-67.0, 75.74, 77.24)" font-family="Arial, sans-serif" font-size="6.5px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">SALONE</text>
-  <text x="125.42" y="44.40" font-family="Arial, sans-serif" font-size="4.0px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">MUSICA</text>
-  <text x="128.57" y="61.30" font-family="Arial, sans-serif" font-size="2.2px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">CORRIDOIO</text>
-  <text x="128.60" y="78.02" font-family="Arial, sans-serif" font-size="3.2px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">SALA ANIMATORI</text>
-  <text x="153.60" y="44.40" font-family="Arial, sans-serif" font-size="3.2px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">SALA MATERIALI</text>
-  <text x="183.93" y="53.28" font-family="Arial, sans-serif" font-size="2.5px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">BAGNI M/F</text>
-  <text x="173.79" y="80.71" font-family="Arial, sans-serif" font-size="5.5px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">ATRIO</text>
-  <text x="220.51" y="56.14" font-family="Arial, sans-serif" font-size="5.5px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">MENSA</text>
-  <text x="255.55" y="62.38" transform="rotate(-60.0, 255.55, 62.38)" font-family="Arial, sans-serif" font-size="5.0px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">CUCINA</text>
-  <text x="131.38" y="110.16" font-family="Arial, sans-serif" font-size="5.0px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">CANESTRO</text>
-  <text x="224.17" y="101.33" font-family="Arial, sans-serif" font-size="5.5px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">PALCO</text>
-  <text x="223.96" y="151.20" font-family="Arial, sans-serif" font-size="8.0px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">TEATRO</text>
-  <text x="223.76" y="184.59" font-family="Arial, sans-serif" font-size="2.8px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">REGIA</text>
-  <text x="212.77" y="231.00" transform="rotate(-30.0, 212.77, 231.00)" font-family="Arial, sans-serif" font-size="4.0px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">SALA GIALLA</text>
-  <text x="251.74" y="205.58" transform="rotate(30.0, 251.74, 205.58)" font-family="Arial, sans-serif" font-size="3.8px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">SALA VERDE</text>
-  <text x="232.22" y="182.89" font-family="Arial, sans-serif" font-size="3.2px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">INGRESSO SOTTO CHIESA</text>
-  <text x="188.52" y="189.46" transform="rotate(-60.0, 188.52, 189.46)" font-family="Arial, sans-serif" font-size="3.8px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">SALA CHIUSA</text>
-  <text x="272.34" y="194.83" transform="rotate(30.0, 272.34, 194.83)" font-family="Arial, sans-serif" font-size="3.8px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">SALA VIOLA</text>
-  <text x="276.00" y="159.00" transform="rotate(60.0, 276.00, 159.00)" font-family="Arial, sans-serif" font-size="2.8px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">WC</text>
-  <text x="171.05" y="114.47" transform="rotate(-60.0, 171.05, 114.47)" font-family="Arial, sans-serif" font-size="4.0px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">CALDAIA</text>
-  <text x="277.15" y="103.78" transform="rotate(60.0, 277.15, 103.78)" font-family="Arial, sans-serif" font-size="3.0px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">COLLEGAMENTO SUORE</text>
-  <text x="30.86" y="75.66" transform="rotate(-67.0, 30.86, 75.66)" font-family="Arial, sans-serif" font-size="5.0px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">STRADA ESTERNA</text>
-  <text x="132.68" y="15.95" font-family="Arial, sans-serif" font-size="5.0px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">STRADA RETRO</text>
-  <text x="263.86" y="41.25" font-family="Arial, sans-serif" font-size="3.5px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">RETRO CUCINA</text>
-  <text x="89.32" y="163.64" transform="rotate(-67.0, 89.32, 163.64)" font-family="Arial, sans-serif" font-size="3.8px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">RAMPA ORATORIO</text>
+  <text x="75.00" y="77.00" font-family="Arial, sans-serif" font-size="6.5px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">SALONE</text>
+  <text x="125.40" y="44.40" font-family="Arial, sans-serif" font-size="3.8px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">MUSICA</text>
+  <text x="128.50" y="61.30" font-family="Arial, sans-serif" font-size="2.0px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">CORRIDOIO</text>
+  <text x="128.60" y="78.00" font-family="Arial, sans-serif" font-size="3.0px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">SALA ANIMATORI</text>
+  <text x="153.60" y="44.40" font-family="Arial, sans-serif" font-size="3.0px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">SALA MATERIALI</text>
+  <text x="183.90" y="53.20" font-family="Arial, sans-serif" font-size="2.2px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">BAGNI</text>
+  <text x="173.80" y="80.70" font-family="Arial, sans-serif" font-size="5.5px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">ATRIO</text>
+  <text x="220.50" y="56.10" font-family="Arial, sans-serif" font-size="5.5px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">MENSA</text>
+  <text x="255.50" y="62.30" font-family="Arial, sans-serif" font-size="5.0px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">CUCINA</text>
+  <text x="131.30" y="110.10" font-family="Arial, sans-serif" font-size="5.0px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">CANESTRO</text>
+  <text x="224.10" y="101.30" font-family="Arial, sans-serif" font-size="5.5px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">PALCO</text>
+  <text x="223.90" y="151.20" font-family="Arial, sans-serif" font-size="8.0px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">TEATRO</text>
+  <text x="172.00" y="193.00" font-family="Arial, sans-serif" font-size="2.0px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">REGIA</text>
+  <text x="242.00" y="185.00" font-family="Arial, sans-serif" font-size="3.2px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">INGRESSO SOTTO CHIESA</text>
+  <text x="212.70" y="231.00" transform="rotate(-30.0, 212.70, 231.00)" font-family="Arial, sans-serif" font-size="4.0px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">SALA GIALLA</text>
+  <text x="251.70" y="205.50" transform="rotate(30.0, 251.70, 205.50)" font-family="Arial, sans-serif" font-size="3.8px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">SALA VERDE</text>
+  <text x="272.30" y="194.80" transform="rotate(30.0, 272.30, 194.80)" font-family="Arial, sans-serif" font-size="3.8px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">SALA VIOLA</text>
+  <text x="276.00" y="159.00" transform="rotate(45.0, 276.00, 159.00)" font-family="Arial, sans-serif" font-size="2.8px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">WC</text>
+  <text x="38.00" y="75.00" transform="rotate(-65.0, 38.00, 75.00)" font-family="Arial, sans-serif" font-size="5.0px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">STRADA ESTERNA</text>
+  <text x="132.60" y="15.90" font-family="Arial, sans-serif" font-size="5.0px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">STRADA RETRO</text>
+  <text x="263.80" y="41.20" font-family="Arial, sans-serif" font-size="3.5px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">RETRO CUCINA</text>
+  <text x="89.30" y="163.60" transform="rotate(-65.0, 89.30, 163.60)" font-family="Arial, sans-serif" font-size="3.8px" font-weight="bold" fill="#000000" stroke="none" text-anchor="middle" dominant-baseline="central" style="pointer-events:none;">RAMPA ORATORIO</text>
 </g></svg>

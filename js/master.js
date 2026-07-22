@@ -216,8 +216,12 @@ if (cfgVoting) {
 }
 
 if (btnProjector) {
-    btnProjector.addEventListener('click', () => {
-        window.open(`schermo.html?room=${roomCode}`, '_blank');
+    btnProjector.href = `schermo.html?room=${roomCode}`;
+    btnProjector.addEventListener('click', (e) => {
+        if (!btnProjector.href) {
+            e.preventDefault();
+            window.open(`schermo.html?room=${roomCode}`, '_blank');
+        }
     });
 }
 
