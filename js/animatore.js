@@ -103,8 +103,23 @@ onValue(roomRef, (snapshot) => {
             overlayMeeting.classList.add('hidden');
             overlayDead.classList.add('hidden');
 
-            // Show Not-In-Room UI
-            if (notInRoomScreen) notInRoomScreen.classList.remove('hidden');
+            // Show Not-In-Room UI & check game status
+            if (notInRoomScreen) {
+                notInRoomScreen.classList.remove('hidden');
+                if (btnRejoinRoom) {
+                    if (currentState && currentState.game_status !== 'waiting') {
+                        btnRejoinRoom.disabled = true;
+                        btnRejoinRoom.textContent = "PARTITA GIÀ AVVIATA";
+                        btnRejoinRoom.style.background = "#555";
+                        btnRejoinRoom.style.color = "#aaa";
+                    } else {
+                        btnRejoinRoom.disabled = false;
+                        btnRejoinRoom.textContent = "RIENTRA / ENTRA IN STANZA";
+                        btnRejoinRoom.style.background = "var(--accent-green)";
+                        btnRejoinRoom.style.color = "black";
+                    }
+                }
+            }
         }
         
         previousStatus = currentState.game_status;
@@ -491,6 +506,11 @@ async function rejoinRoom() {
         }
 
         const roomData = snapshot.val();
+        if (roomData.state && roomData.state.game_status !== 'waiting') {
+            alert("Impossibile rientrare: la partita è già in corso. Puoi rientrare solo se la partita non è ancora iniziata.");
+            return;
+        }
+
         const playersMap = roomData.players || {};
 
         // Duplicate name check across active players
