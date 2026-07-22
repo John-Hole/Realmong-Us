@@ -15,6 +15,7 @@ if (!roomCode) {
 const statusBadge = document.getElementById('current-status');
 const currentRoundEl = document.getElementById('current-round');
 const currentTimerEl = document.getElementById('current-timer');
+const currentTimerPill = document.getElementById('current-timer-pill');
 const btnStart = document.getElementById('btn-start');
 const btnStartRandom = document.getElementById('btn-start-random');
 const btnCallMeeting = document.getElementById('btn-call-meeting');
@@ -25,9 +26,18 @@ const btnEndMeeting = document.getElementById('btn-end-meeting');
 const btnReset = document.getElementById('btn-reset');
 const votingSection = document.getElementById('voting-section');
 
-// Timer Controls Elements
+// Timer Modal & Controls Elements
+const modalTimer = document.getElementById('modal-timer');
+const btnOpenTimerModal = document.getElementById('btn-open-timer-modal');
+const btnOpenTimerModalCard = document.getElementById('btn-open-timer-modal-card');
+const btnCloseTimerModal = document.getElementById('btn-close-timer-modal');
+
 const timerControls = document.getElementById('timer-controls');
 const masterLiveClockEl = document.getElementById('master-live-clock');
+const masterModalClockEl = document.getElementById('master-modal-clock');
+
+const modalLiveTimerSection = document.getElementById('modal-live-timer-section');
+const modalVotingTimerSection = document.getElementById('modal-voting-timer-section');
 const liveTimerActions = document.getElementById('live-timer-actions');
 const votingTimerActions = document.getElementById('voting-timer-actions');
 
@@ -49,9 +59,121 @@ const cfgRound3 = document.getElementById('cfg-round3');
 const cfgVoting = document.getElementById('cfg-voting');
 const btnSaveTimeCfg = document.getElementById('btn-save-time-cfg');
 
+// Preset Picker Pop-up Elements
+const modalPresetPicker = document.getElementById('modal-preset-picker');
+const btnClosePresetPicker = document.getElementById('btn-close-preset-picker');
+const presetPickerTitle = document.getElementById('preset-picker-title');
+const presetPickerSubtitle = document.getElementById('preset-picker-subtitle');
+const presetButtonsGrid = document.getElementById('preset-buttons-grid');
+const inputPresetCustomVal = document.getElementById('input-preset-custom-val');
+const btnApplyPresetCustom = document.getElementById('btn-apply-preset-custom');
+
+let currentTargetInput = null;
+
 const monitorContainer = document.getElementById('monitor-container');
 const logContainer = document.getElementById('log-container');
 const btnProjector = document.getElementById('btn-projector');
+
+function openTimerModal() {
+    if (modalTimer) modalTimer.classList.remove('hidden');
+}
+
+function closeTimerModal() {
+    if (modalTimer) modalTimer.classList.add('hidden');
+}
+
+if (btnOpenTimerModal) btnOpenTimerModal.addEventListener('click', openTimerModal);
+if (btnOpenTimerModalCard) btnOpenTimerModalCard.addEventListener('click', openTimerModal);
+if (currentTimerPill) currentTimerPill.addEventListener('click', openTimerModal);
+if (btnCloseTimerModal) btnCloseTimerModal.addEventListener('click', closeTimerModal);
+
+if (modalTimer) {
+    modalTimer.addEventListener('click', (e) => {
+        if (e.target === modalTimer) closeTimerModal();
+    });
+}
+
+function openPresetPicker(targetInput, titleText, optionsArray, isSeconds = false) {
+    currentTargetInput = targetInput;
+    if (presetPickerTitle) presetPickerTitle.textContent = titleText;
+    if (presetPickerSubtitle) presetPickerSubtitle.textContent = isSeconds ? "Scegli i secondi preimpostati o inserisci un valore:" : "Scegli i minuti preimpostati o inserisci un valore:";
+    
+    if (presetButtonsGrid) {
+        presetButtonsGrid.innerHTML = '';
+        optionsArray.forEach(val => {
+            const btn = document.createElement('button');
+            btn.className = 'btn';
+            btn.style.background = '#1e293b';
+            btn.style.border = '1px solid rgba(56, 189, 248, 0.4)';
+            btn.style.color = '#38bdf8';
+            btn.style.borderRadius = '12px';
+            btn.style.fontWeight = '800';
+            btn.style.padding = '0.6rem 0.4rem';
+            btn.style.fontSize = '0.85rem';
+            btn.textContent = isSeconds ? `${val} Sec` : `${val} Min`;
+            btn.onclick = () => {
+                targetInput.value = val;
+                closePresetPicker();
+            };
+            presetButtonsGrid.appendChild(btn);
+        });
+    }
+
+    if (inputPresetCustomVal) inputPresetCustomVal.value = targetInput.value || '';
+    if (modalPresetPicker) modalPresetPicker.classList.remove('hidden');
+}
+
+function closePresetPicker() {
+    if (modalPresetPicker) modalPresetPicker.classList.add('hidden');
+    currentTargetInput = null;
+}
+
+if (btnClosePresetPicker) btnClosePresetPicker.addEventListener('click', closePresetPicker);
+if (modalPresetPicker) {
+    modalPresetPicker.addEventListener('click', (e) => {
+        if (e.target === modalPresetPicker) closePresetPicker();
+    });
+}
+
+if (btnApplyPresetCustom) {
+    btnApplyPresetCustom.addEventListener('click', () => {
+        if (currentTargetInput && inputPresetCustomVal) {
+            const val = parseInt(inputPresetCustomVal.value);
+            if (!val || val <= 0) return alert("Inserisci un numero valido.");
+            currentTargetInput.value = val;
+            closePresetPicker();
+        }
+    });
+}
+
+// Click Listeners for Preset Inputs
+const roundPresets = [3, 5, 7, 10, 12, 15];
+const votingPresets = [30, 45, 60, 90, 120, 180];
+
+if (cfgRound1) {
+    const parentBox = cfgRound1.closest('.preset-input-box') || cfgRound1;
+    parentBox.addEventListener('click', () => {
+        openPresetPicker(cfgRound1, "⏱️ TEMPO ROUND 1", roundPresets, false);
+    });
+}
+if (cfgRound2) {
+    const parentBox = cfgRound2.closest('.preset-input-box') || cfgRound2;
+    parentBox.addEventListener('click', () => {
+        openPresetPicker(cfgRound2, "⏱️ TEMPO ROUND 2", roundPresets, false);
+    });
+}
+if (cfgRound3) {
+    const parentBox = cfgRound3.closest('.preset-input-box') || cfgRound3;
+    parentBox.addEventListener('click', () => {
+        openPresetPicker(cfgRound3, "⏱️ TEMPO ROUND 3+", roundPresets, false);
+    });
+}
+if (cfgVoting) {
+    const parentBox = cfgVoting.closest('.preset-input-box') || cfgVoting;
+    parentBox.addEventListener('click', () => {
+        openPresetPicker(cfgVoting, "🗳️ DURATA VOTAZIONE", votingPresets, true);
+    });
+}
 
 if (btnProjector) {
     btnProjector.addEventListener('click', () => {
@@ -63,7 +185,7 @@ if (btnProjector) {
 btnStart.classList.add('hidden'); // Hide fixed roles button since we don't have hardcoded players
 btnStartRandom.textContent = "Avvia Partita";
 
-document.querySelector('h1').textContent = `PANNELLO MASTER - [${roomCode}]`;
+document.querySelector('h1').textContent = `PANNELLO MASTER • ${roomCode}`;
 
 let currentState = {};
 let roomConfig = {};
@@ -305,11 +427,61 @@ onValue(roomRef, (snapshot) => {
 function updateUI(state, players) {
     if(!state.game_status) return;
     
-    statusBadge.textContent = state.game_status.toUpperCase();
     currentRoundEl.textContent = state.round || 1;
 
-    // Reset styles
-    statusBadge.style.backgroundColor = "var(--dead-gray)";
+    if (heroRoomCodeBanner) {
+        if (state.game_status === 'waiting') {
+            heroRoomCodeBanner.classList.remove('hidden');
+        } else {
+            heroRoomCodeBanner.classList.add('hidden');
+        }
+    }
+
+    if (statusBadge) {
+        let statusText = state.game_status.toUpperCase();
+        let statusBg = "rgba(117, 117, 117, 0.2)";
+        let statusColor = "#cbd5e1";
+
+        if (state.game_status === 'waiting') {
+            statusText = "⏳ IN ATTESA";
+            statusBg = "rgba(148, 163, 184, 0.2)";
+            statusColor = "#94a3b8";
+        } else if (state.game_status === 'video_playing') {
+            statusText = "🎬 VIDEO INTRO";
+            statusBg = "rgba(255, 152, 0, 0.2)";
+            statusColor = "#ff9800";
+        } else if (state.game_status === 'playing') {
+            statusText = "🟢 IN CORSO";
+            statusBg = "rgba(0, 230, 118, 0.2)";
+            statusColor = "#00e676";
+        } else if (state.game_status === 'emergency') {
+            statusText = "🚨 EMERGENZA";
+            statusBg = "rgba(255, 75, 75, 0.25)";
+            statusColor = "#ff4b4b";
+        } else if (state.game_status === 'discussion') {
+            statusText = "💬 DISCUSSIONE";
+            statusBg = "rgba(255, 235, 59, 0.25)";
+            statusColor = "#ffeb3b";
+        } else if (state.game_status === 'voting') {
+            statusText = "🗳️ VOTAZIONE";
+            statusBg = "rgba(156, 39, 176, 0.25)";
+            statusColor = "#ce93d8";
+        } else if (state.game_status === 'crewmates_win') {
+            statusText = "🏆 VITTORIA CREWMATE";
+            statusBg = "rgba(0, 229, 255, 0.2)";
+            statusColor = "#00e5ff";
+        } else if (state.game_status === 'impostors_win') {
+            statusText = "🏆 VITTORIA IMPOSTORI";
+            statusBg = "rgba(255, 75, 75, 0.2)";
+            statusColor = "#ff4b4b";
+        }
+
+        statusBadge.textContent = statusText;
+        statusBadge.style.backgroundColor = statusBg;
+        statusBadge.style.color = statusColor;
+    }
+
+    // Reset buttons state
     btnStartRandom.disabled = false;
     btnCallMeeting.disabled = true;
     btnCallMeeting.classList.remove('hidden');
@@ -323,103 +495,109 @@ function updateUI(state, players) {
 
     if (timerControls) timerControls.classList.remove('hidden');
 
-    if (liveTimerActions) {
-        if (state.game_status === 'playing') liveTimerActions.classList.remove('hidden');
-        else liveTimerActions.classList.add('hidden');
+    if (modalLiveTimerSection) {
+        if (state.game_status === 'playing') modalLiveTimerSection.classList.remove('hidden');
+        else modalLiveTimerSection.classList.add('hidden');
     }
 
-    if (votingTimerActions) {
-        if (state.game_status === 'voting') votingTimerActions.classList.remove('hidden');
-        else votingTimerActions.classList.add('hidden');
+    if (modalVotingTimerSection) {
+        if (state.game_status === 'voting') modalVotingTimerSection.classList.remove('hidden');
+        else modalVotingTimerSection.classList.add('hidden');
     }
 
     if (state.game_status === 'waiting') {
         // waiting
     }
     else if (state.game_status === 'video_playing') {
-        statusBadge.style.backgroundColor = "#ff9800";
         btnStartRandom.disabled = true;
         btnCallMeeting.disabled = true;
     }
     else if (state.game_status === 'playing') {
-        statusBadge.style.backgroundColor = "var(--accent-green)";
         btnStartRandom.disabled = true;
         btnCallMeeting.disabled = false;
         
         if (btnTimerPause) {
             if (state.timer_paused) {
-                btnTimerPause.textContent = "Riprendi";
-                btnTimerPause.style.background = "var(--accent-green)";
+                btnTimerPause.textContent = "▶️ RIPRENDI";
+                btnTimerPause.style.background = "#00c853";
             } else {
-                btnTimerPause.textContent = "Pausa";
+                btnTimerPause.textContent = "⏸️ PAUSA";
                 btnTimerPause.style.background = "#ea580c";
             }
         }
     } 
     else if (state.game_status === 'emergency') {
-        statusBadge.style.backgroundColor = "var(--accent-red)";
         btnStartRandom.disabled = true;
         btnCallMeeting.classList.add('hidden');
         btnStartDiscussion.classList.remove('hidden');
     } 
     else if (state.game_status === 'discussion') {
-        statusBadge.style.backgroundColor = "#ffeb3b";
         btnStartRandom.disabled = true;
         btnCallMeeting.classList.add('hidden');
         btnStartVoting.classList.remove('hidden');
     }
     else if (state.game_status === 'voting') {
-        statusBadge.style.backgroundColor = "#9c27b0";
         btnStartRandom.disabled = true;
         btnCallMeeting.classList.add('hidden');
         votingSection.classList.remove('hidden');
     }
     else if (state.game_status === 'impostors_win' || state.game_status === 'crewmates_win') {
-        statusBadge.style.backgroundColor = state.game_status === 'impostors_win' ? "var(--accent-red)" : "var(--accent-cyan)";
         btnStartRandom.disabled = true;
     }
 }
 
 function renderMasterTimer() {
     if (!currentState || !currentState.game_status) {
-        if (currentTimerEl) currentTimerEl.textContent = "--:--";
-        if (masterLiveClockEl) masterLiveClockEl.textContent = "--:--";
+        const defaultTxt = "⏳ --:--";
+        if (currentTimerEl) currentTimerEl.textContent = defaultTxt;
+        if (masterLiveClockEl) masterLiveClockEl.textContent = defaultTxt;
+        if (masterModalClockEl) masterModalClockEl.textContent = defaultTxt;
         return;
     }
 
     const status = currentState.game_status;
     let timerText = "00:00";
+    let modalTimerText = "00:00";
     let timerColor = "#38bdf8";
 
     if (status === 'waiting') {
-        timerText = "IN ATTESA";
+        timerText = "⏳ IN ATTESA";
+        modalTimerText = "⏳ IN ATTESA";
         timerColor = "#94a3b8";
     } else if (status === 'video_playing') {
-        timerText = "VIDEO INTRO";
+        timerText = "🎬 VIDEO INTRO";
+        modalTimerText = "🎬 VIDEO INTRO";
         timerColor = "#ff9800";
     } else if (status === 'playing') {
         if (currentState.timer_paused) {
             const remSec = formatTime(currentState.timer_remaining || 0);
-            timerText = `PAUSA (${remSec})`;
-            timerColor = "#ff9800";
+            timerText = `⏸️ PAUSA (${remSec})`;
+            modalTimerText = `PAUSA (${remSec})`;
+            timerColor = "#f59e0b";
         } else {
             const left = Math.max(0, (currentState.timer || 0) - Date.now());
-            timerText = formatTime(left);
+            const remSec = formatTime(left);
+            timerText = `▶️ ${remSec}`;
+            modalTimerText = `▶️ ${remSec}`;
             timerColor = left <= 30000 ? "#ef4444" : "#38bdf8";
         }
     } else if (status === 'emergency') {
-        timerText = "EMERGENZA";
+        timerText = "🚨 EMERGENZA";
+        modalTimerText = "🚨 EMERGENZA";
         timerColor = "#ef4444";
     } else if (status === 'discussion') {
-        timerText = "DISCUSSIONE";
+        timerText = "💬 DISCUSSIONE";
+        modalTimerText = "💬 DISCUSSIONE";
         timerColor = "#ffeb3b";
     } else if (status === 'voting') {
         const remaining = Math.max(0, (currentState.voting_endtime || 0) - Date.now());
         const sec = Math.ceil(remaining / 1000);
-        timerText = `VOTAZIONE: ${sec}s`;
+        timerText = `🗳️ VOTAZIONE: ${sec}s`;
+        modalTimerText = `🗳️ VOTAZIONE: ${sec}s`;
         timerColor = "#9c27b0";
     } else if (status === 'impostors_win' || status === 'crewmates_win') {
-        timerText = "FINE PARTITA";
+        timerText = "🏆 FINE PARTITA";
+        modalTimerText = "🏆 FINE PARTITA";
         timerColor = "#64748b";
     }
 
@@ -430,6 +608,10 @@ function renderMasterTimer() {
     if (masterLiveClockEl) {
         masterLiveClockEl.textContent = timerText;
         masterLiveClockEl.style.color = timerColor;
+    }
+    if (masterModalClockEl) {
+        masterModalClockEl.textContent = modalTimerText;
+        masterModalClockEl.style.color = timerColor;
     }
 }
 

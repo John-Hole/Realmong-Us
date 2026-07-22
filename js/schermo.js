@@ -292,34 +292,61 @@ function startConnection() {
         }
     }
 
+    function clearTimerFlashing() {
+        if (globalTimer) {
+            globalTimer.classList.remove('timer-flash-red');
+            const headerCard = globalTimer.closest('.center-header-card');
+            if (headerCard) headerCard.classList.remove('card-flash-red');
+        }
+    }
+
     function updateTimerUI(endTime, isPaused, remaining) {
         clearInterval(timerInterval);
         
         if (isPaused) {
-            if (remaining <= 0) {
-                globalTimer.textContent = "00:00";
-                globalTimer.style.color = "red";
-            } else {
-                globalTimer.textContent = "PAUSA - " + formatTime(remaining);
-                globalTimer.style.color = "#ff9800";
+            clearTimerFlashing();
+            if (globalTimer) {
+                if (remaining <= 0) {
+                    globalTimer.textContent = "00:00";
+                    globalTimer.style.color = "#ff4b4b";
+                } else {
+                    globalTimer.textContent = "⏸️ PAUSA (" + formatTime(remaining) + ")";
+                    globalTimer.style.color = "#ff9800";
+                }
             }
             return;
         }
 
         currentTimerEndTime = endTime;
-        timerInterval = setInterval(() => {
+        const headerCard = globalTimer ? globalTimer.closest('.center-header-card') : null;
+
+        const updateTick = () => {
             const now = Date.now();
             const rem = currentTimerEndTime - now;
             
             if (rem <= 0) {
-                globalTimer.textContent = "00:00";
-                globalTimer.style.color = "red";
+                clearTimerFlashing();
+                if (globalTimer) {
+                    globalTimer.textContent = "00:00";
+                    globalTimer.style.color = "#ff4b4b";
+                }
                 clearInterval(timerInterval);
             } else {
-                globalTimer.textContent = formatTime(rem);
-                globalTimer.style.color = "white";
+                if (globalTimer) globalTimer.textContent = formatTime(rem);
+
+                // Lampeggia di rosso quando mancano 30 secondi o meno
+                if (rem <= 30000) {
+                    if (globalTimer) globalTimer.classList.add('timer-flash-red');
+                    if (headerCard) headerCard.classList.add('card-flash-red');
+                } else {
+                    clearTimerFlashing();
+                    if (globalTimer) globalTimer.style.color = "white";
+                }
             }
-        }, 1000);
+        };
+
+        updateTick();
+        timerInterval = setInterval(updateTick, 500);
     }
 
     // Init QR Code with simplified error correction level
@@ -424,6 +451,7 @@ function startConnection() {
                     updateTimerUI(data.state.timer, data.state.timer_paused, data.state.timer_remaining);
                 }
                 else if (status === 'emergency') {
+                    clearTimerFlashing();
                     if(overlayMeeting) overlayMeeting.classList.remove('hidden');
                     if(overlayText) {
                         overlayText.textContent = "RIUNIONE D'EMERGENZA";
@@ -438,6 +466,7 @@ function startConnection() {
                     }
                 }
                 else if (status === 'discussion') {
+                    clearTimerFlashing();
                     if(overlayMeeting) overlayMeeting.classList.add('hidden'); 
                     if (globalTimer) {
                         globalTimer.textContent = "DISCUSSIONE";
@@ -448,17 +477,33 @@ function startConnection() {
                 }
                 else if (status === 'voting') {
                     if(overlayMeeting) overlayMeeting.classList.add('hidden');
-                    if (globalTimer) globalTimer.style.color = "var(--accent-red)";
+                    const headerCard = globalTimer ? globalTimer.closest('.center-header-card') : null;
                     clearInterval(timerInterval);
+                    
                     timerInterval = setInterval(() => {
                         const remaining = Math.max(0, data.state.voting_endtime - Date.now());
                         const sec = Math.ceil(remaining / 1000);
-                        if (globalTimer) globalTimer.textContent = `VOTAZIONE: ${sec}s`;
-                        if(remaining <= 0) clearInterval(timerInterval);
+                        if (globalTimer) {
+                            globalTimer.textContent = `VOTAZIONE: ${sec}s`;
+                            
+                            // Lampeggia di rosso negli ultimi 15 secondi di votazione
+                            if (remaining <= 15000 && remaining > 0) {
+                                globalTimer.classList.add('timer-flash-red');
+                                if (headerCard) headerCard.classList.add('card-flash-red');
+                            } else {
+                                clearTimerFlashing();
+                                globalTimer.style.color = "var(--accent-red)";
+                            }
+                        }
+                        if(remaining <= 0) {
+                            clearTimerFlashing();
+                            clearInterval(timerInterval);
+                        }
                     }, 100);
                     renderPlayers(players, votes, maxPlayers);
                 }
                 else if (status === 'impostors_win') {
+                    clearTimerFlashing();
                     if(overlayMeeting) overlayMeeting.classList.remove('hidden');
                     if(overlayText) {
                         overlayText.textContent = "VITTORIA IMPOSTORI";
@@ -468,6 +513,7 @@ function startConnection() {
                     if (globalTimer) globalTimer.textContent = "GAME OVER";
                 }
                 else if (status === 'crewmates_win') {
+                    clearTimerFlashing();
                     if(overlayMeeting) overlayMeeting.classList.remove('hidden');
                     if(overlayText) {
                         overlayText.textContent = "VITTORIA CREWMATE";

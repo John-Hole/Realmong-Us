@@ -18,11 +18,20 @@
             
             <div class="master-header-metrics">
                 <div class="master-round-pill">ROUND <strong id="current-round">1</strong></div>
-                <div class="master-round-pill" style="border-color: rgba(56, 189, 248, 0.35); color: #38bdf8; display: flex; align-items: center; gap: 0.3rem;">
+                <div id="current-timer-pill" class="master-round-pill" style="border-color: rgba(56, 189, 248, 0.35); color: #38bdf8; display: flex; align-items: center; gap: 0.3rem; cursor: pointer;" title="Clicca per gestire il tempo">
                     <span>⏱️</span> <strong id="current-timer" style="color: #38bdf8;">--:--</strong>
                 </div>
-                <div class="master-status-pill">STATO: <span id="current-status" style="margin-left: 0.3rem;">Caricamento...</span></div>
+                <div class="master-status-pill" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 0.3rem 0.8rem; border-radius: 50px; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 0.4rem;">
+                    STATO: <span id="current-status" style="padding: 3px 10px; border-radius: 50px; font-weight: 800; font-size: 0.75rem; letter-spacing: 0.5px;">CARICAMENTO...</span>
+                </div>
             </div>
+        </div>
+
+        <!-- HERO ROOM CODE BANNER (Mostrato grande prima dell'avvio) -->
+        <div id="hero-room-code-banner" class="glass-card" style="text-align: center; padding: 1.4rem; margin-bottom: 1.25rem; background: linear-gradient(135deg, rgba(18, 24, 37, 0.95), rgba(30, 41, 59, 0.95)); border: 2px solid rgba(56, 189, 248, 0.4); border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <div style="font-size: 0.8rem; color: #94a3b8; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 0.4rem;">CODICE STANZA DI GIOCO</div>
+            <div id="hero-room-code" style="font-size: 3.5rem; font-weight: 900; color: #38bdf8; letter-spacing: 8px; font-family: var(--font-ui); text-shadow: 0 0 25px rgba(56, 189, 248, 0.4); line-height: 1;">-----</div>
+            <div style="font-size: 0.8rem; color: #cbd5e1; margin-top: 0.6rem;">Comunica questo codice ai giocatori prima di avviare la partita</div>
         </div>
 
         <!-- MAIN DASHBOARD GRID -->
@@ -56,6 +65,7 @@
                     <div class="master-controls-grid">
                         <button id="btn-start" class="btn hidden">Avvia Gioco</button>
                         <button id="btn-start-random" class="btn btn-master-action" style="background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white;">Avvia Partita</button>
+                        <button id="btn-open-timer-modal" class="btn btn-master-action" style="background: linear-gradient(135deg, #0284c7, #0369a1); color: white;">⏱️ Gestisci Tempo</button>
                         <button id="btn-call-meeting" class="btn btn-master-action" style="background: linear-gradient(135deg, #ea580c, #c2410c); color: white;">Chiama Emergenza</button>
                         <button id="btn-start-discussion" class="btn btn-master-action hidden" style="background: linear-gradient(135deg, #eab308, #ca8a04); color: black;">Inizia Discussione</button>
                         <button id="btn-start-voting" class="btn btn-master-action hidden" style="background: linear-gradient(135deg, #9333ea, #7e22ce); color: white;">Inizio Votazioni (60s)</button>
@@ -68,88 +78,23 @@
                     </div>
                 </div>
 
-                <!-- Timer & Time Settings Card -->
+                <!-- Timer Controls Shortcut Card -->
                 <div id="timer-controls" class="glass-card">
                     <div class="glass-card-header">
                         <div class="glass-card-header-left">
                             <span class="header-icon">⏱️</span>
-                            <h2>GESTIONE E CONFIGURAZIONE TEMPI</h2>
+                            <h2>GESTIONE TIMER</h2>
                         </div>
                     </div>
 
                     <!-- Live Clock Display -->
-                    <div id="master-live-clock" style="font-size: 2.2rem; font-weight: 800; color: #38bdf8; text-align: center; margin: 0.4rem 0 1rem 0; background: rgba(0,0,0,0.35); padding: 0.6rem; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.25); letter-spacing: 1px;">
+                    <div id="master-live-clock" style="font-size: 2rem; font-weight: 800; color: #38bdf8; text-align: center; margin: 0.4rem 0 0.8rem 0; background: rgba(0,0,0,0.35); padding: 0.5rem; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.25); letter-spacing: 1px;">
                         --:--
                     </div>
 
-                    <!-- Live Timer Quick Actions (Active during game/playing) -->
-                    <div id="live-timer-actions" class="hidden" style="margin-bottom: 1.2rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
-                        <h3 style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 0.6rem; text-transform: uppercase; font-weight: 700;">Modifica Tempo In Corso</h3>
-                        
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(95px, 1fr)); gap: 0.5rem; margin-bottom: 0.8rem;">
-                            <button id="btn-timer-pause" class="btn" style="background: #ea580c; color: white; padding: 0.4rem 0.5rem; font-size: 0.75rem;">Pausa</button>
-                            <button id="btn-timer-add" class="btn" style="background: #16a34a; color: white; padding: 0.4rem 0.5rem; font-size: 0.75rem;">+ 1 Min</button>
-                            <button id="btn-timer-sub" class="btn" style="background: #dc2626; color: white; padding: 0.4rem 0.5rem; font-size: 0.75rem;">- 1 Min</button>
-                            <button id="btn-timer-add5" class="btn" style="background: #059669; color: white; padding: 0.4rem 0.5rem; font-size: 0.75rem;">+ 5 Min</button>
-                            <button id="btn-timer-sub5" class="btn" style="background: #b91c1c; color: white; padding: 0.4rem 0.5rem; font-size: 0.75rem;">- 5 Min</button>
-                        </div>
-
-                        <!-- Custom Direct Timer Entry -->
-                        <div style="display: flex; gap: 0.4rem; align-items: center;">
-                            <input type="number" id="input-custom-min" placeholder="Min" min="0" max="180" style="flex: 1; padding: 0.4rem 0.6rem !important; text-align: center; font-size: 0.85rem;">
-                            <input type="number" id="input-custom-sec" placeholder="Sec" min="0" max="59" style="flex: 1; padding: 0.4rem 0.6rem !important; text-align: center; font-size: 0.85rem;">
-                            <button id="btn-set-custom-time" class="btn" style="background: #2563eb; color: white; white-space: nowrap; padding: 0.4rem 0.8rem; font-size: 0.75rem;">Imposta</button>
-                        </div>
-                    </div>
-
-                    <!-- Voting Time Quick Actions (Active during voting) -->
-                    <div id="voting-timer-actions" class="hidden" style="margin-bottom: 1.2rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
-                        <h3 style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 0.6rem; text-transform: uppercase; font-weight: 700;">Modifica Tempo Votazione</h3>
-                        <div style="display: flex; gap: 0.5rem;">
-                            <button id="btn-voting-add30" class="btn" style="flex: 1; background: #16a34a; color: white; padding: 0.4rem 0.5rem; font-size: 0.75rem;">+ 30 Sec</button>
-                            <button id="btn-voting-sub30" class="btn" style="flex: 1; background: #dc2626; color: white; padding: 0.4rem 0.5rem; font-size: 0.75rem;">- 30 Sec</button>
-                        </div>
-                    </div>
-
-                    <!-- Configurazione Tempi Durata Round e Votazione (Prima e Durante) -->
-                    <div>
-                        <h3 style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 0.6rem; text-transform: uppercase; font-weight: 700;">Configura Tempi Predefiniti</h3>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 0.8rem;">
-                            <div>
-                                <label style="display: block; font-size: 0.75rem; color: #cbd5e1; margin-bottom: 0.2rem; font-weight: 600;">Round 1 (min)</label>
-                                <input type="number" id="cfg-round1" value="10" min="1" max="60" style="width: 100%; font-size: 0.85rem; padding: 0.4rem 0.6rem !important;">
-                            </div>
-                            <div>
-                                <label style="display: block; font-size: 0.75rem; color: #cbd5e1; margin-bottom: 0.2rem; font-weight: 600;">Round 2 (min)</label>
-                                <input type="number" id="cfg-round2" value="7" min="1" max="60" style="width: 100%; font-size: 0.85rem; padding: 0.4rem 0.6rem !important;">
-                            </div>
-                            <div>
-                                <label style="display: block; font-size: 0.75rem; color: #cbd5e1; margin-bottom: 0.2rem; font-weight: 600;">Round 3+ (min)</label>
-                                <input type="number" id="cfg-round3" value="5" min="1" max="60" style="width: 100%; font-size: 0.85rem; padding: 0.4rem 0.6rem !important;">
-                            </div>
-                            <div>
-                                <label style="display: block; font-size: 0.75rem; color: #cbd5e1; margin-bottom: 0.2rem; font-weight: 600;">Votazione (sec)</label>
-                                <input type="number" id="cfg-voting" value="60" min="10" max="300" style="width: 100%; font-size: 0.85rem; padding: 0.4rem 0.6rem !important;">
-                            </div>
-                        </div>
-                        <button id="btn-save-time-cfg" class="btn" style="width: 100%; background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; font-weight: 700; font-size: 0.8rem;">
-                            Salva Impostazioni Tempi
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Danger Zone Card -->
-                <div class="glass-card danger-zone-card">
-                    <div class="glass-card-header">
-                        <div class="glass-card-header-left">
-                            <span class="header-icon">⚠️</span>
-                            <h2>ZONA PERICOLO</h2>
-                        </div>
-                    </div>
-                    <p style="font-size: 0.85rem; color: #f87171; margin-bottom: 1rem; line-height: 1.4;">
-                        Ripristina la stanza allo stato iniziale di attesa. Tutti i progressi di partita verranno azzerati.
-                    </p>
-                    <button id="btn-reset" class="btn btn-danger" style="width: 100%;">Azzera Tutto (Torna in attesa)</button>
+                    <button id="btn-open-timer-modal-card" class="btn" style="width: 100%; background: linear-gradient(135deg, #0284c7, #0369a1); color: white; font-weight: 800; border-radius: 50px; padding: 0.7rem;">
+                        ⚙️ APRI GESTIONE TEMPI
+                    </button>
                 </div>
 
             </div>
@@ -198,6 +143,125 @@
 
             </div>
 
+        </div>
+
+        <!-- DANGER ZONE CARD (In fondo a tutto) -->
+        <div class="glass-card danger-zone-card" style="margin-top: 1.5rem;">
+            <div class="glass-card-header">
+                <div class="glass-card-header-left">
+                    <span class="header-icon">⚠️</span>
+                    <h2>ZONA PERICOLO</h2>
+                </div>
+            </div>
+            <p style="font-size: 0.85rem; color: #f87171; margin-bottom: 1rem; line-height: 1.4;">
+                Ripristina la stanza allo stato iniziale di attesa. Tutti i progressi di partita verranno azzerati.
+            </p>
+            <button id="btn-reset" class="btn btn-danger" style="width: 100%;">Azzera Tutto (Torna in attesa)</button>
+        </div>
+
+    </div>
+
+    <!-- MODAL GESTIONE E CONFIGURAZIONE TEMPI -->
+    <div id="modal-timer" class="overlay-screen hidden" style="background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); z-index: 10000; padding: 1rem;">
+        <div style="max-width: 440px; width: 100%; max-height: 95vh; overflow-y: auto; position: relative; border: 1px solid rgba(255, 255, 255, 0.12); background: #0f1523; box-shadow: 0 20px 50px rgba(0,0,0,0.9); border-radius: 24px; padding: 1.5rem; box-sizing: border-box;">
+            
+            <button id="btn-close-timer-modal" style="position: absolute; top: 1.2rem; right: 1.2rem; background: none; border: none; color: #94a3b8; font-size: 1.4rem; cursor: pointer; line-height: 1; padding: 0.2rem;">✕</button>
+
+            <!-- Header -->
+            <div style="display: flex; align-items: center; gap: 0.6rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 0.8rem; margin-bottom: 1.2rem;">
+                <span style="font-size: 1.4rem;">⏱️</span>
+                <h2 style="font-size: 1rem; color: #ffffff; font-weight: 800; letter-spacing: 0.5px; margin: 0; text-transform: uppercase;">GESTIONE E CONFIGURAZIONE TEMPI</h2>
+            </div>
+
+            <!-- Big Timer Box -->
+            <div id="master-modal-clock" style="font-size: 2.2rem; font-weight: 900; color: #ff9800; text-align: center; margin-bottom: 1.2rem; background: rgba(0,0,0,0.45); padding: 0.85rem; border-radius: 16px; border: 1.5px solid rgba(56, 189, 248, 0.25); letter-spacing: 1px;">
+                PAUSA (00:00)
+            </div>
+
+            <!-- MODIFICA TEMPO IN CORSO -->
+            <div id="modal-live-timer-section" style="margin-bottom: 1.2rem; padding-bottom: 1.2rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
+                <h3 style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.8rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;">MODIFICA TEMPO IN CORSO</h3>
+                
+                <div style="display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 0.8rem;">
+                    <button id="btn-timer-pause" class="btn" style="background: #00c853; color: white; border-radius: 50px; font-weight: 800; padding: 0.6rem 1.1rem; font-size: 0.85rem; border: none;">▶️ RIPRENDI</button>
+                    <button id="btn-timer-add" class="btn" style="background: #00c853; color: white; border-radius: 50px; font-weight: 800; padding: 0.6rem 1.1rem; font-size: 0.85rem; border: none;">+ 1 MIN</button>
+                    <button id="btn-timer-sub" class="btn" style="background: #d50000; color: white; border-radius: 50px; font-weight: 800; padding: 0.6rem 1.1rem; font-size: 0.85rem; border: none;">- 1 MIN</button>
+                    <button id="btn-timer-add5" class="btn" style="background: #00c853; color: white; border-radius: 50px; font-weight: 800; padding: 0.6rem 1.1rem; font-size: 0.85rem; border: none;">+ 5 MIN</button>
+                    <button id="btn-timer-sub5" class="btn" style="background: #d50000; color: white; border-radius: 50px; font-weight: 800; padding: 0.6rem 1.1rem; font-size: 0.85rem; border: none;">- 5 MIN</button>
+                </div>
+
+                <!-- Custom Direct Entry -->
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <input type="number" id="input-custom-min" placeholder="Min" min="0" max="180" style="flex: 1; padding: 0.61rem !important; text-align: center; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: white; font-weight: 600;">
+                    <input type="number" id="input-custom-sec" placeholder="Sec" min="0" max="59" style="flex: 1; padding: 0.61rem !important; text-align: center; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: white; font-weight: 600;">
+                    <button id="btn-set-custom-time" class="btn" style="background: #2563eb; color: white; border-radius: 50px; font-weight: 800; padding: 0.6rem 1.3rem; font-size: 0.85rem; border: none;">IMPOSTA</button>
+                </div>
+            </div>
+
+            <!-- MODIFICA TEMPO VOTAZIONE (Attivo durante la votazione) -->
+            <div id="modal-voting-timer-section" class="hidden" style="margin-bottom: 1.2rem; padding-bottom: 1.2rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
+                <h3 style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.8rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;">MODIFICA TEMPO VOTAZIONE</h3>
+                <div style="display: flex; gap: 0.6rem;">
+                    <button id="btn-voting-add30" class="btn" style="flex: 1; background: #00c853; color: white; border-radius: 50px; font-weight: 800; padding: 0.6rem; font-size: 0.85rem; border: none;">+ 30 SEC</button>
+                    <button id="btn-voting-sub30" class="btn" style="flex: 1; background: #d50000; color: white; border-radius: 50px; font-weight: 800; padding: 0.6rem; font-size: 0.85rem; border: none;">- 30 SEC</button>
+                </div>
+            </div>
+
+            <!-- CONFIGURA TEMPI PREDEFINITI -->
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+                    <h3 style="font-size: 0.75rem; color: #94a3b8; margin: 0; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;">CONFIGURA TEMPI PREDEFINITI</h3>
+                    <span style="font-size: 0.7rem; color: #38bdf8; font-weight: 600;">(Clicca sui campi per aprire il Pop-up)</span>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1.2rem;">
+                    <div class="preset-input-box" style="cursor: pointer;">
+                        <label style="display: block; font-size: 0.75rem; color: #cbd5e1; margin-bottom: 0.3rem; font-weight: 600;">Round 1 (min) ✏️</label>
+                        <input type="number" id="cfg-round1" value="10" min="1" max="60" readonly style="width: 100%; padding: 0.6rem !important; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: white; font-weight: 600; cursor: pointer;">
+                    </div>
+                    <div class="preset-input-box" style="cursor: pointer;">
+                        <label style="display: block; font-size: 0.75rem; color: #cbd5e1; margin-bottom: 0.3rem; font-weight: 600;">Round 2 (min) ✏️</label>
+                        <input type="number" id="cfg-round2" value="7" min="1" max="60" readonly style="width: 100%; padding: 0.6rem !important; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: white; font-weight: 600; cursor: pointer;">
+                    </div>
+                    <div class="preset-input-box" style="cursor: pointer;">
+                        <label style="display: block; font-size: 0.75rem; color: #cbd5e1; margin-bottom: 0.3rem; font-weight: 600;">Round 3+ (min) ✏️</label>
+                        <input type="number" id="cfg-round3" value="5" min="1" max="60" readonly style="width: 100%; padding: 0.6rem !important; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: white; font-weight: 600; cursor: pointer;">
+                    </div>
+                    <div class="preset-input-box" style="cursor: pointer;">
+                        <label style="display: block; font-size: 0.75rem; color: #cbd5e1; margin-bottom: 0.3rem; font-weight: 600;">Votazione (sec) ✏️</label>
+                        <input type="number" id="cfg-voting" value="120" min="10" max="300" readonly style="width: 100%; padding: 0.6rem !important; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: white; font-weight: 600; cursor: pointer;">
+                    </div>
+                </div>
+                <button id="btn-save-time-cfg" class="btn" style="width: 100%; background: #0284c7; color: white; font-weight: 800; font-size: 0.85rem; border-radius: 50px; padding: 0.85rem; border: none;">
+                    SALVA IMPOSTAZIONI TEMPI
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- POPUP SELETTORE / MODIFICA TEMPI PRESTABILITI -->
+    <div id="modal-preset-picker" class="overlay-screen hidden" style="background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); z-index: 10001; padding: 1rem;">
+        <div style="max-width: 380px; width: 100%; position: relative; border: 1px solid rgba(56, 189, 248, 0.3); background: #0f1523; box-shadow: 0 20px 50px rgba(0,0,0,0.9); border-radius: 20px; padding: 1.4rem; box-sizing: border-box;">
+            
+            <button id="btn-close-preset-picker" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: #94a3b8; font-size: 1.3rem; cursor: pointer; padding: 0.2rem;">✕</button>
+
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.6rem;">
+                <span style="font-size: 1.3rem;">⚡</span>
+                <h3 id="preset-picker-title" style="font-size: 0.95rem; color: white; font-weight: 800; margin: 0; text-transform: uppercase;">SELEZIONA O MODIFICA TEMPO</h3>
+            </div>
+
+            <p id="preset-picker-subtitle" style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 1rem; line-height: 1.3;">Scegli una durata preimpostata oppure digita un valore personalizzato.</p>
+
+            <!-- Quick Pill Grid -->
+            <div id="preset-buttons-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; margin-bottom: 1.2rem;">
+                <!-- Populated dynamically by JS -->
+            </div>
+
+            <!-- Custom Manual Input -->
+            <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
+                <input type="number" id="input-preset-custom-val" placeholder="Valore" min="1" max="600" style="flex: 1; padding: 0.6rem !important; text-align: center; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: white; font-weight: 700;">
+                <button id="btn-apply-preset-custom" class="btn" style="background: #2563eb; color: white; border-radius: 50px; font-weight: 800; padding: 0.6rem 1.2rem;">APPLICA</button>
+            </div>
         </div>
     </div>
 
