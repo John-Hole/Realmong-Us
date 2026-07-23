@@ -56,6 +56,7 @@ let myData = null;
 let currentState = null;
 let roomConfig = null;
 let hasSeenRoleThisRound = false;
+let hasSeenDeadOverlay = false;
 
 let killCooldownEnd = 0;
 let killInterval = null;
@@ -71,6 +72,7 @@ btnHideRole.addEventListener('click', () => {
 
 if (btnHideDead) {
     btnHideDead.addEventListener('click', () => {
+        hasSeenDeadOverlay = true;
         overlayDead.classList.add('hidden');
     });
 }
@@ -92,6 +94,7 @@ onValue(roomRef, (snapshot) => {
         
         if (previousStatus === 'waiting' && currentState.game_status === 'playing') {
             hasSeenRoleThisRound = false; 
+            hasSeenDeadOverlay = false;
         }
 
         if (data.players && data.players[myPlayerName]) {
@@ -167,8 +170,14 @@ function updateUI(state, playersMap) {
 
     if (playerNameDisplay) playerNameDisplay.textContent = myPlayerName;
 
-    if (myData.status === 'killed_hidden' || myData.status === 'killed_revealed') {
-        overlayDead.classList.remove('hidden');
+    if (myData.status === 'alive') {
+        hasSeenDeadOverlay = false;
+        overlayDead.classList.add('hidden');
+    } else if (myData.status === 'killed_hidden' || myData.status === 'killed_revealed') {
+        if (!hasSeenDeadOverlay) {
+            hasSeenDeadOverlay = true;
+            overlayDead.classList.remove('hidden');
+        }
     } else {
         overlayDead.classList.add('hidden');
     }
@@ -202,6 +211,22 @@ function updateUI(state, playersMap) {
         gameScreen.classList.add('hidden');
         votingUI.classList.remove('hidden');
         renderVotingUI(playersMap);
+        return;
+    } else if (state.game_status === 'crewmates_win') {
+        overlayMeeting.classList.remove('hidden');
+        gameScreen.classList.add('hidden');
+        votingUI.classList.add('hidden');
+        overlayMeetingH1.textContent = "🏆 VITTORIA CREWMATE!";
+        overlayMeetingH1.style.color = "var(--accent-cyan)";
+        overlayMeetingP.textContent = "I Crewmate hanno completato tutte le task!";
+        return;
+    } else if (state.game_status === 'impostors_win') {
+        overlayMeeting.classList.remove('hidden');
+        gameScreen.classList.add('hidden');
+        votingUI.classList.add('hidden');
+        overlayMeetingH1.textContent = "🏆 VITTORIA IMPOSTORI!";
+        overlayMeetingH1.style.color = "var(--accent-red)";
+        overlayMeetingP.textContent = "Gli Impostori hanno eliminato i Crewmate!";
         return;
     } else {
         overlayMeeting.classList.add('hidden');
@@ -386,15 +411,17 @@ function renderRealTasks(tasksObj) {
         li.className = `giocatore-task-item ${isDone ? 'completed' : ''}`;
         
         li.innerHTML = `
-            <div class="giocatore-task-header">
-                <span class="task-num">#${idx}</span>
-                <span class="task-status-pill ${isDone ? 'done' : 'pending'}">${isDone ? '✔ COMPLETATO' : 'IN CORSO'}</span>
-            </div>
-            <div class="task-info">
-                <div class="task-title">${taskData.desc}</div>
+            <div class="giocatore-task-main">
+                <div class="giocatore-task-header">
+                    <span class="task-num">#${idx}</span>
+                    <span class="task-status-pill ${isDone ? 'done' : 'pending'}">${isDone ? '✔ COMPLETATO' : 'IN CORSO'}</span>
+                </div>
+                <div class="task-info">
+                    <div class="task-title">${taskData.desc}</div>
+                </div>
             </div>
             <button class="task-btn ${isDone ? 'btn-done' : ''}" ${isDone ? 'disabled' : ''} id="task-btn-${taskId}">
-                ${isDone ? '✔ COMPLETATA' : 'SPUNTA TASK'}
+                ${isDone ? '✔ DONE' : 'SPUNTA'}
             </button>
         `;
         
@@ -404,7 +431,7 @@ function renderRealTasks(tasksObj) {
                 const targetBtn = e.currentTarget;
                 targetBtn.disabled = true;
                 targetBtn.classList.add('btn-done');
-                targetBtn.textContent = '✔ COMPLETATA';
+                targetBtn.textContent = '✔ DONE';
                 const pill = li.querySelector('.task-status-pill');
                 if (pill) {
                     pill.classList.remove('pending');
@@ -431,25 +458,26 @@ function renderImpostorTasks(tasksObj) {
         const li = document.createElement('li');
         li.className = `giocatore-task-item ${isDone ? 'completed' : ''}`;
         li.innerHTML = `
-            <div class="giocatore-task-header">
-                <span class="task-num">#${idx}</span>
-                <span class="task-status-pill ${isDone ? 'done' : 'pending'}" id="fake-pill-${taskId}">${isDone ? '✔ COMPLETATO' : 'IN CORSO'}</span>
+            <div class="giocatore-task-main">
+                <div class="giocatore-task-header">
+                    <span class="task-num">#${idx}</span>
+                    <span class="task-status-pill ${isDone ? 'done' : 'pending'}" id="fake-pill-${taskId}">${isDone ? '✔ COMPLETATO' : 'IN CORSO'}</span>
+                </div>
+                <div class="task-info">
+                    <div class="task-title">${taskData.desc}</div>
+                </div>
             </div>
-            <div class="task-info">
-                <div class="task-title">${taskData.desc}</div>
-            </div>
-            <button class="task-btn ${isDone ? 'btn-done' : ''}" ${isDone ? 'disabled' : ''} id="fake-task-btn-${taskId}">
-                ${isDone ? '✔ COMPLETATA' : 'SPUNTA TASK'}
+            <button class="task-btn ${isDone ? 'btn-done' : ''}" ${isDone ? 'disabled' : ''} id="fake-btn-${taskId}">
+                ${isDone ? '✔ DONE' : 'SPUNTA'}
             </button>
         `;
-        
         if (!isDone) {
-            const btn = li.querySelector(`#fake-task-btn-${taskId}`);
-            btn.onclick = async (e) => {
+            const btn = li.querySelector(`#fake-btn-${taskId}`);
+            btn.onclick = (e) => {
                 const targetBtn = e.currentTarget;
                 targetBtn.disabled = true;
                 targetBtn.classList.add('btn-done');
-                targetBtn.textContent = '✔ COMPLETATA';
+                targetBtn.textContent = '✔ DONE';
                 const pill = li.querySelector(`#fake-pill-${taskId}`);
                 if (pill) {
                     pill.classList.remove('pending');
@@ -457,7 +485,7 @@ function renderImpostorTasks(tasksObj) {
                     pill.textContent = '✔ COMPLETATO';
                 }
                 li.classList.add('completed');
-                await completeTask(taskId);
+                completeTask(taskId);
             };
         }
         taskList.appendChild(li);

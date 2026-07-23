@@ -1,5 +1,5 @@
 import { db } from './firebase-config.js';
-import { ref, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+import { ref, onValue, get, update } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
 import { formatTime, TASKS_LIST } from './game-logic.js';
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -400,6 +400,86 @@ function startConnection() {
         timerInterval = setInterval(updateTick, 500);
     }
 
+    let isDeadRevealActive = false;
+
+    function showDeadRevealOverlay(playersData, votesData, maxPlayers) {
+        const overlayDeadReveal = document.getElementById('overlay-dead-reveal');
+        const deadCardsContainer = document.getElementById('dead-reveal-cards-container');
+        const meetingAudio = document.getElementById('meeting-audio');
+
+        if (!overlayDeadReveal || !deadCardsContainer) return;
+        
+        const deadHiddenPlayers = [];
+        if (playersData) {
+            for (const pName in playersData) {
+                if (playersData[pName].status === 'killed_hidden') {
+                    deadHiddenPlayers.push(pName);
+                }
+            }
+        }
+
+        deadCardsContainer.innerHTML = '';
+
+        if (meetingAudio) {
+            meetingAudio.currentTime = 0;
+            meetingAudio.volume = 1.0;
+            meetingAudio.play().catch(e => console.log("Meeting audio autoplay blocked", e));
+        }
+
+        if (deadHiddenPlayers.length > 0) {
+            deadHiddenPlayers.forEach(pName => {
+                const card = document.createElement('div');
+                card.className = 'dead-reveal-card';
+                card.innerHTML = `
+                    <div class="dead-slash-line"></div>
+                    <div class="dead-reveal-avatar">👨‍🚀</div>
+                    <div class="dead-reveal-info">
+                        <span class="dead-reveal-name">${pName}</span>
+                    </div>
+                    <div class="dead-stamp">❌ DEFUNTO</div>
+                `;
+                deadCardsContainer.appendChild(card);
+            });
+
+            overlayDeadReveal.classList.remove('hidden');
+            isDeadRevealActive = true;
+
+            // Trigger strike-through animation & stamp drop
+            setTimeout(() => {
+                const cards = deadCardsContainer.querySelectorAll('.dead-reveal-card');
+                cards.forEach(c => c.classList.add('slashed'));
+            }, 350);
+
+            // Update Firebase status from killed_hidden to killed_revealed
+            const dbUpdates = {};
+            deadHiddenPlayers.forEach(name => {
+                dbUpdates[`rooms/${roomCode}/players/${name}/status`] = 'killed_revealed';
+            });
+            update(ref(db), dbUpdates).catch(err => console.error("Firebase update status error:", err));
+
+            // Hide overlay after 4.5s
+            setTimeout(() => {
+                overlayDeadReveal.classList.add('hidden');
+                isDeadRevealActive = false;
+                renderPlayers(playersData, votesData, maxPlayers);
+            }, 4500);
+        } else {
+            const noDeadDiv = document.createElement('div');
+            noDeadDiv.className = 'no-dead-card';
+            noDeadDiv.innerHTML = `<span>💚 Nessun giocatore è stato ucciso in questo round!</span>`;
+            deadCardsContainer.appendChild(noDeadDiv);
+
+            overlayDeadReveal.classList.remove('hidden');
+            isDeadRevealActive = true;
+
+            setTimeout(() => {
+                overlayDeadReveal.classList.add('hidden');
+                isDeadRevealActive = false;
+                renderPlayers(playersData, votesData, maxPlayers);
+            }, 2500);
+        }
+    }
+
     // Init QR Code with simplified error correction level
     let qrInitialized = false;
 
@@ -471,6 +551,11 @@ function startConnection() {
                     else globalTimer.classList.remove('hidden');
                 }
 
+                const overlayDeadReveal = document.getElementById('overlay-dead-reveal');
+                if (status !== 'discussion' && overlayDeadReveal && !isDeadRevealActive) {
+                    overlayDeadReveal.classList.add('hidden');
+                }
+
                 if (status === 'waiting') {
                     if(overlayMeeting) overlayMeeting.classList.add('hidden');
                     if(overlayEjected) overlayEjected.classList.add('hidden');
@@ -535,7 +620,12 @@ function startConnection() {
                         globalTimer.style.color = "#ffeb3b";
                     }
                     clearInterval(timerInterval);
-                    renderPlayers(players, votes, maxPlayers);
+
+                    if (previousStatus !== 'discussion' && !isDeadRevealActive) {
+                        showDeadRevealOverlay(players, votes, maxPlayers);
+                    } else if (!isDeadRevealActive) {
+                        renderPlayers(players, votes, maxPlayers);
+                    }
                 }
                 else if (status === 'voting') {
                     if(overlayMeeting) overlayMeeting.classList.add('hidden');

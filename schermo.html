@@ -35,6 +35,19 @@
     <div id="overlay-ejected" class="overlay-screen hidden" style="z-index: 1500; display: flex; align-items: center; justify-content: center;">
         <h1 id="ejected-text" style="color: white; font-size: clamp(2rem, 5vw, 4rem); text-align: center;">Nessuno è stato espulso</h1>
     </div>
+    
+    <!-- Dead Reveal Overlay (Avvio Discussione) -->
+    <div id="overlay-dead-reveal" class="overlay-screen hidden" style="z-index: 2200; background: rgba(5, 5, 10, 0.96); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem;">
+        <div class="dead-reveal-container">
+            <div class="dead-reveal-header-box">
+                <h1 id="dead-reveal-title" class="dead-reveal-header">RAPPORTO VITTIME</h1>
+                <p id="dead-reveal-subtitle" class="dead-reveal-subheader">ESITO DELL'ULTIMO ROUND</p>
+            </div>
+            <div id="dead-reveal-cards-container" class="dead-reveal-grid">
+                <!-- Dead player cards injected by JS -->
+            </div>
+        </div>
+    </div>
     <!-- Waiting Screen Removed (Replaced by Dashboard Layout in waiting mode) -->
     <!-- Meeting Screen -->
     <div id="meeting-screen" class="overlay-screen hidden">

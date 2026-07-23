@@ -763,10 +763,28 @@ async function checkWinCondition(state, players) {
 
     let impostors = 0;
     let crewmates = 0;
+    let totalTasks = 0;
+    let completedTasks = 0;
+
     for (const name in players) {
-        if (players[name].status === 'alive') {
-            if (players[name].role === 'impostor') impostors++;
+        const p = players[name];
+        if (p.status === 'alive') {
+            if (p.role === 'impostor') impostors++;
             else crewmates++;
+        }
+
+        // Count non-impostor tasks progress
+        if (p.role !== 'impostor' && p.tasks) {
+            const tasksObj = p.tasks;
+            for (const key in tasksObj) {
+                const task = tasksObj[key];
+                if (task) {
+                    totalTasks++;
+                    if (task.completed === true || task.completed === "true") {
+                        completedTasks++;
+                    }
+                }
+            }
         }
     }
     
@@ -774,6 +792,8 @@ async function checkWinCondition(state, players) {
     if (impostors + crewmates === 0) return; 
 
     if (impostors === 0) {
+        await update(roomRef, { 'state/game_status': 'crewmates_win' });
+    } else if (totalTasks > 0 && completedTasks >= totalTasks) {
         await update(roomRef, { 'state/game_status': 'crewmates_win' });
     } else if (impostors >= crewmates) {
         await update(roomRef, { 'state/game_status': 'impostors_win' });
