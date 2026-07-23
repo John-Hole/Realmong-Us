@@ -1313,7 +1313,7 @@ body.schermo-body, body.teatro-body {
 .svg-container svg path[id]:hover {
     stroke: #000000 !important;
     stroke-width: 2.2px !important;
-    filter: drop-shadow(0 0 10px #00f2fe) brightness(1.1);
+    filter: drop-shadow(0 0 3px #00f2fe) brightness(1.1);
 }
 
 /* Black/Closed rooms: do NOT highlight on hover */

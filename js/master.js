@@ -509,13 +509,30 @@ ensureAuth().then((currentUser) => {
             const data = snapshot.val();
             
             // Host identity check
-            if (!checkedHost && data.creatorId && data.creatorId !== 'unknown') {
+            if (!checkedHost) {
                 checkedHost = true;
                 const user = auth.currentUser || currentUser;
-                if (!user || user.uid !== data.creatorId) {
+                let localMasterToken = null;
+                try {
+                    localMasterToken = sessionStorage.getItem(`realmong_master_token_${roomCode}`) ||
+                                       localStorage.getItem(`realmong_master_token_${roomCode}`);
+                } catch(e) {}
+
+                const isTokenValid = data.masterToken && localMasterToken && data.masterToken === localMasterToken;
+                const isUidValid = user && user.uid && data.creatorId && data.creatorId !== 'unknown' && user.uid === data.creatorId;
+
+                if (!isTokenValid && !isUidValid) {
                     alert("Accesso negato: Solo l'host creatore della stanza può accedere al pannello Master.");
                     window.location.href = "/";
                     return;
+                }
+
+                // Sync masterToken locally if verified by UID
+                if (isUidValid && data.masterToken && !localMasterToken) {
+                    try {
+                        sessionStorage.setItem(`realmong_master_token_${roomCode}`, data.masterToken);
+                        localStorage.setItem(`realmong_master_token_${roomCode}`, data.masterToken);
+                    } catch(e) {}
                 }
             }
 
@@ -1070,7 +1087,14 @@ btnStartRandom.addEventListener('click', async () => {
 
     let tasksSource = null;
     if (enableTasks && taskType === 'custom' && roomConfig.tasks && roomConfig.tasks.length > 0) {
-        tasksSource = roomConfig.tasks.map(t => `${t.num}. ${t.name}: ${t.obj} (${t.pos})`);
+        tasksSource = roomConfig.tasks.map(t => {
+            const titleText = t.name || t.obj || '';
+            const hasSeparateObj = Boolean(t.obj && t.obj.trim() !== '' && t.obj.trim() !== (t.name || '').trim());
+            if (hasSeparateObj) {
+                return `${t.num}. ${titleText}: ${t.obj}${t.pos ? ` (${t.pos})` : ''}`;
+            }
+            return `${t.num}. ${titleText}${t.pos ? ` (${t.pos})` : ''}`;
+        });
     }
 
     playerNames.forEach(name => {

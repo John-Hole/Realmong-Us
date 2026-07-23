@@ -108,9 +108,16 @@ if (roomCode) {
 
         // Role verification check: Only scientist can access this view
         const players = room.players || {};
+        const localToken = sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`);
         if (!myPlayerName || !players[myPlayerName] || players[myPlayerName].role !== 'scientist') {
             alert("Accesso negato: Solo il giocatore con ruolo 'Scienziato' può accedere a questo monitor.");
             window.location.href = `giocatore?room=${encodeURIComponent(roomCode)}${myPlayerName ? `&player=${encodeURIComponent(myPlayerName)}` : ''}`;
+            return;
+        }
+
+        if (players[myPlayerName].token && players[myPlayerName].token !== localToken) {
+            alert("Accesso non autorizzato: questa sessione appartiene a un altro utente o a un'altra scheda.");
+            window.location.href = "/";
             return;
         }
 

@@ -51,6 +51,7 @@ const btnRejoinRoom = document.getElementById('btn-rejoin-room');
 const btnNotInRoomChangeName = document.getElementById('btn-not-in-room-change-name');
 
 // Initialization
+ensureAuth();
 gameScreen.classList.remove('hidden');
 playerNameDisplay.textContent = myPlayerName;
 
@@ -111,8 +112,31 @@ onValue(roomRef, async (snapshot) => {
             hasSeenDeadOverlay = false;
         }
 
+        // Manage onDisconnect: Protect player node during active game so F5 refresh doesn't remove the player
+        if (currentState && currentState.game_status !== 'waiting') {
+            try { onDisconnect(myPlayerRef).cancel(); } catch(e){}
+            try { onDisconnect(myVoteRef).cancel(); } catch(e){}
+        } else {
+            onDisconnect(myPlayerRef).remove();
+            onDisconnect(myVoteRef).remove();
+        }
+
         if (data.players && data.players[myPlayerName]) {
             myData = data.players[myPlayerName];
+
+            // Session Token Validation
+            const localToken = sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`);
+            if (myData.token) {
+                if (!localToken || myData.token !== localToken) {
+                    alert("Accesso non autorizzato: questa sessione di gioco appartiene a un altro utente o a un'altra scheda.");
+                    window.location.href = "/";
+                    return;
+                }
+            } else if (localToken) {
+                // Sync token to RTDB if missing (e.g. legacy rooms)
+                update(ref(db, `rooms/${roomCode}/players/${myPlayerName}`), { token: localToken }).catch(() => {});
+            }
+
             if (notInRoomScreen) notInRoomScreen.classList.add('hidden');
             if (playerNameDisplay) playerNameDisplay.textContent = myPlayerName;
             updateUI(currentState, data.players);
@@ -144,6 +168,9 @@ onValue(roomRef, async (snapshot) => {
             overlayDead.classList.add('hidden');
 
             // Show Not-In-Room UI & check game status
+            const localToken = sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`);
+            const canRejoinMidGame = !!localToken;
+
             if (notInRoomScreen) {
                 notInRoomScreen.classList.remove('hidden');
                 if (btnRejoinRoom) {
@@ -152,7 +179,7 @@ onValue(roomRef, async (snapshot) => {
                         btnRejoinRoom.textContent = "SEI STATO ESPULSO";
                         btnRejoinRoom.style.background = "#555";
                         btnRejoinRoom.style.color = "#aaa";
-                    } else if (currentState && currentState.game_status !== 'waiting') {
+                    } else if (currentState && currentState.game_status !== 'waiting' && !canRejoinMidGame) {
                         btnRejoinRoom.disabled = true;
                         btnRejoinRoom.textContent = "PARTITA GIÀ AVVIATA";
                         btnRejoinRoom.style.background = "#555";
@@ -166,8 +193,8 @@ onValue(roomRef, async (snapshot) => {
                 }
             }
 
-            // Auto-rejoin if waiting status and not kicked
-            if (!isKicked && currentState && currentState.game_status === 'waiting' && !isAutoRejoining) {
+            // Auto-rejoin if not kicked and (in waiting state OR possesses valid session token)
+            if (!isKicked && (!currentState || currentState.game_status === 'waiting' || canRejoinMidGame) && !isAutoRejoining) {
                 isAutoRejoining = true;
                 rejoinRoom().finally(() => {
                     setTimeout(() => { isAutoRejoining = false; }, 2000);
@@ -300,6 +327,11 @@ function updateUI(state, playersMap) {
 
         if (state.round !== currentRoundTracker) {
             currentRoundTracker = state.round;
+            if (myData.role === 'impostor' && myData.status === 'alive') {
+                const cdSec = roomConfig ? (roomConfig.killCooldown || 120) : 120;
+                killCooldownEnd = Date.now() + (cdSec * 1000);
+                startCooldownTimer();
+            }
         }
 
         const maxMeetings = roomConfig.maxMeetings || 1;
@@ -577,6 +609,11 @@ btnKill.addEventListener('click', async () => {
         return;
     }
 
+    if (!myData || myData.role !== 'impostor' || myData.status !== 'alive') {
+        alert("Non puoi eseguire questa azione.");
+        return;
+    }
+
     const target = killTargetSelect.value;
     if (!target) {
         alert("Seleziona un bersaglio!");
@@ -584,14 +621,20 @@ btnKill.addEventListener('click', async () => {
     }
     
     if (confirm(`Sei sicuro di voler uccidere ${target}?`)) {
-        const cdSec = roomConfig.killCooldown || 120;
-        killCooldownEnd = Date.now() + (cdSec * 1000);
-        startCooldownTimer();
+        try {
+            await ensureAuth();
+            await update(ref(db, `rooms/${roomCode}/players/${target}`), {
+                status: 'killed_hidden'
+            });
 
-        await update(ref(db, `rooms/${roomCode}/players/${target}`), {
-            status: 'killed_hidden'
-        });
-        killTargetSelect.value = "";
+            const cdSec = (roomConfig && roomConfig.killCooldown) ? roomConfig.killCooldown : 120;
+            killCooldownEnd = Date.now() + (cdSec * 1000);
+            startCooldownTimer();
+            killTargetSelect.value = "";
+        } catch (err) {
+            console.error("Kill action failed:", err);
+            alert("Errore durante l'uccisione: " + err.message);
+        }
     }
 });
 
@@ -638,21 +681,28 @@ btnReport.addEventListener('click', async () => {
         return;
     }
 
-    const maxMeetings = roomConfig.maxMeetings || 1;
+    const maxMeetings = (roomConfig && roomConfig.maxMeetings) ? roomConfig.maxMeetings : 1;
     const meetingsCalled = myData.meetings_called || 0;
     
-    if(meetingsCalled >= maxMeetings || myData.status !== 'alive') return;
+    if (meetingsCalled >= maxMeetings || myData.status !== 'alive') return;
     
-    if(confirm("Vuoi segnalare un corpo o chiamare una riunione di emergenza?")) {
+    if (confirm("Vuoi segnalare un corpo o chiamare una riunione di emergenza?")) {
         btnReport.disabled = true;
         
-        const updates = {};
-        const remaining = Math.max(0, currentState.timer - Date.now());
-        updates[`rooms/${roomCode}/state/game_status`] = 'emergency';
-        updates[`rooms/${roomCode}/state/timer_paused`] = true;
-        updates[`rooms/${roomCode}/state/timer_remaining`] = remaining;
-        updates[`rooms/${roomCode}/players/${myPlayerName}/meetings_called`] = meetingsCalled + 1;
-        await update(ref(db), updates);
+        try {
+            await ensureAuth();
+            const updates = {};
+            const remaining = Math.max(0, (Number(currentState.timer) || Date.now()) - Date.now());
+            updates[`rooms/${roomCode}/state/game_status`] = 'emergency';
+            updates[`rooms/${roomCode}/state/timer_paused`] = true;
+            updates[`rooms/${roomCode}/state/timer_remaining`] = remaining;
+            updates[`rooms/${roomCode}/players/${myPlayerName}/meetings_called`] = meetingsCalled + 1;
+            await update(ref(db), updates);
+        } catch (err) {
+            console.error("Call meeting failed:", err);
+            btnReport.disabled = false;
+            alert("Errore durante la chiamata della riunione: " + err.message);
+        }
     }
 });
 
@@ -677,12 +727,21 @@ async function rejoinRoom() {
             }
         }
 
-        if (roomData.state && roomData.state.game_status !== 'waiting') {
-            alert("Impossibile rientrare: la partita è già in corso. Puoi rientrare solo se la partita non è ancora iniziata.");
+        let localToken = sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`);
+
+        if (roomData.state && roomData.state.game_status !== 'waiting' && !localToken) {
+            alert("Impossibile rientrare: la partita è già in corso. Puoi rientrare solo se eri già parte della partita.");
             return;
         }
 
         const playersMap = roomData.players || {};
+
+        if (!localToken) {
+            localToken = (typeof crypto !== 'undefined' && crypto.randomUUID)
+                ? crypto.randomUUID()
+                : (Date.now() + '_' + Math.random().toString(36).substring(2));
+            sessionStorage.setItem(`realmong_token_${roomCode}_${myPlayerName}`, localToken);
+        }
 
         // Re-add player node if not present
         const newPlayerRef = ref(db, `rooms/${roomCode}/players/${myPlayerName}`);
@@ -692,16 +751,23 @@ async function rejoinRoom() {
             await set(newPlayerRef, {
                 status: 'alive',
                 role: 'crewmate',
-                meetings_called: 0
+                meetings_called: 0,
+                token: localToken
             });
+        } else if (!playersMap[myPlayerName].token) {
+            await update(newPlayerRef, { token: localToken });
         }
 
         try { onDisconnect(newPlayerRef).cancel(); } catch(e){}
         try { onDisconnect(newVoteRef).cancel(); } catch(e){}
 
-        // Setup onDisconnect
-        onDisconnect(newPlayerRef).remove();
-        onDisconnect(newVoteRef).remove();
+        // Setup onDisconnect: Protect node if game is in progress
+        if (roomData.state && roomData.state.game_status !== 'waiting') {
+            // Do not remove on disconnect during active game
+        } else {
+            onDisconnect(newPlayerRef).remove();
+            onDisconnect(newVoteRef).remove();
+        }
 
         if (playerNameDisplay) playerNameDisplay.textContent = myPlayerName;
 
@@ -748,6 +814,14 @@ async function promptChangeName() {
         }
 
         if (myData) {
+            let currentToken = sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`);
+            if (!currentToken) {
+                currentToken = (typeof crypto !== 'undefined' && crypto.randomUUID)
+                    ? crypto.randomUUID()
+                    : (Date.now() + '_' + Math.random().toString(36).substring(2));
+            }
+            sessionStorage.setItem(`realmong_token_${roomCode}_${cleanName}`, currentToken);
+
             const oldNameRef = ref(db, `rooms/${roomCode}/players/${myPlayerName}`);
             const newNameRef = ref(db, `rooms/${roomCode}/players/${cleanName}`);
             const oldVoteRef = ref(db, `rooms/${roomCode}/votes/${myPlayerName}`);
@@ -755,10 +829,11 @@ async function promptChangeName() {
 
             const playerData = await get(oldNameRef);
             if (playerData.exists()) {
-                await set(newNameRef, playerData.val());
+                const updatedData = { ...playerData.val(), token: currentToken };
+                await set(newNameRef, updatedData);
                 await remove(oldNameRef);
             } else {
-                await set(newNameRef, { status: 'alive', role: 'crewmate', meetings_called: 0 });
+                await set(newNameRef, { status: 'alive', role: 'crewmate', meetings_called: 0, token: currentToken });
             }
 
             try { onDisconnect(oldNameRef).cancel(); } catch(e){}

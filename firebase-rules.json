@@ -29,17 +29,15 @@
         "currentRound": {
           ".validate": "newData.isNumber() && newData.val() >= 0"
         },
-        "gameState": {
-          ".write": "auth != null && (root.child('rooms').child($roomId).child('creatorId').val() === auth.uid || (root.child('rooms').child($roomId).child('createdAt').exists() && root.child('rooms').child($roomId).child('createdAt').val() < now - 86400000))",
+        "state": {
+          ".read": "auth != null",
+          ".write": "auth != null",
           ".validate": "newData.isObject()",
           "round": {
-            ".validate": "newData.isNumber() && newData.val() > 0"
+            ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0)"
           },
-          "status": {
-            ".validate": "newData.isString() && ['waiting', 'playing', 'meeting', 'voting', 'finished'].indexOf(newData.val()) !== -1"
-          },
-          "timeRemaining": {
-            ".validate": "newData.isNumber() && newData.val() >= 0"
+          "game_status": {
+            ".validate": "!newData.exists() || (newData.isString() && ['waiting', 'playing', 'emergency', 'discussion', 'voting', 'crewmates_win', 'impostors_win'].indexOf(newData.val()) !== -1)"
           }
         },
         "players": {
@@ -53,7 +51,7 @@
               ".validate": "newData.isString() && ['crewmate', 'impostor', 'scientist'].indexOf(newData.val()) !== -1"
             },
             "status": {
-              ".validate": "newData.isString() && ['alive', 'dead', 'ghost'].indexOf(newData.val()) !== -1"
+              ".validate": "newData.isString() && ['alive', 'killed_hidden', 'killed_revealed', 'dead', 'ghost'].indexOf(newData.val()) !== -1"
             },
             "joinedAt": {
               ".validate": "newData.isNumber() && newData.val() <= now"

@@ -93,23 +93,23 @@ const MAP_VECTOR_LOCATIONS = [
 ];
 
 const defaultBaseTasks = [
-    { num: '1', name: 'Canestri', obj: '3 canestri da tiro libero', pos: 'Canestro' },
-    { num: '2', name: 'Trova l\'oggetto', obj: 'Trova 10 oggetti nella scatola di acqua sporca', pos: 'Atrio' },
-    { num: '3', name: 'Rebus', obj: 'Risolvi 2 fogli di rebus', pos: 'Atrio' },
-    { num: '4', name: 'Puzzle', obj: 'Componi un puzzle', pos: 'Atrio' },
-    { num: '5', name: 'Pulisci il bagno', obj: '1 minuto per pulire tutto il bagno dalla tempera', pos: 'Bagno Disabili' },
-    { num: '6', name: 'Matematica', obj: 'Risolvi 10 operazioni in 1.5 min', pos: 'Sala Materiali' },
-    { num: '7', name: 'Limbo', obj: 'Supera 3 livelli', pos: 'Sala Materiali' },
-    { num: '8', name: 'Avanti un altro', obj: 'Rispondi a 15 domande', pos: 'Salone' },
-    { num: '9', name: 'Centra il bicchiere', obj: 'Fai centro con i pennarelli nel bicchiere in 1.5 min', pos: 'Salone' },
-    { num: '10', name: 'Percorso bendato', obj: 'Un compagno dà le indicazioni al giocatore bendato', pos: 'Strada Laterale' },
-    { num: '11', name: 'Riempi il bicchiere', obj: 'Con uno shottino pieno corri a riempire un bicchiere grande', pos: 'Strada Laterale' },
-    { num: '12', name: 'Ricorda la sequenza', obj: 'Ripeti la sequenza 1 volta', pos: 'Sala Gialla' },
-    { num: '13', name: 'Attacca le orecchie', obj: '1 minuto per attaccare bendati le orecchie al bianconiglio', pos: 'Sala Gialla' },
-    { num: '14', name: 'Twister', obj: 'Resisti 1.5 min cambiando posizione', pos: 'Sala Gialla' },
-    { num: '15', name: 'Dinosauro', obj: 'Pesca bigliettino col punteggio e gioca fino al target', pos: 'Regia' },
-    { num: '16', name: 'Whisper challenge', obj: 'Indovina 5 frasi', pos: 'Corridoio Salone' },
-    { num: '17', name: 'Cruciverba', obj: 'Risolvi un cruciverba', pos: 'Sala Verde' }
+    { num: '1', name: '3 canestri da tiro libero', obj: '3 canestri da tiro libero', pos: 'Canestro' },
+    { num: '2', name: 'Trova 10 oggetti nella scatola di acqua sporca', obj: 'Trova 10 oggetti nella scatola di acqua sporca', pos: 'Atrio' },
+    { num: '3', name: 'Risolvi 2 fogli di rebus', obj: 'Risolvi 2 fogli di rebus', pos: 'Atrio' },
+    { num: '4', name: 'Componi un puzzle', obj: 'Componi un puzzle', pos: 'Atrio' },
+    { num: '5', name: '1 minuto per pulire tutto il bagno dalla tempera', obj: '1 minuto per pulire tutto il bagno dalla tempera', pos: 'Bagno Disabili' },
+    { num: '6', name: 'Risolvi 10 operazioni in 1.5 min', obj: 'Risolvi 10 operazioni in 1.5 min', pos: 'Sala Materiali' },
+    { num: '7', name: 'Supera 3 livelli', obj: 'Supera 3 livelli', pos: 'Sala Materiali' },
+    { num: '8', name: 'Rispondi a 15 domande', obj: 'Rispondi a 15 domande', pos: 'Salone' },
+    { num: '9', name: 'Fai centro con i pennarelli nel bicchiere in 1.5 min', obj: 'Fai centro con i pennarelli nel bicchiere in 1.5 min', pos: 'Salone' },
+    { num: '10', name: 'Un compagno dà le indicazioni al giocatore bendato', obj: 'Un compagno dà le indicazioni al giocatore bendato', pos: 'Strada Laterale' },
+    { num: '11', name: 'Con uno shottino pieno corri a riempire un bicchiere grande', obj: 'Con uno shottino pieno corri a riempire un bicchiere grande', pos: 'Strada Laterale' },
+    { num: '12', name: 'Ripeti la sequenza 1 volta', obj: 'Ripeti la sequenza 1 volta', pos: 'Sala Gialla' },
+    { num: '13', name: '1 minuto per attaccare bendati le orecchie al bianconiglio', obj: '1 minuto per attaccare bendati le orecchie al bianconiglio', pos: 'Sala Gialla' },
+    { num: '14', name: 'Resisti 1.5 min cambiando posizione', obj: 'Resisti 1.5 min cambiando posizione', pos: 'Sala Gialla' },
+    { num: '15', name: 'Pesca bigliettino col punteggio e gioca fino al target', obj: 'Pesca bigliettino col punteggio e gioca fino al target', pos: 'Regia' },
+    { num: '16', name: 'Indovina 5 frasi', obj: 'Indovina 5 frasi', pos: 'Corridoio Salone' },
+    { num: '17', name: 'Risolvi un cruciverba', obj: 'Risolvi un cruciverba', pos: 'Sala Verde' }
 ];
 
 // Default Templates
@@ -1123,8 +1123,18 @@ async function startRoomWithConfig(config) {
     const uid = auth.currentUser ? auth.currentUser.uid : 'unknown';
     console.log("[Room] Creating room with creatorId:", uid, "roomCode:", roomCode);
 
+    const masterToken = (typeof crypto !== 'undefined' && crypto.randomUUID)
+        ? crypto.randomUUID()
+        : (Date.now() + '_' + Math.random().toString(36).substring(2));
+
+    try {
+        sessionStorage.setItem(`realmong_master_token_${roomCode}`, masterToken);
+        localStorage.setItem(`realmong_master_token_${roomCode}`, masterToken);
+    } catch(e) {}
+
     const roomData = {
         creatorId: uid,
+        masterToken: masterToken,
         createdAt: Date.now(),
         config: roomConfig,
         state: {
@@ -1212,10 +1222,17 @@ btnJoinRoom.addEventListener('click', async () => {
             return alert("Impossibile accedere: la stanza è al completo!");
         }
 
+        const playerToken = (typeof crypto !== 'undefined' && crypto.randomUUID)
+            ? crypto.randomUUID()
+            : (Date.now() + '_' + Math.random().toString(36).substring(2));
+        
+        sessionStorage.setItem(`realmong_token_${code}_${name}`, playerToken);
+
         await set(ref(db, `rooms/${code}/players/${name}`), {
             status: 'alive',
             role: 'crewmate',
-            meetings_called: 0
+            meetings_called: 0,
+            token: playerToken
         });
 
         window.location.href = `giocatore?room=${code}&player=${encodeURIComponent(name)}`;
