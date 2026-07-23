@@ -304,7 +304,7 @@
    inkscape:groupmode="layer"
    id="layer1"
    inkscape:label="Etichette"
-   style="display:inline">
+   style="display:inline;pointer-events:none;">
   <text
    x="132.60786"
    y="16.871609"

@@ -71,6 +71,12 @@
         }
 
         /* SVG Room Hovering: Illuminates borders only */
+        .svg-container svg text,
+        .svg-container svg tspan,
+        .svg-container svg #layer1 {
+            pointer-events: none !important;
+        }
+
         .svg-container svg path[id] {
             transition: stroke 0.2s ease, stroke-width 0.2s ease, filter 0.2s ease;
         }
@@ -193,7 +199,7 @@
     </div>
 
     <!-- Page script -->
-    <script type="module" src="js/mappa_oratorio.js?v=2"></script>
+    <script type="module" src="js/mappa_oratorio.js?v=3"></script>
     <script src="js/nav.js"></script>
 </body>
 </html>
