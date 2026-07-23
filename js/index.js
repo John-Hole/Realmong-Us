@@ -1,6 +1,6 @@
 import { db, auth } from './firebase-config.js';
 import { ref, set, get, child, remove } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, signInAnonymously, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signInWithCredential } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
 
 // DOM Elements - Sections
 const homeSection = document.getElementById('section-home');
@@ -29,8 +29,6 @@ const btnCreateCancelBottom = document.getElementById('btn-create-cancel-bottom'
 const emailInput = document.getElementById('auth-email');
 const passwordInput = document.getElementById('auth-password');
 const btnLogin = document.getElementById('btn-login');
-const btnRegister = document.getElementById('btn-register');
-const btnGoogleLogin = document.getElementById('btn-google-login');
 const btnAnonLogin = document.getElementById('btn-anon-login');
 
 // Join inputs
@@ -374,56 +372,13 @@ btnLogin.addEventListener('click', async () => {
     }
 });
 
-// Check for Google login redirect result if popup was blocked previously
-getRedirectResult(auth).then((result) => {
-    if (result && result.user) {
-        console.log("Google redirect login success:", result.user.email);
-        showSection('templates');
-    }
-}).catch((error) => {
-    console.error("Redirect login error:", error);
-    if (error.code && error.code !== 'auth/credential-already-in-use') {
-        showAuthError("Errore Google: " + (error.message || error.code));
-    }
-});
-
-btnGoogleLogin.addEventListener('click', async () => {
-    clearAuthError();
-    try {
-        const provider = new GoogleAuthProvider();
-        provider.setCustomParameters({ prompt: 'select_account' });
-        const result = await signInWithPopup(auth, provider);
-        if (result && result.user) {
-            console.log("Google login success:", result.user.email);
-            clearAuthError();
-            showSection('templates');
-        }
-    } catch (error) {
-        console.error("Google login error:", error);
-        if (error.code === 'auth/popup-closed-by-user') {
-            console.log('Google login cancelled by user');
-        } else if (error.code === 'auth/unauthorized-domain') {
-            showAuthError("Il dominio " + window.location.hostname + " non è autorizzato su Firebase.");
-        } else if (error.code === 'auth/popup-blocked') {
-            try {
-                const provider = new GoogleAuthProvider();
-                provider.setCustomParameters({ prompt: 'select_account' });
-                await signInWithRedirect(auth, provider);
-            } catch (err) {
-                showAuthError("Abilita i popup per accedere con Google.");
-            }
-        } else {
-            showAuthError("Errore Google: " + (error.message || error.code));
-        }
-    }
-});
-
 btnAnonLogin.addEventListener('click', async () => {
     try {
         await signInAnonymously(auth);
-        showSection('home');
+        clearAuthError();
+        showSection('templates');
     } catch (error) {
-        alert("Errore login anonimo: " + error.message);
+        showAuthError("Errore accesso Ospite: " + error.message);
     }
 });
 
