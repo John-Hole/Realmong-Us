@@ -184,7 +184,13 @@ function showSection(sectionName) {
     window.scrollTo(0, 0);
 }
 
-btnShowAuth.addEventListener('click', () => showSection('auth'));
+btnShowAuth?.addEventListener('click', () => {
+    if (currentUser) {
+        showSection('templates');
+    } else {
+        showSection('auth');
+    }
+});
 btnGoJoin.addEventListener('click', () => {
     const savedName = localStorage.getItem('lastNickname');
     if (savedName) joinName.value = savedName;
@@ -250,7 +256,7 @@ onAuthStateChanged(auth, (user) => {
 
         loadUserTemplates(user.uid);
         
-        if (urlParams.get('go') === 'account') {
+        if (!authSection.classList.contains('hidden') || urlParams.get('go') === 'account') {
             showSection('templates');
         }
     } else {
@@ -381,66 +387,34 @@ getRedirectResult(auth).then((result) => {
     }
 });
 
-function fallbackGooglePopup() {
-    const provider = new GoogleAuthProvider();
-    signInWithPopup(auth, provider).then((result) => {
+btnGoogleLogin.addEventListener('click', async () => {
+    clearAuthError();
+    try {
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        const result = await signInWithPopup(auth, provider);
         if (result && result.user) {
-            console.log("Google popup login success:", result.user.email);
+            console.log("Google login success:", result.user.email);
             clearAuthError();
             showSection('templates');
         }
-    }).catch((error) => {
-        console.error("Google popup error:", error);
+    } catch (error) {
+        console.error("Google login error:", error);
         if (error.code === 'auth/popup-closed-by-user') {
             console.log('Google login cancelled by user');
-        } else if (error.code === 'auth/popup-blocked') {
-            console.warn('Popup blocked, falling back to redirect...');
-            showAuthError("Reindirizzamento a Google in corso...");
-            signInWithRedirect(auth, provider).catch((err) => {
-                showAuthError("Errore Google Redirect: " + (err.message || err.code));
-            });
         } else if (error.code === 'auth/unauthorized-domain') {
             showAuthError("Il dominio " + window.location.hostname + " non è autorizzato su Firebase.");
+        } else if (error.code === 'auth/popup-blocked') {
+            try {
+                const provider = new GoogleAuthProvider();
+                provider.setCustomParameters({ prompt: 'select_account' });
+                await signInWithRedirect(auth, provider);
+            } catch (err) {
+                showAuthError("Abilita i popup per accedere con Google.");
+            }
         } else {
             showAuthError("Errore Google: " + (error.message || error.code));
         }
-    });
-}
-
-btnGoogleLogin.addEventListener('click', () => {
-    clearAuthError();
-    
-    if (window.google && window.google.accounts && window.google.accounts.id) {
-        try {
-            window.google.accounts.id.initialize({
-                client_id: "200595572263-g3r64flljklvkkt3kopumfkvarup2opj.apps.googleusercontent.com",
-                callback: async (response) => {
-                    if (response && response.credential) {
-                        try {
-                            const credential = GoogleAuthProvider.credential(response.credential);
-                            const userCred = await signInWithCredential(auth, credential);
-                            console.log("GIS Google login success:", userCred.user.email);
-                            clearAuthError();
-                            showSection('templates');
-                        } catch (err) {
-                            console.error("GIS Firebase Auth error:", err);
-                            showAuthError("Errore credenziali Google: " + (err.message || err.code));
-                        }
-                    }
-                }
-            });
-            window.google.accounts.id.prompt((notification) => {
-                if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                    console.log("GIS prompt skipped/not displayed, falling back to popup...");
-                    fallbackGooglePopup();
-                }
-            });
-        } catch (e) {
-            console.warn("GIS initialization error, using popup fallback:", e);
-            fallbackGooglePopup();
-        }
-    } else {
-        fallbackGooglePopup();
     }
 });
 
