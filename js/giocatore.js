@@ -420,8 +420,6 @@ if (playerNameBox) {
     });
 }
 
-let lastRenderedVotesSignature = '';
-
 let selectedVoteTarget = null;
 let lastRenderedVotesSignature = '';
 
