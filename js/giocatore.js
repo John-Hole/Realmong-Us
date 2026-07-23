@@ -175,9 +175,32 @@ onValue(roomRef, async (snapshot) => {
             }
         }
         
-        previousStatus = currentState.game_status;
+        previousStatus = currentState ? currentState.game_status : null;
+    } else {
+        myData = null;
+        if (crewmateUI) crewmateUI.classList.add('hidden');
+        if (scientistUI) scientistUI.classList.add('hidden');
+        if (killSection) killSection.classList.add('hidden');
+        const reportSec = document.getElementById('report-section');
+        if (reportSec) reportSec.classList.add('hidden');
+        if (waitingScreen) waitingScreen.classList.add('hidden');
+        if (votingUI) votingUI.classList.add('hidden');
+        if (roleScreen) roleScreen.classList.add('hidden');
+        if (overlayMeeting) overlayMeeting.classList.add('hidden');
+        if (overlayDead) overlayDead.classList.add('hidden');
+
+        if (notInRoomScreen) {
+            notInRoomScreen.classList.remove('hidden');
+            const msgEl = document.getElementById('not-in-room-msg');
+            if (msgEl) msgEl.textContent = `La stanza "${roomCode}" non esiste o è stata eliminata.`;
+            if (btnRejoinRoom) {
+                btnRejoinRoom.disabled = true;
+                btnRejoinRoom.textContent = "STANZA NON ESISTENTE";
+                btnRejoinRoom.style.background = "#555";
+                btnRejoinRoom.style.color = "#aaa";
+            }
+        }
     }
-});
 });
 
 function updateUI(state, playersMap) {
