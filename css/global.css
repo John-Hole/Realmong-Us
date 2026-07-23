@@ -2394,3 +2394,129 @@ input:checked + .slider:before {
     font-weight: 700;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
 }
+
+/* ===========================================================================
+   COMPACT MOBILE RHYTHM
+   A shared spacing scale keeps every app screen as dense as the Master panel.
+   =========================================================================== */
+@media (max-width: 768px) {
+    :root {
+        --mobile-page-padding: 0.75rem;
+        --mobile-section-gap: 0.75rem;
+        --mobile-card-padding: 0.9rem;
+        --mobile-control-padding: 0.7rem 0.85rem;
+    }
+
+    body {
+        padding-top: 60px !important;
+    }
+
+    /* Shared page gutters and vertical cadence. */
+    .master-layout-container,
+    .player-app-container,
+    .scienziato-container,
+    .mobile-app,
+    .hub-layout {
+        width: 100%;
+        padding: var(--mobile-page-padding) !important;
+        gap: var(--mobile-section-gap) !important;
+    }
+
+    .hub-layout {
+        align-items: center;
+    }
+
+    .section-container,
+    .glass-card,
+    .dashboard-card {
+        padding: var(--mobile-card-padding) !important;
+        border-radius: 14px !important;
+    }
+
+    .master-grid,
+    .master-left-col,
+    .master-right-col {
+        gap: var(--mobile-section-gap) !important;
+    }
+
+    .glass-card-header,
+    .dashboard-card-header {
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.6rem;
+    }
+
+    .glass-card-header-left,
+    .dashboard-card-header-left {
+        gap: 0.5rem;
+        min-width: 0;
+    }
+
+    .glass-card-header h2,
+    .dashboard-card h2 {
+        font-size: 0.9rem;
+        letter-spacing: 0.5px;
+        line-height: 1.2;
+    }
+
+    /* Forms, buttons and repeated rows use the same compact, touch-safe size. */
+    .form-group {
+        margin-bottom: 0.75rem !important;
+    }
+
+    .form-group label {
+        margin-bottom: 0.35rem !important;
+    }
+
+    input[type="text"], input[type="number"], input[type="password"],
+    input[type="email"], select, textarea,
+    .form-group input, .form-group select {
+        padding: var(--mobile-control-padding) !important;
+        border-radius: 10px !important;
+    }
+
+    .btn {
+        min-height: 42px;
+        padding: 0.65rem 0.85rem;
+    }
+
+    .task-list,
+    .vitals-grid {
+        gap: 0.6rem;
+    }
+
+    /* The Hub had its own larger desktop spacing; match it to the Manager. */
+    .section-container {
+        margin-bottom: 0.75rem !important;
+    }
+
+    .auth-status {
+        margin-bottom: 0.75rem !important;
+    }
+
+    .home-buttons,
+    .auth-buttons {
+        gap: 0.75rem;
+        margin-top: 0.75rem;
+    }
+
+    .task-row {
+        gap: 0.4rem;
+        margin-bottom: 0.4rem;
+    }
+
+    /* Preserve the compact one-line projector banner, wrapping only if needed. */
+    #projector-banner-box {
+        padding: 0.75rem 0.9rem !important;
+        gap: 0.65rem !important;
+    }
+
+    #hero-room-code-banner {
+        padding: 1rem 0.9rem !important;
+    }
+
+    .header-panel {
+        padding: var(--mobile-card-padding) !important;
+        gap: 0.75rem !important;
+    }
+}
