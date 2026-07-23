@@ -364,15 +364,16 @@ btnGoogleLogin.addEventListener('click', async () => {
         if (error.code === 'auth/popup-closed-by-user') {
             console.log('Google login cancelled');
         } else if (error.code === 'auth/popup-blocked') {
-            console.warn('Popup blocked, falling back to redirect...');
+            console.warn('Popup blocked by browser/adblocker, redirecting to Google...');
+            showAuthError("AdBlock o il browser ha bloccato il popup. Reindirizzamento a Google in corso...");
             try {
                 const provider = new GoogleAuthProvider();
                 await signInWithRedirect(auth, provider);
             } catch (err) {
-                showAuthError("Abilita i popup o usa l'accesso Email / Ospite.");
+                showAuthError("Gli AdBlocker del browser bloccano il login Google. Metti in pausa AdBlock su questo sito.");
             }
         } else if (error.code === 'auth/unauthorized-domain') {
-            showAuthError("Dominio " + window.location.hostname + " non autorizzato su Firebase.");
+            showAuthError("Il dominio " + window.location.hostname + " non è ancora stato autorizzato su Firebase.");
         } else {
             showAuthError("Errore login Google: " + (error.message || error.code));
         }
