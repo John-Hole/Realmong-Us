@@ -69,7 +69,6 @@ const textTasksContainer = document.getElementById('text-tasks-container');
 const btnAddTextTask = document.getElementById('btn-add-text-task');
 const btnSaveStartRoom = document.getElementById('btn-save-start-room');
 const btnSaveTemplateOnly = document.getElementById('btn-save-template-only');
-const btnResetBaseTemplate = document.getElementById('btn-reset-base-template');
 const createTemplateSubtitle = document.getElementById('create-template-subtitle');
 
 let currentUser = null;
@@ -469,19 +468,6 @@ function setFormDisabled(disabled) {
 function openCreateSettings(id, data, isDuplicate = false, isBase = false) {
     const isBaseTemplate = (isBase || id === 'base') && !isDuplicate;
     currentEditId = isDuplicate ? null : id;
-
-    if (btnResetBaseTemplate) {
-        if (isBaseTemplate) {
-            btnResetBaseTemplate.classList.remove('hidden');
-            btnResetBaseTemplate.onclick = () => {
-                if (confirm("Vuoi ripristinare i campi con i valori predefiniti del Template Standard Realmong?")) {
-                    openCreateSettings('base', baseTemplate, false, true);
-                }
-            };
-        } else {
-            btnResetBaseTemplate.classList.add('hidden');
-        }
-    }
 
     if (data) {
         if (isBaseTemplate) {
