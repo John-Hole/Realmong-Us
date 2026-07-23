@@ -40,3 +40,15 @@ export function formatTime(ms) {
     const seconds = totalSeconds % 60;
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
+
+// Escape HTML utility function to prevent XSS
+export function escapeHtml(value) {
+    if (value === null || value === undefined) return '';
+    return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+}
+

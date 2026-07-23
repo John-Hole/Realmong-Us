@@ -1,5 +1,6 @@
 import { db } from './firebase-config.js';
 import { ref, update, onValue, onDisconnect, get, set, remove } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+import { escapeHtml } from './game-logic.js';
 
 const urlParams = new URLSearchParams(window.location.search);
 const roomCode = urlParams.get('room');
@@ -355,7 +356,7 @@ function renderVotingUI(playersMap) {
 
     if (currentVotes[myPlayerName]) {
         votingOptions.innerHTML = '';
-        votingStatus.innerHTML = `<h3 style="color: var(--accent-green);">Hai votato: ${currentVotes[myPlayerName]}</h3><p>Attendi gli altri...</p>`;
+        votingStatus.innerHTML = `<h3 style="color: var(--accent-green);">Hai votato: ${escapeHtml(currentVotes[myPlayerName])}</h3><p>Attendi gli altri...</p>`;
         return;
     }
 
@@ -429,7 +430,7 @@ function renderRealTasks(tasksObj) {
                     <span class="task-status-pill ${isDone ? 'done' : 'pending'}">${isDone ? '✔ COMPLETATO' : 'IN CORSO'}</span>
                 </div>
                 <div class="task-info">
-                    <div class="task-title">${taskData.desc}</div>
+                    <div class="task-title">${escapeHtml(taskData.desc)}</div>
                 </div>
             </div>
             <button class="task-btn ${isDone ? 'btn-done' : ''}" ${isDone ? 'disabled' : ''} id="task-btn-${taskId}">
@@ -476,7 +477,7 @@ function renderImpostorTasks(tasksObj) {
                     <span class="task-status-pill ${isDone ? 'done' : 'pending'}" id="fake-pill-${taskId}">${isDone ? '✔ COMPLETATO' : 'IN CORSO'}</span>
                 </div>
                 <div class="task-info">
-                    <div class="task-title">${taskData.desc}</div>
+                    <div class="task-title">${escapeHtml(taskData.desc)}</div>
                 </div>
             </div>
             <button class="task-btn ${isDone ? 'btn-done' : ''}" ${isDone ? 'disabled' : ''} id="fake-btn-${taskId}">
@@ -599,7 +600,7 @@ function renderVitals(players) {
 
         card.classList.add(statusClass);
         card.innerHTML = `
-            <div style="font-size: 0.9rem; font-family: var(--font-pixel); margin-bottom: 0.5rem; word-break: break-all;">${name}</div>
+            <div style="font-size: 0.9rem; font-family: var(--font-pixel); margin-bottom: 0.5rem; word-break: break-all;">${escapeHtml(name)}</div>
             <div style="font-size: 0.7rem;">${statusText}</div>
         `;
         vitalsContainer.appendChild(card);

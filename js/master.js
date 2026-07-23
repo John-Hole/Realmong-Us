@@ -1,6 +1,7 @@
-import { db } from './firebase-config.js';
+import { db, auth } from './firebase-config.js';
 import { ref, get, set, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
-import { getRandomTasks, ROUND_TIMES, formatTime } from './game-logic.js';
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+import { getRandomTasks, ROUND_TIMES, formatTime, escapeHtml } from './game-logic.js';
 
 // Get room code
 const urlParams = new URLSearchParams(window.location.search);
@@ -343,7 +344,7 @@ function processPlayerLogs(oldPlayers, newPlayers) {
     if (!oldPlayers) return;
     for (const name in oldPlayers) {
         if (!newPlayers[name] && (!currentKicked || !currentKicked[name])) {
-            addLog(`🥾 <span style="color:var(--accent-red);">${name}</span> ha lasciato la stanza.`);
+            addLog(`🥾 <span style="color:var(--accent-red);">${escapeHtml(name)}</span> ha lasciato la stanza.`);
         }
     }
     for (const name in newPlayers) {
@@ -352,17 +353,17 @@ function processPlayerLogs(oldPlayers, newPlayers) {
         if (!oldP) continue;
 
         if (oldP.status === 'alive' && newP.status === 'killed_hidden') {
-            addLog(`💀 <span style="color:var(--accent-red);">${name}</span> è STATO UCCISO.`);
+            addLog(`💀 <span style="color:var(--accent-red);">${escapeHtml(name)}</span> è STATO UCCISO.`);
         }
         if (oldP.status === 'alive' && newP.status === 'killed_revealed') {
-            addLog(`🥾 <span style="color:var(--accent-cyan);">${name}</span> è STATO ESPULSO DA VOTAZIONE.`);
+            addLog(`🥾 <span style="color:var(--accent-cyan);">${escapeHtml(name)}</span> è STATO ESPULSO DA VOTAZIONE.`);
         }
 
         // Check tasks
         if (oldP.tasks && newP.tasks) {
             for (const t in newP.tasks) {
                 if (newP.tasks[t].completed && !oldP.tasks[t].completed) {
-                    addLog(`✅ <span style="color:#4caf50;">${name}</span> ha completato una task: ${newP.tasks[t].desc}`);
+                    addLog(`✅ <span style="color:#4caf50;">${escapeHtml(name)}</span> ha completato una task: ${escapeHtml(newP.tasks[t].desc)}`);
                 }
             }
         }
@@ -390,7 +391,7 @@ function updateMonitor(players) {
 
         div.innerHTML = `
             <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                <strong style="color: ${color}; font-size: 0.95rem;">${name}</strong> 
+                <strong style="color: ${color}; font-size: 0.95rem;">${escapeHtml(name)}</strong> 
                 <span style="font-size: 0.75rem; padding: 2px 7px; border-radius: 6px; background: rgba(255,255,255,0.06); color:#94a3b8; font-weight: 600;">${roleLabel}</span>
                 <span style="font-size: 0.75rem; padding: 2px 7px; border-radius: 6px; background: ${p.status==='alive'?'rgba(0,230,118,0.15)':'rgba(255,255,255,0.05)'}; color: ${p.status==='alive'?'var(--accent-green)':'#64748b'}; font-weight: 700;">${statusLabel}</span>
             </div>
@@ -409,7 +410,7 @@ function updateMonitor(players) {
                         [`players/${name}`]: null,
                         [`kickedPlayers/${name}`]: true
                     });
-                    addLog(`🥾 <span style="color:var(--accent-red);">${name}</span> è stato espulso dal Master.`);
+                    addLog(`🥾 <span style="color:var(--accent-red);">${escapeHtml(name)}</span> è stato espulso dal Master.`);
                 }
             };
             div.appendChild(btnKick);
@@ -441,7 +442,7 @@ function updateMonitor(players) {
                             [`players/${name}`]: null,
                             [`kickedPlayers/${name}`]: true
                         });
-                        addLog(`🥾 <span style="color:var(--accent-red);">${name}</span> è stato espulso dal Master.`);
+                        addLog(`🥾 <span style="color:var(--accent-red);">${escapeHtml(name)}</span> è stato espulso dal Master.`);
                     }
                 };
                 div.appendChild(btnKick);
@@ -476,7 +477,7 @@ function updateKickedSection(kickedMap) {
         div.className = 'master-kicked-row';
 
         div.innerHTML = `
-            <strong style="color: #f87171; font-size: 0.9rem;">${name}</strong>
+            <strong style="color: #f87171; font-size: 0.9rem;">${escapeHtml(name)}</strong>
         `;
 
         const btnReadmit = document.createElement('button');
@@ -500,10 +501,17 @@ function updateKickedSection(kickedMap) {
 }
 
 // Listen to changes
-onValue(roomRef, async (snapshot) => {
-    if (snapshot.exists()) {
-        const data = snapshot.val();
-        
+        // Host identity check
+        if (data.creatorId) {
+            onAuthStateChanged(auth, (user) => {
+                if (!user || user.uid !== data.creatorId) {
+                    alert("Accesso negato: Solo l'host creatore della stanza può accedere al pannello Master.");
+                    window.location.href = "index.html";
+                    return;
+                }
+            });
+        }
+
         // 24-hour expiration check
         if (data.createdAt && (Date.now() - data.createdAt > 24 * 60 * 60 * 1000)) {
             try {

@@ -1,6 +1,7 @@
 import { db, auth } from './firebase-config.js';
 import { ref, set, get, child, remove } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+import { escapeHtml } from './game-logic.js';
 
 // DOM Elements - Sections
 const homeSection = document.getElementById('section-home');
@@ -906,11 +907,11 @@ function buildLocationOptions(selectedPos) {
     MAP_VECTOR_LOCATIONS.forEach(loc => {
         const sel = (loc === selectedPos) ? 'selected' : '';
         if (sel) found = true;
-        opts += `<option value="${loc}" ${sel}>${loc}</option>`;
+        opts += `<option value="${escapeHtml(loc)}" ${sel}>${escapeHtml(loc)}</option>`;
     });
     // If existing pos doesn't match any SVG room, add it as custom
     if (selectedPos && !found) {
-        opts += `<option value="${selectedPos}" selected>${selectedPos}</option>`;
+        opts += `<option value="${escapeHtml(selectedPos)}" selected>${escapeHtml(selectedPos)}</option>`;
     }
     return opts;
 }

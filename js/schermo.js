@@ -1,6 +1,6 @@
 import { db } from './firebase-config.js';
 import { ref, onValue, get, update } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
-import { formatTime, TASKS_LIST } from './game-logic.js';
+import { formatTime, TASKS_LIST, escapeHtml } from './game-logic.js';
 
 const urlParams = new URLSearchParams(window.location.search);
 let roomCode = urlParams.get('room');
@@ -153,7 +153,7 @@ function startConnection() {
 
                 div.innerHTML = `
                     <div class="player-avatar">👨‍🚀</div>
-                    <span class="player-name">${playerName}</span>
+                    <span class="player-name">${escapeHtml(playerName)}</span>
                     ${statusHtml}
                 `;
                 playersListContainer.appendChild(div);
@@ -217,11 +217,11 @@ function startConnection() {
                 const li = document.createElement('li');
                 li.className = 'schermo-task-item';
                 li.innerHTML = `
-                    <span class="task-num">#${t.num}</span>
+                    <span class="task-num">#${escapeHtml(t.num)}</span>
                     <div class="task-info">
-                        <div class="task-title">${t.name}</div>
-                        ${t.obj ? `<div class="task-desc">${t.obj}</div>` : ''}
-                        ${t.pos ? `<div class="task-location">📍 ${t.pos}</div>` : ''}
+                        <div class="task-title">${escapeHtml(t.name)}</div>
+                        ${t.obj ? `<div class="task-desc">${escapeHtml(t.obj)}</div>` : ''}
+                        ${t.pos ? `<div class="task-location">📍 ${escapeHtml(t.pos)}</div>` : ''}
                     </div>
                 `;
                 leftTaskList.appendChild(li);
@@ -235,10 +235,10 @@ function startConnection() {
             tasksArray.forEach(t => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="task-td-num">${t.num}</td>
-                    <td class="task-td-name">${t.name}</td>
-                    <td class="task-td-obj">${t.obj || '-'}</td>
-                    <td class="task-td-pos">${t.pos || '-'}</td>
+                    <td class="task-td-num">${escapeHtml(t.num)}</td>
+                    <td class="task-td-name">${escapeHtml(t.name)}</td>
+                    <td class="task-td-obj">${t.obj ? escapeHtml(t.obj) : '-'}</td>
+                    <td class="task-td-pos">${t.pos ? escapeHtml(t.pos) : '-'}</td>
                 `;
                 textTasksBody.appendChild(tr);
             });
@@ -434,7 +434,7 @@ function startConnection() {
                     <div class="dead-slash-line"></div>
                     <div class="dead-reveal-avatar">👨‍🚀</div>
                     <div class="dead-reveal-info">
-                        <span class="dead-reveal-name">${pName}</span>
+                        <span class="dead-reveal-name">${escapeHtml(pName)}</span>
                     </div>
                     <div class="dead-stamp">❌ DEFUNTO</div>
                 `;

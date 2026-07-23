@@ -3,6 +3,7 @@ import { ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.3
 
 const urlParams = new URLSearchParams(window.location.search);
 const roomCode = urlParams.get('room');
+const myPlayerName = urlParams.get('player');
 
 const vitalsContainer = document.getElementById('vitals-container');
 const btnEmergency = document.getElementById('btn-emergency');
@@ -103,6 +104,14 @@ if (roomCode) {
         }
 
         const room = snapshot.val() || {};
+
+        // Role verification check: Only scientist can access this view
+        const players = room.players || {};
+        if (!myPlayerName || !players[myPlayerName] || players[myPlayerName].role !== 'scientist') {
+            alert("Accesso negato: Solo il giocatore con ruolo 'Scienziato' può accedere a questo monitor.");
+            window.location.href = `giocatore.html?room=${encodeURIComponent(roomCode)}${myPlayerName ? `&player=${encodeURIComponent(myPlayerName)}` : ''}`;
+            return;
+        }
 
         // 24-hour expiration check
         if (room.createdAt && (Date.now() - room.createdAt > 24 * 60 * 60 * 1000)) {
