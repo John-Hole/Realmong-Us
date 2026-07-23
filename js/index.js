@@ -178,7 +178,7 @@ btnGoSchermo?.addEventListener('click', () => {
 btnAuthBack.addEventListener('click', () => showSection('home'));
 btnTplBack.addEventListener('click', () => showSection('home'));
 btnJoinBack.addEventListener('click', () => showSection('home'));
-btnCreateBack.addEventListener('click', () => { currentEditId = null; showSection('templates'); });
+btnCreateBack?.addEventListener('click', () => { currentEditId = null; showSection('templates'); });
 btnCreateCancelBottom?.addEventListener('click', () => { currentEditId = null; showSection('templates'); });
 
 btnGoCreate.addEventListener('click', () => {
@@ -445,16 +445,16 @@ function openCreateSettings(id, data, isDuplicate = false, isBase = false) {
 
     if (data) {
         if (isBaseTemplate) {
-            createTemplateSubtitle.textContent = "Stai visualizzando i parametri del Template Standard Realmong.";
+            if (createTemplateSubtitle) createTemplateSubtitle.textContent = "Stai visualizzando i parametri del Template Standard Realmong.";
             btnSaveTemplateOnly.classList.add('hidden');
             btnSaveStartRoom.classList.remove('hidden');
             btnSaveStartRoom.textContent = "AVVIA STANZA CON QUESTI SETTAGGI";
             btnCreateCancelBottom.textContent = "INDIETRO / ANNULLA";
         } else {
             if (isDuplicate) {
-                createTemplateSubtitle.textContent = `Stai duplicando "${data.name || 'Template'}". Le modifiche verranno salvate come un nuovo template.`;
+                if (createTemplateSubtitle) createTemplateSubtitle.textContent = `Stai duplicando "${data.name || 'Template'}". Le modifiche verranno salvate come un nuovo template.`;
             } else {
-                createTemplateSubtitle.textContent = `Stai modificando il tuo template "${data.name || 'Template'}".`;
+                if (createTemplateSubtitle) createTemplateSubtitle.textContent = `Stai modificando il tuo template "${data.name || 'Template'}".`;
             }
             btnSaveTemplateOnly.classList.remove('hidden');
             btnSaveStartRoom.classList.remove('hidden');
@@ -503,7 +503,7 @@ function openCreateSettings(id, data, isDuplicate = false, isBase = false) {
 
         setFormDisabled(isBaseTemplate);
     } else {
-        createTemplateSubtitle.textContent = "Crea un nuovo template personalizzato con le tue impostazioni preferite.";
+        if (createTemplateSubtitle) createTemplateSubtitle.textContent = "Crea un nuovo template personalizzato con le tue impostazioni preferite.";
         btnSaveTemplateOnly.classList.remove('hidden');
         btnSaveStartRoom.classList.remove('hidden');
         btnSaveTemplateOnly.textContent = "SALVA TEMPLATE";
