@@ -1,4 +1,4 @@
-import { db } from './firebase-config.js';
+import { db, ensureAuth } from './firebase-config.js';
 import { ref, update, onValue, onDisconnect, get, set, remove } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
 import { escapeHtml } from './game-logic.js';
 
@@ -43,6 +43,7 @@ const taskList = document.getElementById('task-list');
 
 const votingUI = document.getElementById('voting-ui');
 const votingOptions = document.getElementById('voting-options');
+const votingTimer = document.getElementById('voting-timer');
 const votingStatus = document.getElementById('voting-status');
 
 const notInRoomScreen = document.getElementById('not-in-room-screen');
@@ -176,6 +177,7 @@ onValue(roomRef, async (snapshot) => {
         
         previousStatus = currentState.game_status;
     }
+});
 });
 
 function updateUI(state, playersMap) {

@@ -1,4 +1,4 @@
-import { db } from './firebase-config.js';
+import { db, ensureAuth } from './firebase-config.js';
 import { ref, onValue, get, update } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
 import { formatTime, TASKS_LIST, escapeHtml } from './game-logic.js';
 
@@ -487,7 +487,8 @@ function startConnection() {
     renderPlayers(null, null, null);
 
     const roomRef = ref(db, `rooms/${roomCode}`);
-    onValue(roomRef, (snapshot) => {
+    ensureAuth().then(() => {
+        onValue(roomRef, (snapshot) => {
         if (snapshot.exists()) {
             const data = snapshot.val();
             
@@ -693,6 +694,7 @@ function startConnection() {
                 previousStatus = status;
             }
         }
+    });
     });
 }
 

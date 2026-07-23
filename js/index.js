@@ -1,4 +1,4 @@
-import { db, auth } from './firebase-config.js';
+import { db, auth, ensureAuth } from './firebase-config.js';
 import { ref, set, get, child, remove } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
 import { escapeHtml } from './game-logic.js';
@@ -1160,6 +1160,7 @@ btnJoinRoom.addEventListener('click', async () => {
     }
 
     localStorage.setItem('lastNickname', name);
+    await ensureAuth();
 
     const dbRef = ref(db);
     try {

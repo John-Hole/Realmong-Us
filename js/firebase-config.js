@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
 import { getDatabase } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
 
 // Firebase Configuration for realmong-us-g20b
 const firebaseConfig = {
@@ -17,5 +17,28 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
+
+let authPromise = null;
+
+export function ensureAuth() {
+  if (authPromise) return authPromise;
+  authPromise = new Promise((resolve) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      unsubscribe();
+      if (user) {
+        resolve(user);
+      } else {
+        try {
+          const cred = await signInAnonymously(auth);
+          resolve(cred.user);
+        } catch (e) {
+          console.error("Auto sign-in failed:", e);
+          resolve(null);
+        }
+      }
+    });
+  });
+  return authPromise;
+}
 
 export { db, auth, app, firebaseConfig };

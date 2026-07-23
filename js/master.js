@@ -1,4 +1,4 @@
-import { db, auth } from './firebase-config.js';
+import { db, auth, ensureAuth } from './firebase-config.js';
 import { ref, get, set, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
 import { getRandomTasks, ROUND_TIMES, formatTime, escapeHtml } from './game-logic.js';
@@ -501,50 +501,58 @@ function updateKickedSection(kickedMap) {
 }
 
 // Listen to changes
-        // Host identity check
-        if (data.creatorId) {
-            onAuthStateChanged(auth, (user) => {
+let checkedHost = false;
+
+ensureAuth().then((currentUser) => {
+    onValue(roomRef, async (snapshot) => {
+        if (snapshot.exists()) {
+            const data = snapshot.val();
+            
+            // Host identity check
+            if (!checkedHost && data.creatorId && data.creatorId !== 'unknown') {
+                checkedHost = true;
+                const user = auth.currentUser || currentUser;
                 if (!user || user.uid !== data.creatorId) {
                     alert("Accesso negato: Solo l'host creatore della stanza può accedere al pannello Master.");
                     window.location.href = "/";
                     return;
                 }
-            });
-        }
+            }
 
-        // 24-hour expiration check
-        if (data.createdAt && (Date.now() - data.createdAt > 24 * 60 * 60 * 1000)) {
-            try {
-                await remove(ref(db, `rooms/${roomCode}`));
-                await remove(ref(db, `images/${roomCode}`));
-            } catch (e) {}
-            alert("Questa stanza è scaduta (superato 1 giorno dalla creazione) ed è stata eliminata.");
-            window.location.href = "/";
-            return;
-        }
+            // 24-hour expiration check
+            if (data.createdAt && (Date.now() - data.createdAt > 24 * 60 * 60 * 1000)) {
+                try {
+                    await remove(ref(db, `rooms/${roomCode}`));
+                    await remove(ref(db, `images/${roomCode}`));
+                } catch (e) {}
+                alert("Questa stanza è scaduta (superato 1 giorno dalla creazione) ed è stata eliminata.");
+                window.location.href = "/";
+                return;
+            }
 
-        currentState = data.state || {};
-        roomConfig = data.config || {};
-        currentPlayers = data.players || {};
-        currentVotes = data.votes || {};
-        currentKicked = data.kickedPlayers || {};
-        
-        syncTimeConfigUI();
-        updateUI(currentState, currentPlayers);
-        updateMonitor(currentPlayers);
-        updateKickedSection(currentKicked);
-        
-        processPlayerLogs(previousPlayers, currentPlayers);
-        previousPlayers = JSON.parse(JSON.stringify(currentPlayers));
-        
-        // As a Master, perform automatic checks
-        if (!resolvingMeeting) {
-            checkWinCondition(currentState, currentPlayers);
-            checkVotes(currentState, currentPlayers, currentVotes);
+            currentState = data.state || {};
+            roomConfig = data.config || {};
+            currentPlayers = data.players || {};
+            currentVotes = data.votes || {};
+            currentKicked = data.kickedPlayers || {};
+            
+            syncTimeConfigUI();
+            updateUI(currentState, currentPlayers);
+            updateMonitor(currentPlayers);
+            updateKickedSection(currentKicked);
+            
+            processPlayerLogs(previousPlayers, currentPlayers);
+            previousPlayers = JSON.parse(JSON.stringify(currentPlayers));
+            
+            // As a Master, perform automatic checks
+            if (!resolvingMeeting) {
+                checkWinCondition(currentState, currentPlayers);
+                checkVotes(currentState, currentPlayers, currentVotes);
+            }
+        } else {
+            statusBadge.textContent = "STANZA NON TROVATA";
         }
-    } else {
-        statusBadge.textContent = "STANZA NON TROVATA";
-    }
+    });
 });
 
 function updateUI(state, players) {

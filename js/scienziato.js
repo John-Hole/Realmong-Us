@@ -1,4 +1,4 @@
-import { db } from './firebase-config.js';
+import { db, ensureAuth } from './firebase-config.js';
 import { ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -96,7 +96,8 @@ function renderVitals(players) {
 }
 
 if (roomCode) {
-    onValue(roomRef, snapshot => {
+    ensureAuth().then(() => {
+        onValue(roomRef, snapshot => {
         if (!snapshot.exists()) {
             alert("La stanza non esiste più.");
             window.location.href = "/";
@@ -124,6 +125,7 @@ if (roomCode) {
     }, error => {
         console.error('Errore sincronizzazione monitor:', error);
         gameStatusText.textContent = 'Errore di connessione alla stanza';
+    });
     });
 }
 
