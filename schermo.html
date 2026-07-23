@@ -14,8 +14,8 @@
     <audio id="siren-audio" src="audio/siren.mp3" loop preload="auto"></audio>
     <audio id="meeting-audio" src="audio/meeting.mp3" preload="auto"></audio>
 
-    <div id="join-overlay" class="overlay-screen" style="padding: 2rem;">
-        <div class="section-container" style="background: var(--card-bg); border-radius: 20px; padding: 2rem; border: 2px solid var(--accent-cyan); max-width: 400px; width: 100%; text-align: center;">
+    <div id="join-overlay" class="overlay-screen" style="padding: 1rem;">
+        <div class="section-container" style="background: var(--card-bg); border-radius: 16px; padding: 1.25rem; border: 2px solid var(--accent-cyan); max-width: 400px; width: 100%; text-align: center;">
             <h1 style="margin-bottom: 1rem; color: var(--accent-cyan); font-family: var(--font-ui); font-size: 2rem;">Schermata Generale</h1>
             <p style="font-size: 1rem; margin-bottom: 2rem; color: #ccc; font-family: var(--font-ui);">Inserisci il codice stanza per avviare il maxischermo:</p>
             <input type="text" id="join-room-input" style="width: 100%; padding: 1rem; border-radius: 10px; background: #2a3644; color: white; border: none; box-sizing: border-box; font-family: var(--font-ui); text-transform: uppercase; margin-bottom: 1.5rem; text-align: center; font-size: 1.5rem;" placeholder="CODICE" maxlength="5">
@@ -48,7 +48,7 @@
             </div>
         </div>
     </div>
-    <!-- Waiting Screen Removed (Replaced by Dashboard Layout in waiting mode) -->
+
     <!-- Meeting Screen -->
     <div id="meeting-screen" class="overlay-screen hidden">
         <h1 class="alert-text">DISCUSSIONE IN CORSO</h1>

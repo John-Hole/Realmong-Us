@@ -103,6 +103,14 @@ if (roomCode) {
         }
 
         const room = snapshot.val() || {};
+
+        // 24-hour expiration check
+        if (room.createdAt && (Date.now() - room.createdAt > 24 * 60 * 60 * 1000)) {
+            alert("La stanza è scaduta (durata massima: 24h).");
+            window.location.href = "index.html";
+            return;
+        }
+
         updateUI(room.state, room.players);
     }, error => {
         console.error('Errore sincronizzazione monitor:', error);

@@ -491,6 +491,13 @@ function startConnection() {
         if (snapshot.exists()) {
             const data = snapshot.val();
             
+            // 24-hour expiration check
+            if (data.createdAt && (Date.now() - data.createdAt > 24 * 60 * 60 * 1000)) {
+                alert("La stanza visualizzata è scaduta (durata massima: 24h).");
+                window.location.href = "index.html";
+                return;
+            }
+
             if (!qrInitialized && typeof QRCode !== 'undefined') {
                 qrInitialized = true;
                 const qrContainer = document.getElementById("qrcode");

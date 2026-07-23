@@ -8,26 +8,26 @@
     <style>
         .section-container {
             background: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: 20px;
-            margin-bottom: 1rem;
+            padding: 1.25rem;
+            border-radius: 16px;
+            margin-bottom: 0.75rem;
             max-width: 600px;
             width: 100%;
             box-sizing: border-box;
             box-shadow: 0 4px 15px rgba(0,0,0,0.4);
         }
         .form-group {
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
         }
         .form-group label {
             display: block;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.35rem;
             color: var(--accent-cyan);
             font-weight: bold;
         }
         .form-group input, .form-group select {
             width: 100%;
-            padding: 0.8rem;
+            padding: 0.7rem 0.85rem;
             border-radius: 10px;
             background: #2a3644;
             color: white;
@@ -40,11 +40,12 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 2rem;
+            padding: 1rem;
+            gap: 0.75rem;
         }
         .auth-status {
             text-align: right;
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
             width: 100%;
             max-width: 600px;
         }
@@ -57,19 +58,26 @@
             padding: 0.5rem;
             font-size: 0.8rem;
         }
+        .btn-hub-action {
+            flex: 1;
+            font-size: clamp(1.2rem, 4vw, 1.5rem);
+            padding: 1.25rem 1rem !important;
+            border-radius: 14px !important;
+            line-height: 1.2;
+        }
     </style>
 </head>
 <body>
     <div class="hub-layout">
         <!-- HOME SECTION -->
-        <div id="section-home" class="section-container" style="text-align: center; margin-top: 1rem;">
+        <div id="section-home" class="section-container" style="text-align: center; margin-top: 0.5rem;">
             <div class="home-buttons">
-                <button id="btn-go-create" class="btn" style="flex:1; background: var(--accent-cyan); color: black; font-size: 1.5rem; padding: 2rem;">CREA<br><span style="font-size:0.8rem">Manager</span></button>
-                <button id="btn-go-join" class="btn" style="flex:1; background: var(--accent-green); font-size: 1.5rem; padding: 2rem;">UNISCITI<br><span style="font-size:0.8rem">Giocatore</span></button>
+                <button id="btn-go-create" class="btn btn-hub-action" style="background: var(--accent-cyan); color: black;">CREA<br><span style="font-size:0.8rem">Manager</span></button>
+                <button id="btn-go-join" class="btn btn-hub-action" style="background: var(--accent-green);">UNISCITI<br><span style="font-size:0.8rem">Giocatore</span></button>
             </div>
-            <div style="margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+            <div style="margin-top: 1rem; padding-top: 0.85rem; border-top: 1px solid rgba(255, 255, 255, 0.1);">
                 <button id="btn-go-schermo" class="btn btn-schermo">
-                    <span style="font-size: 1.5rem;">📺</span>
+                    <span style="font-size: 1.4rem;">📺</span>
                     <span>
                         SCHERMATA GENERALE<br>
                         <span style="font-size: 0.75rem; text-transform: none; color: var(--accent-cyan); font-weight: normal;">Visualizzazione / Maxischermo</span>
@@ -80,10 +88,10 @@
 
         <!-- AUTH MODAL (Popup) -->
         <div id="modal-auth-prompt" class="overlay-screen hidden" style="background: rgba(0,0,0,0.8); z-index: 100;">
-            <div class="section-container" style="background: #222; border: 2px solid var(--accent-cyan);">
-                <h2 style="text-align: center; margin-bottom: 1rem;">Vuoi accedere?</h2>
-                <p style="text-align: center; font-size: 0.9rem; color: #ccc; margin-bottom: 2rem;">Accedendo potrai salvare i tuoi template per le prossime partite.</p>
-                <div style="display: flex; gap: 1rem; justify-content: center;">
+            <div class="section-container" style="background: #222; border: 2px solid var(--accent-cyan); padding: 1.25rem;">
+                <h2 style="text-align: center; margin-bottom: 0.75rem;">Vuoi accedere?</h2>
+                <p style="text-align: center; font-size: 0.9rem; color: #ccc; margin-bottom: 1.25rem;">Accedendo potrai salvare i tuoi template per le prossime partite.</p>
+                <div style="display: flex; gap: 0.75rem; justify-content: center;">
                     <button id="btn-prompt-login" class="btn" style="background: var(--accent-green);">SÌ, ACCEDI</button>
                     <button id="btn-prompt-guest" class="btn btn-danger">NO, OSPITE</button>
                 </div>

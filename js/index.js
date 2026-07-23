@@ -231,7 +231,8 @@ onAuthStateChanged(auth, (user) => {
 
     if (user) {
         currentUser = user;
-        authStatus.textContent = `Loggato come: ${user.email}`;
+        const displayName = user.isAnonymous ? 'Ospite' : (user.email || user.displayName || 'Utente');
+        authStatus.textContent = `Loggato come: ${displayName}`;
         btnLogout.classList.remove('hidden');
         btnShowAuth.classList.add('hidden');
         loadUserTemplates(user.uid);
@@ -1028,6 +1029,7 @@ async function startRoomWithConfig(config) {
 
     const roomData = {
         creatorId: uid,
+        createdAt: Date.now(),
         config: roomConfig,
         state: {
             game_status: 'waiting',
@@ -1071,6 +1073,19 @@ btnJoinRoom.addEventListener('click', async () => {
         }
 
         const roomData = snapshot.val();
+
+        // 24-hour expiration check
+        const ROOM_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+        if (roomData.createdAt && (Date.now() - roomData.createdAt > ROOM_MAX_AGE_MS)) {
+            try {
+                await remove(ref(db, `rooms/${code}`));
+                await remove(ref(db, `images/${code}`));
+            } catch (e) {
+                console.warn("Could not delete expired room:", e);
+            }
+            return alert("Questa stanza è scaduta (superati 1 giorno di durata) ed è stata eliminata.");
+        }
+
         if (roomData.kickedPlayers) {
             const isKicked = Object.keys(roomData.kickedPlayers).some(
                 p => p.toLowerCase() === name.toLowerCase()

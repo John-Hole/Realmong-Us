@@ -85,9 +85,21 @@ const myVoteRef = ref(db, `rooms/${roomCode}/votes/${myPlayerName}`);
 onDisconnect(myVoteRef).remove();
 
 const roomRef = ref(db, `rooms/${roomCode}`);
-onValue(roomRef, (snapshot) => {
+onValue(roomRef, async (snapshot) => {
     if (snapshot.exists()) {
         const data = snapshot.val();
+
+        // 24-hour expiration check
+        if (data.createdAt && (Date.now() - data.createdAt > 24 * 60 * 60 * 1000)) {
+            try {
+                await remove(ref(db, `rooms/${roomCode}`));
+                await remove(ref(db, `images/${roomCode}`));
+            } catch (e) {}
+            alert("La stanza è scaduta (superato 1 giorno dalla creazione) ed è stata eliminata.");
+            window.location.href = "index.html";
+            return;
+        }
+
         currentState = data.state;
         roomConfig = data.config;
         currentVotes = data.votes || {};

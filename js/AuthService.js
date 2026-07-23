@@ -8,7 +8,7 @@
  * - User validation
  */
 
-import { auth } from '../firebase-config.js';
+import { auth } from './firebase-config.js';
 import {
   signInAnonymously,
   signOut,

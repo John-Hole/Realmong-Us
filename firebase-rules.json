@@ -1,15 +1,27 @@
 {
   "rules": {
-    // === ROOMS - Main game sessions ===
+    "users": {
+      "$userId": {
+        ".read": "auth != null && auth.uid === $userId",
+        ".write": "auth != null && auth.uid === $userId"
+      }
+    },
+    "images": {
+      "$roomId": {
+        ".read": true,
+        ".write": "auth != null"
+      }
+    },
     "rooms": {
       "$roomId": {
-        // Only authenticated users can create/access rooms
         ".read": "auth != null",
-        ".write": "auth != null && (!data.exists() || data.child('creatorId').val() === auth.uid)",
+        ".write": "auth != null && (!data.exists() || data.child('creatorId').val() === auth.uid || (data.child('createdAt').exists() && data.child('createdAt').val() < now - 86400000))",
         ".indexOn": ["createdAt", "status"],
-        
         "creatorId": {
           ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "createdAt": {
+          ".validate": "newData.isNumber() && newData.val() <= now"
         },
         "status": {
           ".validate": "newData.isString() && ['waiting', 'playing', 'finished'].indexOf(newData.val()) !== -1"
@@ -17,10 +29,8 @@
         "currentRound": {
           ".validate": "newData.isNumber() && newData.val() >= 0"
         },
-        
-        // === GAME STATE - Controlled by creator only ===
         "gameState": {
-          ".write": "root.child('rooms').child($roomId).child('creatorId').val() === auth.uid",
+          ".write": "auth != null && (root.child('rooms').child($roomId).child('creatorId').val() === auth.uid || (root.child('rooms').child($roomId).child('createdAt').exists() && root.child('rooms').child($roomId).child('createdAt').val() < now - 86400000))",
           ".validate": "newData.isObject()",
           "round": {
             ".validate": "newData.isNumber() && newData.val() > 0"
@@ -32,11 +42,9 @@
             ".validate": "newData.isNumber() && newData.val() >= 0"
           }
         },
-        
-        // === PLAYERS - Each player manages their own data ===
         "players": {
-          "$playerId": {
-            ".write": "auth != null && ($playerId === auth.uid || root.child('rooms').child($roomId).child('creatorId').val() === auth.uid)",
+          "$playerName": {
+            ".write": "auth != null",
             ".validate": "newData.hasChildren(['name', 'role', 'status'])",
             "name": {
               ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 50"
@@ -53,10 +61,9 @@
             "lastSeen": {
               ".validate": "newData.isNumber() && newData.val() <= now"
             },
-            // Tasks completed by this player
             "tasks": {
               "$taskId": {
-                ".write": "auth != null && $playerId === auth.uid",
+                ".write": "auth != null",
                 "completed": {
                   ".validate": "newData.isBoolean()"
                 },
@@ -65,10 +72,9 @@
                 }
               }
             },
-            // Kills tracking (impostor only)
             "kills": {
               "$killId": {
-".write": "auth != null && (!data.exists() || root.child('rooms').child($roomId).child('creatorId').val() === auth.uid)",
+                ".write": "auth != null",
                 "targetId": {
                   ".validate": "newData.isString()"
                 },
@@ -79,21 +85,15 @@
             }
           }
         },
-        
-        // === VOTING SYSTEM ===
         "votes": {
           ".read": "auth != null",
-          "$voterId": {
-            ".write": "auth != null && $voterId === auth.uid",
-            ".validate": "newData.isString() || newData.val() === null",
-            ".validate": "!newData.exists() || (newData.isString() && newData.val().length > 0)"
+          "$playerName": {
+            ".write": "auth != null"
           }
         },
-        
-        // === ROOM CONFIGURATION ===
         "config": {
           ".read": "auth != null",
-          ".write": "root.child('rooms').child($roomId).child('creatorId').val() === auth.uid",
+          ".write": "auth != null && (root.child('rooms').child($roomId).child('creatorId').val() === auth.uid || (root.child('rooms').child($roomId).child('createdAt').exists() && root.child('rooms').child($roomId).child('createdAt').val() < now - 86400000))",
           "roundTimes": {
             ".validate": "newData.isArray()"
           },
@@ -106,8 +106,6 @@
         }
       }
     },
-    
-    // === RATE LIMITING - Prevent abuse ===
     "rateLimit": {
       "$userId": {
         ".read": "auth != null && auth.uid === $userId",
@@ -118,8 +116,6 @@
         }
       }
     },
-    
-    // === PUBLIC METADATA (no auth required) ===
     "publicMetadata": {
       ".read": true,
       ".write": false,
@@ -130,8 +126,6 @@
         ".validate": "newData.isBoolean()"
       }
     },
-    
-    // === DEFAULT: Deny everything else ===
     ".read": false,
     ".write": false
   }
