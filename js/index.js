@@ -1,6 +1,6 @@
 import { db, auth } from './firebase-config.js';
 import { ref, set, get, child, remove } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, signInAnonymously, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, signInAnonymously, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signInWithCredential } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
 
 // DOM Elements - Sections
 const homeSection = document.getElementById('section-home');
@@ -381,12 +381,12 @@ getRedirectResult(auth).then((result) => {
     }
 });
 
-btnGoogleLogin.addEventListener('click', () => {
-    clearAuthError();
+function fallbackGooglePopup() {
     const provider = new GoogleAuthProvider();
     signInWithPopup(auth, provider).then((result) => {
         if (result && result.user) {
             console.log("Google popup login success:", result.user.email);
+            clearAuthError();
             showSection('templates');
         }
     }).catch((error) => {
@@ -405,6 +405,43 @@ btnGoogleLogin.addEventListener('click', () => {
             showAuthError("Errore Google: " + (error.message || error.code));
         }
     });
+}
+
+btnGoogleLogin.addEventListener('click', () => {
+    clearAuthError();
+    
+    if (window.google && window.google.accounts && window.google.accounts.id) {
+        try {
+            window.google.accounts.id.initialize({
+                client_id: "200595572263-g3r64flljklvkkt3kopumfkvarup2opj.apps.googleusercontent.com",
+                callback: async (response) => {
+                    if (response && response.credential) {
+                        try {
+                            const credential = GoogleAuthProvider.credential(response.credential);
+                            const userCred = await signInWithCredential(auth, credential);
+                            console.log("GIS Google login success:", userCred.user.email);
+                            clearAuthError();
+                            showSection('templates');
+                        } catch (err) {
+                            console.error("GIS Firebase Auth error:", err);
+                            showAuthError("Errore credenziali Google: " + (err.message || err.code));
+                        }
+                    }
+                }
+            });
+            window.google.accounts.id.prompt((notification) => {
+                if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+                    console.log("GIS prompt skipped/not displayed, falling back to popup...");
+                    fallbackGooglePopup();
+                }
+            });
+        } catch (e) {
+            console.warn("GIS initialization error, using popup fallback:", e);
+            fallbackGooglePopup();
+        }
+    } else {
+        fallbackGooglePopup();
+    }
 });
 
 btnAnonLogin.addEventListener('click', async () => {
