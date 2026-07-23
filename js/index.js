@@ -216,61 +216,77 @@ document.addEventListener('click', () => {
 });
 
 // --- TEMPLATES LOGIC ---
-function renderBaseTemplates() {
+function renderAllTemplates() {
     templatesGrid.innerHTML = '';
 
-    // Add Create New Button
+    // 1. Render Base Template ("Standard Realmong") FIRST
+    createTemplateCard('base', baseTemplate, false);
+
+    // 2. Render User Custom Templates SECOND
+    if (userTemplates) {
+        for (const key in userTemplates) {
+            createTemplateCard(key, userTemplates[key], true);
+        }
+    }
+
+    // 3. Render "+ CREA NUOVO" Button LAST
     const createBtn = document.createElement('div');
-    createBtn.style = `border: 2px dashed var(--accent-cyan); border-radius: 12px; padding: 2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--accent-cyan); font-weight: bold; flex-direction: column;`;
-    createBtn.innerHTML = `<span style="font-size: 3rem;">+</span><span>CREA NUOVO</span>`;
+    createBtn.style = `border: 2px dashed var(--accent-cyan); border-radius: 12px; padding: 1.5rem; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--accent-cyan); font-weight: bold; flex-direction: column; min-height: 120px; transition: all 0.2s; background: rgba(0, 229, 255, 0.03);`;
+    createBtn.onmouseover = () => {
+        createBtn.style.background = 'rgba(0, 229, 255, 0.1)';
+        createBtn.style.borderColor = '#33eaff';
+        createBtn.style.transform = 'translateY(-2px)';
+    };
+    createBtn.onmouseout = () => {
+        createBtn.style.background = 'rgba(0, 229, 255, 0.03)';
+        createBtn.style.borderColor = 'var(--accent-cyan)';
+        createBtn.style.transform = 'none';
+    };
+    createBtn.innerHTML = `<span style="font-size: 2.5rem; line-height: 1; margin-bottom: 0.3rem;">+</span><span style="font-size: 0.85rem; letter-spacing: 0.5px;">CREA NUOVO</span>`;
     createBtn.onclick = () => openCreateSettings(null, null);
     templatesGrid.appendChild(createBtn);
+}
 
-    // Add Base Template
-    createTemplateCard('base', baseTemplate, false);
+function renderBaseTemplates() {
+    renderAllTemplates();
 }
 
 async function loadUserTemplates(uid) {
     const dbRef = ref(db);
     try {
         const snapshot = await get(child(dbRef, `users/${uid}/templates`));
-        renderBaseTemplates();
         if (snapshot.exists()) {
             userTemplates = snapshot.val();
-            // Append user templates
-            for (const key in userTemplates) {
-                createTemplateCard(key, userTemplates[key], true);
-            }
+        } else {
+            userTemplates = {};
         }
+        renderAllTemplates();
     } catch (error) {
         console.error("Error loading templates:", error);
+        renderAllTemplates();
     }
 }
 
 function createTemplateCard(id, data, isCustom) {
     const card = document.createElement('div');
-    card.style = `background: var(--card-bg); border-radius: 12px; padding: 1.5rem; position: relative; border: 2px solid #333; transition: border-color 0.2s; cursor: pointer;`;
+    card.style = `background: var(--card-bg); border-radius: 12px; padding: 1.2rem; position: relative; border: 2px solid #333; transition: all 0.2s; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between;`;
     card.onmouseover = () => card.style.borderColor = 'var(--accent-cyan)';
     card.onmouseout = () => card.style.borderColor = '#333';
     card.onclick = () => startRoomWithConfig(data);
 
+    // Header Flex Row (Title + 3 Dots Menu Button)
+    const headerRow = document.createElement('div');
+    headerRow.style = `display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.8rem;`;
+
     const title = document.createElement('h3');
     title.textContent = data.name || (id === 'base' ? 'Standard Realmong' : id);
-    title.style.marginBottom = '1rem';
-    title.style.paddingRight = '2.5rem'; // Spazio per il pulsante menu 3 puntini
-    card.appendChild(title);
+    title.style = `margin: 0; font-size: 1.1rem; font-weight: 700; color: white; word-break: break-word; flex: 1;`;
+    headerRow.appendChild(title);
 
-    const details = document.createElement('div');
-    details.style.fontSize = '0.8rem';
-    details.style.color = '#aaa';
-    details.innerHTML = `
-        <p>Impostori: ${data.impostorCount}</p>
-        <p>Limite: ${data.maxPlayers === 'unlimited' ? '∞' : data.maxPlayers}</p>
-        <p>Mappa: ${data.mapMode === 'text' ? 'Testuale' : 'Visiva'}</p>
-    `;
-    card.appendChild(details);
+    // 3-dots Menu Container
+    const menuContainer = document.createElement('div');
+    menuContainer.style = `position: relative;`;
 
-    // Menu a 3 puntini (presente sia per il template base che per quelli custom)
     const menuBtn = document.createElement('button');
     menuBtn.innerHTML = '&#8942;'; // 3 vertical dots
     menuBtn.className = 'template-menu-btn';
@@ -280,7 +296,7 @@ function createTemplateCard(id, data, isCustom) {
     menuDrop.className = 'template-menu-dropdown hidden';
     
     const editBtn = document.createElement('button');
-    editBtn.textContent = isCustom ? 'Modifica' : 'Modifica / Vedi Settaggi';
+    editBtn.textContent = 'Modifica';
     editBtn.className = 'template-menu-item';
     editBtn.onclick = (e) => { 
         e.stopPropagation(); 
@@ -289,7 +305,7 @@ function createTemplateCard(id, data, isCustom) {
     };
     
     const dupeBtn = document.createElement('button');
-    dupeBtn.textContent = 'Duplica e Modifica';
+    dupeBtn.textContent = 'Duplica';
     dupeBtn.className = 'template-menu-item';
     dupeBtn.onclick = (e) => { 
         e.stopPropagation(); 
@@ -309,10 +325,8 @@ function createTemplateCard(id, data, isCustom) {
             menuDrop.classList.add('hidden');
             if(confirm(`Sicuro di voler eliminare il template "${data.name || id}"?`)) {
                 await remove(ref(db, `users/${currentUser.uid}/templates/${id}`));
-                renderBaseTemplates();
-                if (currentUser) {
-                    loadUserTemplates(currentUser.uid);
-                }
+                delete userTemplates[id];
+                renderAllTemplates();
             }
         };
         menuDrop.appendChild(delBtn);
@@ -327,8 +341,20 @@ function createTemplateCard(id, data, isCustom) {
         }
     };
 
-    card.appendChild(menuBtn);
-    card.appendChild(menuDrop);
+    menuContainer.appendChild(menuBtn);
+    menuContainer.appendChild(menuDrop);
+    headerRow.appendChild(menuContainer);
+    card.appendChild(headerRow);
+
+    const details = document.createElement('div');
+    details.style.fontSize = '0.8rem';
+    details.style.color = '#aaa';
+    details.innerHTML = `
+        <p style="margin: 0.25rem 0;">Impostori: <strong style="color: white;">${data.impostorCount}</strong></p>
+        <p style="margin: 0.25rem 0;">Limite: <strong style="color: white;">${data.maxPlayers === 'unlimited' ? '∞' : data.maxPlayers}</strong></p>
+        <p style="margin: 0.25rem 0;">Mappa: <strong style="color: white;">${data.mapMode === 'text' ? 'Testuale' : 'Visiva'}</strong></p>
+    `;
+    card.appendChild(details);
 
     templatesGrid.appendChild(card);
 }

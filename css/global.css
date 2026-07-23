@@ -758,69 +758,74 @@ h1, h2, h3 {
          t r a n s i t i o n :   b a c k g r o u n d   0 . 2 s ; 
  } 
 
-.template-menu-item:hover {
-    background: #333;
-}
-.template-menu-item-danger {
-    color: var(--accent-red);
-}
-
 .template-menu-btn {
-    position: absolute;
-    top: 0.8rem;
-    right: 0.8rem;
-    background: rgba(255, 255, 255, 0.12);
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    color: white;
-    font-size: 1.3rem;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #ccc;
+    font-size: 1.2rem;
     cursor: pointer;
     z-index: 10;
-    padding: 0.3rem;
-    border-radius: 8px;
-    width: 36px;
-    height: 36px;
+    padding: 0;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
 }
 
 .template-menu-btn:hover {
-    background: var(--accent-cyan);
-    color: black;
+    background: rgba(0, 229, 255, 0.2);
+    color: var(--accent-cyan);
     border-color: var(--accent-cyan);
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
 }
 
 .template-menu-dropdown {
     position: absolute;
-    top: 3.5rem;
-    right: 1rem;
-    background: var(--card-bg);
-    border: 1px solid #444;
-    border-radius: 8px;
-    z-index: 20;
+    top: 2.5rem;
+    right: 0;
+    background: #151d27;
+    border: 1px solid var(--accent-cyan);
+    border-radius: 10px;
+    z-index: 100;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-    min-width: 150px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8), 0 0 12px rgba(0, 229, 255, 0.25);
+    min-width: 130px;
     font-family: var(--font-ui);
 }
 
 .template-menu-item {
     background: none;
     border: none;
-    color: white;
-    padding: 1rem 1.2rem;
+    color: #e0e0e0;
+    padding: 0.7rem 1rem;
     text-align: left;
     cursor: pointer;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    font-weight: 700;
     font-family: var(--font-ui);
-    transition: background 0.2s;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.template-menu-item:hover {
+    background: rgba(0, 229, 255, 0.15);
+    color: var(--accent-cyan);
+}
+
+.template-menu-item-danger {
+    color: #ff6b6b;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .template-menu-item-danger:hover {
-    background: rgba(244, 67, 54, 0.1);
+    background: rgba(255, 75, 75, 0.2);
+    color: var(--accent-red);
 }
 
 @keyframes roleReveal {
