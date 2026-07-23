@@ -64,13 +64,13 @@ export const loadFirebaseConfig = async () => {
 
   // Fallback to placeholder (project needs to be set up)
   return {
-    apiKey: "AIzaSyDP523x9SZZ6MVkvl3tVbuv5SBpbzVsxr4", // DEPRECATED - update with your project
-    authDomain: "realmong-us.firebaseapp.com",
-    databaseURL: "https://realmong-us-default-rtdb.region.firebasedatabase.app",
-    projectId: "realmong-us",
-    storageBucket: "realmong-us.appspot.com",
-    messagingSenderId: "your-sender-id", // DEPRECATED - update with your project
-    appId: "your-app-id" // DEPRECATED - update with your project
+    apiKey: "AIzaSyBSbg2-cLl3SYG4odF2NYWWDtshoEv6lVo",
+    authDomain: "realmong-us-g20b.firebaseapp.com",
+    databaseURL: "https://realmong-us-g20b-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "realmong-us-g20b",
+    storageBucket: "realmong-us-g20b.firebasestorage.app",
+    messagingSenderId: "200595572263",
+    appId: "1:200595572263:web:62f7eeb3cca84df5b7f002"
   };
 };
 
