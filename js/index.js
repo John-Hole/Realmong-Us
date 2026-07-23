@@ -441,11 +441,13 @@ function openCreateSettings(id, data, isDuplicate = false, isBase = false) {
 
     if (data) {
         if (isBaseTemplate) {
-            createTemplateSubtitle.textContent = "Visualizzazione dei settaggi del Template Base (Predefinito).";
-            btnSaveTemplateOnly.classList.add('hidden');
-            btnSaveStartRoom.classList.add('hidden');
-            btnCreateCancelBottom.textContent = "INDIETRO";
-            setFormDisabled(true);
+            createTemplateSubtitle.textContent = "Stai visualizzando il Template Base. Le eventuali modifiche apportate verranno salvate come un nuovo template personalizzato.";
+            btnSaveTemplateOnly.classList.remove('hidden');
+            btnSaveStartRoom.classList.remove('hidden');
+            btnSaveTemplateOnly.textContent = "SALVA COME NUOVO TEMPLATE";
+            btnSaveStartRoom.textContent = "AVVIA STANZA CON QUESTI SETTAGGI";
+            btnCreateCancelBottom.textContent = "INDIETRO / ANNULLA";
+            setFormDisabled(false);
         } else {
             if (isDuplicate) {
                 createTemplateSubtitle.textContent = `Stai duplicando "${data.name || 'Template'}". Le modifiche verranno salvate come un nuovo template.`;
@@ -454,6 +456,8 @@ function openCreateSettings(id, data, isDuplicate = false, isBase = false) {
             }
             btnSaveTemplateOnly.classList.remove('hidden');
             btnSaveStartRoom.classList.remove('hidden');
+            btnSaveTemplateOnly.textContent = "SALVA TEMPLATE";
+            btnSaveStartRoom.textContent = "SALVA E AVVIA STANZA";
             btnCreateCancelBottom.textContent = "INDIETRO / ANNULLA";
             setFormDisabled(false);
         }
