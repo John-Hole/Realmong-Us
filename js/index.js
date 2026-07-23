@@ -621,15 +621,22 @@ function renderRoundTimesUI(timesArr = [10, 7, 5]) {
     timesArr.forEach((mins, idx) => {
         const isLast = idx === timesArr.length - 1;
         const div = document.createElement('div');
-        div.style = `display: flex; align-items: center; gap: 0.5rem; background: rgba(0,0,0,0.2); padding: 0.4rem 0.6rem; border-radius: 8px; border: 1px solid #333;`;
+        div.className = 'round-time-row';
         
         const labelText = isLast && idx > 0 ? `Round ${idx + 1}+ (ripete ∞)` : `Round ${idx + 1}`;
+        const pillBg = isLast ? 'rgba(56, 189, 248, 0.15)' : 'rgba(255, 255, 255, 0.08)';
+        const pillBorder = isLast ? 'rgba(56, 189, 248, 0.35)' : 'rgba(255, 255, 255, 0.12)';
+        const pillColor = isLast ? '#38bdf8' : '#e2e8f0';
         
         div.innerHTML = `
-            <span style="font-size: 0.85rem; font-weight: bold; width: 140px; color: ${isLast ? 'var(--accent-cyan)' : 'white'};">${labelText}:</span>
-            <input type="number" class="round-time-input" value="${mins}" min="1" max="120" style="flex: 1; padding: 0.4rem; border-radius: 6px; background: #2a3644; color: white; border: 1px solid #444; font-family: var(--font-ui);">
-            <span style="font-size: 0.8rem; color: #aaa;">min</span>
-            ${timesArr.length > 1 ? `<button type="button" class="btn btn-danger btn-remove-round" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; min-height: 28px;">X</button>` : ''}
+            <div style="width: 155px; flex-shrink: 0; display: flex; align-items: center;">
+                <span style="background: ${pillBg}; border: 1px solid ${pillBorder}; color: ${pillColor}; padding: 0.25rem 0.65rem; border-radius: 50px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.3px; display: inline-block; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+                    ${labelText}
+                </span>
+            </div>
+            <input type="number" class="round-time-input" value="${mins}" min="1" max="120" style="flex: 1;">
+            <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 700; flex-shrink: 0;">min</span>
+            ${timesArr.length > 1 ? `<button type="button" class="btn btn-danger btn-remove-round" style="padding: 0.3rem 0.65rem; font-size: 0.75rem; min-height: 32px; border-radius: 8px; font-weight: 800; flex-shrink: 0;" title="Rimuovi round">✕</button>` : ''}
         `;
 
         if (timesArr.length > 1) {
@@ -673,19 +680,21 @@ function addTextTask(taskData = { num: '', name: '', obj: '', pos: '' }) {
     const pos = taskData?.pos ?? '';
 
     const div = document.createElement('div');
-    div.className = 'task-row';
+    div.className = 'task-row task-row-modern';
     div.innerHTML = `
-        <input type="text" placeholder="N°" value="${num}" style="width: 15%;">
-        <input type="text" placeholder="Nome Task" value="${name}" style="width: 35%;">
-        <input type="text" placeholder="Obiettivo" value="${obj}" style="width: 30%;">
-        <input type="text" placeholder="Posizione" value="${pos}" style="width: 20%;">
-        <button class="btn btn-danger" style="padding: 0.5rem;">X</button>
+        <input type="text" placeholder="N°" value="${num}">
+        <input type="text" placeholder="Nome Task" value="${name}">
+        <input type="text" placeholder="Obiettivo" value="${obj}">
+        <input type="text" placeholder="Posizione" value="${pos}">
+        <button type="button" class="btn btn-danger" style="padding: 0.3rem 0.55rem; font-size: 0.75rem; border-radius: 8px; font-weight: 800; min-height: 32px;" title="Rimuovi task">✕</button>
     `;
     div.querySelector('.btn-danger').onclick = () => div.remove();
     textTasksContainer.appendChild(div);
 }
 
-btnAddTextTask.addEventListener('click', () => addTextTask());
+if (btnAddTextTask) {
+    btnAddTextTask.addEventListener('click', () => addTextTask());
+}
 
 // --- CREATE & JOIN ROOM ---
 function getRoomConfigFromUI() {

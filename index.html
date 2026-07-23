@@ -135,131 +135,214 @@
         </div>
 
         <!-- CREATE NEW / EDIT TEMPLATE SETTINGS -->
-        <div id="section-create" class="section-container hidden">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                <h2>Impostazioni Template</h2>
-                <button id="btn-create-back" class="btn btn-danger" style="padding: 0.5rem 1rem;">Annulla</button>
-            </div>
-            <p id="create-template-subtitle" style="font-size: 0.85rem; color: #aaa; margin-bottom: 1.5rem; line-height: 1.4;"></p>
+        <div id="section-create" class="section-container hidden template-edit-container">
             
-            <div class="form-group">
-                <label>Nome Template *</label>
-                <input type="text" id="create-template-name" placeholder="es. Partita tra amici">
-            </div>
-            
-            <hr style="border-color: #333; margin: 1.5rem 0;">
-            
-            <div class="form-group">
-                <label>Numero Impostori</label>
-                <input type="number" id="create-impostors" value="2" min="1" max="10">
+            <!-- HEADER BANNER -->
+            <div class="master-header-banner template-edit-header" style="margin-bottom: 1.25rem;">
+                <div class="master-header-title" style="display: flex; align-items: center; gap: 0.6rem;">
+                    <span style="font-size: 1.5rem;">⚙️</span>
+                    <div>
+                        <h1 style="margin: 0; font-size: clamp(1.1rem, 3.5vw, 1.4rem); font-weight: 800; color: #ffffff;">CONFIGURAZIONE TEMPLATE</h1>
+                        <p id="create-template-subtitle" style="font-size: 0.8rem; color: #94a3b8; margin: 0.2rem 0 0 0; line-height: 1.3;"></p>
+                    </div>
+                </div>
+                <button id="btn-create-back" class="btn btn-danger" style="padding: 0.5rem 1.1rem; border-radius: 50px; font-weight: 800; font-size: 0.8rem;">
+                    ✕ ANNULLA
+                </button>
             </div>
 
-            <div class="form-group" style="display: flex; gap: 1rem;">
-                <div style="flex:1;">
-                    <label>Kill Cooldown (sec)</label>
-                    <input type="number" id="create-kill-cooldown" value="120" min="10">
-                </div>
-                <div style="flex:1;">
-                    <label>Riunioni per Player</label>
-                    <input type="number" id="create-max-meetings" value="1" min="0">
-                </div>
-            </div>
-
-            <!-- GESTIONALE TEMPI -->
-            <div class="form-group" style="background: rgba(255,255,255,0.03); border: 1px solid #333; border-radius: 12px; padding: 1rem; margin-top: 1rem; margin-bottom: 1.2rem;">
-                <h3 style="margin: 0 0 1rem 0; font-size: 1.1rem; color: white;">⏱️ Gestionale Tempi</h3>
+            <!-- MAIN TEMPLATE EDIT GRID -->
+            <div class="template-edit-grid">
                 
-                <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
-                    <div style="flex:1;">
-                        <label style="font-size: 0.85rem;">Durata Discussione (sec)</label>
-                        <input type="number" id="create-discussion-duration" value="0" min="0" placeholder="0 = senza limite / libera">
-                        <p style="font-size: 0.75rem; color: #8a99ad; margin-top: 0.2rem;">0 per discussione libera senza timer.</p>
-                    </div>
-                    <div style="flex:1;">
-                        <label style="font-size: 0.85rem;">Durata Votazione (sec)</label>
-                        <input type="number" id="create-voting-duration" value="60" min="5" placeholder="60">
-                        <p style="font-size: 0.75rem; color: #8a99ad; margin-top: 0.2rem;">Tempo per votare prima dell'esito.</p>
-                    </div>
-                </div>
-
-                <div style="border-top: 1px solid #333; padding-top: 1rem; margin-top: 0.5rem;">
-                    <label style="font-size: 0.9rem; color: var(--accent-cyan); font-weight: bold; margin-bottom: 0.3rem; display: block;">Sequenza Durata Round (minuti)</label>
-                    <p style="font-size: 0.75rem; color: #8a99ad; margin-bottom: 0.8rem;">L'ultimo tempo della lista si ripeterà all'infinito per tutti i round successivi.</p>
+                <!-- LEFT COLUMN: Game Parameters & Time Management -->
+                <div class="template-edit-col">
                     
-                    <div id="round-times-container" style="display: flex; flex-direction: column; gap: 0.5rem;"></div>
+                    <!-- CARD 1: PARAMETRI BASE & RUOLI -->
+                    <div class="glass-card">
+                        <div class="glass-card-header">
+                            <div class="glass-card-header-left">
+                                <span class="header-icon">🎮</span>
+                                <h2>PARAMETRI BASE & RUOLI</h2>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label style="font-size: 0.85rem; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 0.4rem;">Nome Template *</label>
+                            <input type="text" id="create-template-name" placeholder="es. Partita tra amici" style="width: 100%;">
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1rem;">
+                            <div class="form-group">
+                                <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 0.3rem;">Impostori</label>
+                                <input type="number" id="create-impostors" value="2" min="1" max="10" style="width: 100%;">
+                            </div>
+                            <div class="form-group">
+                                <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 0.3rem;">Kill Cooldown (sec)</label>
+                                <input type="number" id="create-kill-cooldown" value="120" min="10" style="width: 100%;">
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1rem;">
+                            <div class="form-group">
+                                <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 0.3rem;">Riunioni per Player</label>
+                                <input type="number" id="create-max-meetings" value="1" min="0" style="width: 100%;">
+                            </div>
+                            <div class="form-group">
+                                <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 0.3rem;">Limite Giocatori</label>
+                                <input type="number" id="create-max-players" placeholder="Illimitato" min="2" max="100" style="width: 100%;">
+                            </div>
+                        </div>
+
+                        <!-- TOGGLE SCIENZIATO -->
+                        <div class="toggle-card-option" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 0.75rem 1rem; display: flex; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; align-items: center; gap: 0.6rem;">
+                                <span style="font-size: 1.2rem;">🔬</span>
+                                <div>
+                                    <div style="font-weight: 700; color: #f1f5f9; font-size: 0.85rem;">Abilita Scienziato</div>
+                                    <div style="font-size: 0.75rem; color: #94a3b8;">Permette di monitorare i parametri vitali dei giocatori</div>
+                                </div>
+                            </div>
+                            <label class="custom-switch">
+                                <input type="checkbox" id="create-scientist" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- CARD 2: GESTIONALE TEMPI & ROUND -->
+                    <div class="glass-card">
+                        <div class="glass-card-header">
+                            <div class="glass-card-header-left">
+                                <span class="header-icon">⏱️</span>
+                                <h2>GESTIONALE TEMPI & ROUND</h2>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1.2rem;">
+                            <div class="form-group">
+                                <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 0.3rem;">Discussione (sec)</label>
+                                <input type="number" id="create-discussion-duration" value="0" min="0" placeholder="0 = Libera" style="width: 100%;">
+                                <span style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem; display: block;">0 = Discussione libera</span>
+                            </div>
+                            <div class="form-group">
+                                <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 0.3rem;">Votazione (sec)</label>
+                                <input type="number" id="create-voting-duration" value="60" min="5" placeholder="60" style="width: 100%;">
+                                <span style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem; display: block;">Tempo per votare</span>
+                            </div>
+                        </div>
+
+                        <div style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 1rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                                <label style="font-size: 0.85rem; color: #38bdf8; font-weight: 800; letter-spacing: 0.5px;">SEQUENZA TEMPI ROUND (MINUTI)</label>
+                            </div>
+                            <p style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.8rem;">L'ultimo round impostato verrà ripetuto all'infinito per i round successivi.</p>
+
+                            <div id="round-times-container" style="display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1rem;"></div>
+
+                            <button id="btn-add-round-time" type="button" class="btn" style="width: 100%; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); color: #38bdf8; border-radius: 50px; font-weight: 800; padding: 0.6rem; font-size: 0.8rem;">
+                                + AGGIUNGI ROUND ALLA SEQUENZA
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- RIGHT COLUMN: Map & Task Configurations -->
+                <div class="template-edit-col">
                     
-                    <button id="btn-add-round-time" type="button" class="btn" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; margin-top: 0.8rem; background: #3f51b5; color: white;">+ Aggiungi Round alla Sequenza</button>
-                </div>
-            </div>
+                    <!-- CARD 3: CONFIGURAZIONE MAPPA -->
+                    <div class="glass-card">
+                        <div class="glass-card-header">
+                            <div class="glass-card-header-left">
+                                <span class="header-icon">🗺️</span>
+                                <h2>MAPPA DI GIOCO</h2>
+                            </div>
+                            <label class="custom-switch">
+                                <input type="checkbox" id="create-enable-map" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
 
-            <div class="form-group" style="display: flex; align-items: center; gap: 1rem; margin-top: 1rem;">
-                <input type="checkbox" id="create-scientist" checked style="width: auto;">
-                <label style="margin:0;">Abilita Scienziato</label>
-            </div>
+                        <div id="map-options-wrapper" style="display: flex; flex-direction: column; gap: 0.8rem;">
+                            <div>
+                                <label style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 0.4rem; display: block;">Tipo Mappa</label>
+                                <select id="create-map-type" style="width: 100%;">
+                                    <option value="photo">Mappa Visiva (Carica Foto Custom)</option>
+                                    <option value="vector">Mappa Interattiva Oratorio (Vettoriale)</option>
+                                </select>
+                            </div>
 
-            
-            <div class="form-group" style="margin-top: 1rem;">
-                <label>Limite Giocatori</label>
-                <input type="number" id="create-max-players" placeholder="Illimitato (lascia vuoto)" min="2" max="100">
-                <p style="font-size: 0.8rem; color: #8a99ad; margin-top: 0.3rem;">Lascia il campo vuoto se vuoi giocatori illimitati.</p>
-            </div>
-            
-            <hr style="border-color: #333; margin: 1.5rem 0;">
-
-            <!-- SEZIONE MAPPA -->
-            <div class="form-group" style="background: rgba(255,255,255,0.03); border: 1px solid #333; border-radius: 12px; padding: 1rem; margin-bottom: 1.2rem;">
-                <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <h3 style="margin: 0; font-size: 1.1rem; color: white;">🗺️ Mappa</h3>
-                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--accent-cyan); font-weight: bold; margin: 0;">
-                        <input type="checkbox" id="create-enable-map" checked style="width: auto;"> Abilita Mappa
-                    </label>
-                </div>
-
-                <div id="map-options-wrapper" style="margin-top: 1rem;">
-                    <label style="color: #8a99ad; font-size: 0.85rem; margin-bottom: 0.4rem; display: block;">Seleziona Tipo Mappa</label>
-                    <select id="create-map-type" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: #2a3644; color: white; border: 1px solid #444; font-family: var(--font-ui);">
-                        <option value="photo">Mappa Visiva (Carica Foto)</option>
-                        <option value="vector">Mappa Interattiva Oratorio (Vettoriale)</option>
-                    </select>
-
-                    <div id="map-photo-config" class="form-group" style="margin-top: 1rem;">
-                        <label style="font-size: 0.85rem;">Carica Immagine Mappa (verrà compressa)</label>
-                        <input type="file" id="map-image-upload" accept="image/jpeg, image/png">
-                        <canvas id="map-canvas" style="display:none;"></canvas>
-                        <p id="upload-status" style="font-size: 0.8rem; margin-top: 0.5rem; color: var(--accent-cyan);"></p>
+                            <div id="map-photo-config" class="form-group" style="background: rgba(0, 0, 0, 0.2); border: 1px dashed rgba(255, 255, 255, 0.15); border-radius: 12px; padding: 1rem; text-align: center;">
+                                <label style="font-size: 0.8rem; color: #cbd5e1; display: block; margin-bottom: 0.5rem;">Carica Foto Mappa (Compressione Automatica)</label>
+                                <input type="file" id="map-image-upload" accept="image/jpeg, image/png" style="font-size: 0.8rem; color: #94a3b8; width: 100%;">
+                                <canvas id="map-canvas" style="display:none;"></canvas>
+                                <p id="upload-status" style="font-size: 0.8rem; margin-top: 0.5rem; color: #38bdf8; font-weight: 700;"></p>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- SEZIONE TASK -->
-            <div class="form-group" style="background: rgba(255,255,255,0.03); border: 1px solid #333; border-radius: 12px; padding: 1rem; margin-bottom: 1.2rem;">
-                <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <h3 style="margin: 0; font-size: 1.1rem; color: white;">📋 Task</h3>
-                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--accent-cyan); font-weight: bold; margin: 0;">
-                        <input type="checkbox" id="create-enable-tasks" checked style="width: auto;"> Abilita Task
-                    </label>
-                </div>
+                    <!-- CARD 4: GESTIONALE TASK -->
+                    <div class="glass-card">
+                        <div class="glass-card-header">
+                            <div class="glass-card-header-left">
+                                <span class="header-icon">📋</span>
+                                <h2>GESTIONALE TASK</h2>
+                            </div>
+                            <label class="custom-switch">
+                                <input type="checkbox" id="create-enable-tasks" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
 
-                <div id="task-options-wrapper" style="margin-top: 1rem;">
-                    <label style="color: #8a99ad; font-size: 0.85rem; margin-bottom: 0.4rem; display: block;">Seleziona Tipo Task</label>
-                    <select id="create-task-type" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: #2a3644; color: white; border: 1px solid #444; font-family: var(--font-ui);">
-                        <option value="default">Task Predefinite (Standard Oratorio - 17 Task)</option>
-                        <option value="custom">Task Personalizzate (Elenco Testuale Custom)</option>
-                    </select>
+                        <div id="task-options-wrapper" style="display: flex; flex-direction: column; gap: 0.8rem;">
+                            <div>
+                                <label style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 0.4rem; display: block;">Modalità Task</label>
+                                <select id="create-task-type" style="width: 100%;">
+                                    <option value="default">Task Predefinite (Standard Oratorio - 17 Task)</option>
+                                    <option value="custom">Task Personalizzate (Elenco Custom Testuale)</option>
+                                </select>
+                            </div>
 
-                    <div id="map-text-config" class="form-group hidden" style="margin-top: 1rem;">
-                        <label style="font-size: 0.85rem;">Configura Task Testuali Personalizzate</label>
-                        <div id="text-tasks-container"></div>
-                        <button id="btn-add-text-task" class="btn" style="padding: 0.5rem; font-size: 0.8rem; margin-top: 0.5rem;">+ Aggiungi Task</button>
+                            <div id="map-text-config" class="form-group hidden" style="margin-top: 0.4rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
+                                    <label style="font-size: 0.85rem; font-weight: 700; color: #cbd5e1;">Elenco Task Personalizzate</label>
+                                </div>
+
+                                <!-- TASK TABLE HEADER -->
+                                <div class="task-table-header" style="display: grid; grid-template-columns: 50px 1fr 1fr 1fr 38px; gap: 0.4rem; padding: 0.4rem 0.6rem; background: rgba(255,255,255,0.05); border-radius: 8px; font-size: 0.75rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; margin-bottom: 0.5rem;">
+                                    <span>N°</span>
+                                    <span>Nome Task</span>
+                                    <span>Obiettivo</span>
+                                    <span>Posizione</span>
+                                    <span></span>
+                                </div>
+
+                                <div id="text-tasks-container" style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 280px; overflow-y: auto; padding-right: 4px;"></div>
+                                
+                                <button id="btn-add-text-task" type="button" class="btn" style="width: 100%; margin-top: 0.8rem; background: rgba(0, 230, 118, 0.12); border: 1px solid rgba(0, 230, 118, 0.3); color: #00e676; border-radius: 50px; font-weight: 800; padding: 0.6rem; font-size: 0.8rem;">
+                                    + AGGIUNGI NUOVA TASK
+                                </button>
+                            </div>
+                        </div>
                     </div>
+
                 </div>
+
             </div>
 
-            <div style="display: flex; gap: 0.8rem; margin-top: 1.5rem; flex-wrap: wrap; justify-content: center;">
-                <button id="btn-create-cancel-bottom" class="btn btn-danger" style="flex: 1; min-width: 140px;">INDIETRO / ANNULLA</button>
-                <button id="btn-save-template-only" class="btn" style="flex: 1; background: #3f51b5; color: white; min-width: 150px;">SALVA TEMPLATE</button>
-                <button id="btn-save-start-room" class="btn" style="flex: 1; background: var(--accent-cyan); color: black; min-width: 170px;">SALVA E AVVIA STANZA</button>
+            <!-- BOTTOM ACTION BAR -->
+            <div class="glass-card template-edit-actions" style="margin-top: 1.25rem; display: flex; gap: 0.8rem; flex-wrap: wrap; justify-content: center; align-items: center; padding: 1rem 1.25rem;">
+                <button id="btn-create-cancel-bottom" class="btn btn-danger" style="flex: 1; min-width: 140px; border-radius: 50px; padding: 0.75rem; font-weight: 800;">
+                    INDIETRO / ANNULLA
+                </button>
+                <button id="btn-save-template-only" class="btn" style="flex: 1.2; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; min-width: 170px; border-radius: 50px; padding: 0.75rem; font-weight: 800;">
+                    SALVA TEMPLATE
+                </button>
+                <button id="btn-save-start-room" class="btn" style="flex: 1.4; background: linear-gradient(135deg, #00e5ff, #0284c7); color: #000000; min-width: 200px; border-radius: 50px; padding: 0.75rem; font-weight: 900; box-shadow: 0 4px 15px rgba(0, 229, 255, 0.35);">
+                    SALVA E AVVIA STANZA
+                </button>
             </div>
+
         </div>
     </div>
 
