@@ -70,7 +70,8 @@ export const loadFirebaseConfig = async () => {
     projectId: "realmong-us-g20b",
     storageBucket: "realmong-us-g20b.firebasestorage.app",
     messagingSenderId: "200595572263",
-    appId: "1:200595572263:web:62f7eeb3cca84df5b7f002"
+    appId: "1:200595572263:web:62f7eeb3cca84df5b7f002",
+    measurementId: "G-EB9910R23E"
   };
 };
 
