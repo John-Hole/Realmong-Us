@@ -253,9 +253,18 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-// --- INLINE AUTH ERROR UI HELPERS ---
+// --- INLINE AUTH ERROR UI HELPERS & PASSWORD TOGGLE ---
 const authErrorMsg = document.getElementById('auth-error-msg');
 const authErrorText = document.getElementById('auth-error-text');
+const btnTogglePassword = document.getElementById('btn-toggle-password');
+
+if (btnTogglePassword && passwordInput) {
+    btnTogglePassword.addEventListener('click', () => {
+        const isPassword = passwordInput.getAttribute('type') === 'password';
+        passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+        btnTogglePassword.textContent = isPassword ? '🙈' : '👁️';
+    });
+}
 
 function showAuthError(message, targetField = null) {
     if (authErrorText && authErrorMsg) {
