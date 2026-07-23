@@ -590,6 +590,7 @@ mapImageUpload.addEventListener('change', (e) => {
 
             currentBase64Image = mapCanvas.toDataURL('image/jpeg', 0.6);
             uploadStatus.textContent = "Immagine pronta e compressa!";
+            updateMapPreview();
         };
         img.src = event.target.result;
     };
@@ -601,6 +602,57 @@ createEnableMap.addEventListener('change', toggleMapAndTaskUI);
 createMapType.addEventListener('change', toggleMapAndTaskUI);
 createEnableTasks.addEventListener('change', toggleMapAndTaskUI);
 createTaskType.addEventListener('change', toggleMapAndTaskUI);
+
+let cachedVectorSVG = null;
+
+async function updateMapPreview() {
+    const previewContainer = document.getElementById('map-preview-container');
+    const previewContent = document.getElementById('map-preview-content');
+    if (!previewContainer || !previewContent) return;
+
+    if (!createEnableMap.checked) {
+        previewContainer.classList.add('hidden');
+        return;
+    }
+    previewContainer.classList.remove('hidden');
+
+    if (createMapType.value === 'vector') {
+        if (cachedVectorSVG) {
+            previewContent.innerHTML = cachedVectorSVG;
+            formatPreviewSVG(previewContent);
+        } else {
+            previewContent.innerHTML = `<span style="font-size: 0.78rem; color: #94a3b8;">Caricamento anteprima vettoriale...</span>`;
+            try {
+                const res = await fetch('public/assets/MappaOratotorio.svg');
+                if (res.ok) {
+                    cachedVectorSVG = await res.text();
+                    previewContent.innerHTML = cachedVectorSVG;
+                    formatPreviewSVG(previewContent);
+                } else {
+                    previewContent.innerHTML = `<span style="font-size: 0.8rem; color: #38bdf8; font-weight: 700;">🗺️ Mappa Vettoriale Oratorio</span>`;
+                }
+            } catch (err) {
+                previewContent.innerHTML = `<span style="font-size: 0.8rem; color: #38bdf8; font-weight: 700;">🗺️ Mappa Vettoriale Oratorio</span>`;
+            }
+        }
+    } else {
+        if (currentBase64Image) {
+            previewContent.innerHTML = `<img src="${currentBase64Image}" alt="Anteprima Mappa" style="max-height: 180px; max-width: 100%; border-radius: 8px; object-fit: contain; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">`;
+        } else {
+            previewContent.innerHTML = `<div style="color: #64748b; font-size: 0.78rem; padding: 1rem 0;">📷 Nessuna foto caricata.<br>Seleziona un file immagine sopra per vedere l'anteprima.</div>`;
+        }
+    }
+}
+
+function formatPreviewSVG(container) {
+    const svgEl = container.querySelector('svg');
+    if (svgEl) {
+        svgEl.setAttribute('width', '100%');
+        svgEl.setAttribute('height', '180px');
+        svgEl.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        svgEl.style.maxHeight = '180px';
+    }
+}
 
 function toggleMapAndTaskUI() {
     // MAP
@@ -615,6 +667,8 @@ function toggleMapAndTaskUI() {
         mapOptionsWrapper.classList.add('hidden');
         mapPhotoConfig.classList.add('hidden');
     }
+
+    updateMapPreview();
 
     // TASKS
     if (createEnableTasks.checked) {
