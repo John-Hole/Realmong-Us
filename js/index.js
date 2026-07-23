@@ -175,8 +175,8 @@ btnGoSchermo?.addEventListener('click', () => {
 btnAuthBack.addEventListener('click', () => showSection('home'));
 btnTplBack.addEventListener('click', () => showSection('home'));
 btnJoinBack.addEventListener('click', () => showSection('home'));
-btnCreateBack.addEventListener('click', () => showSection('templates'));
-btnCreateCancelBottom?.addEventListener('click', () => showSection('templates'));
+btnCreateBack.addEventListener('click', () => { currentEditId = null; showSection('templates'); });
+btnCreateCancelBottom?.addEventListener('click', () => { currentEditId = null; showSection('templates'); });
 
 btnGoCreate.addEventListener('click', () => {
     if (currentUser) {
@@ -334,6 +334,7 @@ function createTemplateCard(id, data, isCustom) {
     
     const menuDrop = document.createElement('div');
     menuDrop.className = 'template-menu-dropdown hidden';
+    menuDrop.onclick = (e) => e.stopPropagation();
     
     const editBtn = document.createElement('button');
     editBtn.textContent = 'Modifica';
@@ -497,13 +498,14 @@ function openCreateSettings(id, data, isDuplicate = false, isBase = false) {
         createTaskType.value = data.taskType || (data.mapMode === 'text' || (data.tasks && data.tasks.length > 0) ? 'custom' : 'default');
 
         textTasksContainer.innerHTML = '';
-        if (data.tasks && Array.isArray(data.tasks)) {
-            data.tasks.forEach(task => addTextTask(task));
-        }
+        const tasksArray = Array.isArray(data.tasks) ? data.tasks : (data.tasks && typeof data.tasks === 'object' ? Object.values(data.tasks) : []);
+        tasksArray.forEach(task => addTextTask(task));
     } else {
         createTemplateSubtitle.textContent = "Crea un nuovo template personalizzato con le tue impostazioni preferite.";
         btnSaveTemplateOnly.classList.remove('hidden');
         btnSaveStartRoom.classList.remove('hidden');
+        btnSaveTemplateOnly.textContent = "SALVA TEMPLATE";
+        btnSaveStartRoom.textContent = "SALVA E AVVIA STANZA";
         btnCreateCancelBottom.textContent = "INDIETRO / ANNULLA";
         setFormDisabled(false);
 
@@ -599,6 +601,9 @@ function toggleMapAndTaskUI() {
         } else {
             mapTextConfig.classList.add('hidden');
         }
+    } else {
+        taskOptionsWrapper.classList.add('hidden');
+        mapTextConfig.classList.add('hidden');
     }
 }
 
@@ -656,13 +661,21 @@ if (btnAddRoundTime) {
 }
 
 function addTextTask(taskData = { num: '', name: '', obj: '', pos: '' }) {
+    if (typeof taskData === 'string') {
+        taskData = { num: '', name: taskData, obj: '', pos: '' };
+    }
+    const num = taskData?.num ?? '';
+    const name = taskData?.name ?? '';
+    const obj = taskData?.obj ?? '';
+    const pos = taskData?.pos ?? '';
+
     const div = document.createElement('div');
     div.className = 'task-row';
     div.innerHTML = `
-        <input type="text" placeholder="N°" value="${taskData.num}" style="width: 15%;">
-        <input type="text" placeholder="Nome Task" value="${taskData.name}" style="width: 35%;">
-        <input type="text" placeholder="Obiettivo" value="${taskData.obj}" style="width: 30%;">
-        <input type="text" placeholder="Posizione" value="${taskData.pos}" style="width: 20%;">
+        <input type="text" placeholder="N°" value="${num}" style="width: 15%;">
+        <input type="text" placeholder="Nome Task" value="${name}" style="width: 35%;">
+        <input type="text" placeholder="Obiettivo" value="${obj}" style="width: 30%;">
+        <input type="text" placeholder="Posizione" value="${pos}" style="width: 20%;">
         <button class="btn btn-danger" style="padding: 0.5rem;">X</button>
     `;
     div.querySelector('.btn-danger').onclick = () => div.remove();
@@ -751,8 +764,10 @@ async function saveTemplateToFirebase(config) {
     const templateId = currentEditId || Date.now().toString();
     try {
         await set(ref(db, `users/${currentUser.uid}/templates/${templateId}`), config);
+        userTemplates[templateId] = config;
         renderBaseTemplates();
         await loadUserTemplates(currentUser.uid);
+        currentEditId = null;
         return true;
     } catch(e) {
         console.error("Errore salvataggio:", e);
