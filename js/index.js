@@ -262,15 +262,12 @@ function renderAllTemplates() {
     templatesGrid.innerHTML = '';
 
     // 1. Render Base Template ("Standard Realmong") FIRST
-    const baseData = (userTemplates && userTemplates['base']) ? userTemplates['base'] : baseTemplate;
-    const isBaseCustomized = !!(userTemplates && userTemplates['base']);
-    createTemplateCard('base', baseData, false, isBaseCustomized);
+    createTemplateCard('base', baseTemplate, false);
 
     // 2. Render User Custom Templates SECOND
     if (userTemplates) {
         for (const key in userTemplates) {
-            if (key === 'base') continue;
-            createTemplateCard(key, userTemplates[key], true, false);
+            createTemplateCard(key, userTemplates[key], true);
         }
     }
 
@@ -312,7 +309,7 @@ async function loadUserTemplates(uid) {
     }
 }
 
-function createTemplateCard(id, data, isCustom, isBaseCustomized = false) {
+function createTemplateCard(id, data, isCustom) {
     const card = document.createElement('div');
     card.style = `background: var(--card-bg); border-radius: 12px; padding: 1.2rem; position: relative; border: 2px solid #333; transition: all 0.2s; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between;`;
     card.onmouseover = () => card.style.borderColor = 'var(--accent-cyan)';
@@ -324,12 +321,7 @@ function createTemplateCard(id, data, isCustom, isBaseCustomized = false) {
     headerRow.style = `display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.8rem;`;
 
     const title = document.createElement('h3');
-    const templateTitleText = data.name || (id === 'base' ? 'Standard Realmong' : id);
-    if (id === 'base' && isBaseCustomized) {
-        title.innerHTML = `${templateTitleText} <span style="font-size: 0.65rem; background: rgba(56,189,248,0.18); color: #38bdf8; border: 1px solid rgba(56,189,248,0.4); padding: 2px 6px; border-radius: 4px; font-weight: 700; margin-left: 6px; vertical-align: middle;">Personalizzato</span>`;
-    } else {
-        title.textContent = templateTitleText;
-    }
+    title.textContent = data.name || (id === 'base' ? 'Standard Realmong' : id);
     title.style = `margin: 0; font-size: 1.1rem; font-weight: 700; color: white; word-break: break-word; flex: 1;`;
     headerRow.appendChild(title);
 
@@ -367,24 +359,6 @@ function createTemplateCard(id, data, isCustom, isBaseCustomized = false) {
     
     menuDrop.appendChild(editBtn);
     menuDrop.appendChild(dupeBtn);
-
-    if (id === 'base' && isBaseCustomized) {
-        const resetBtn = document.createElement('button');
-        resetBtn.textContent = 'Ripristina Standard';
-        resetBtn.className = 'template-menu-item template-menu-item-danger';
-        resetBtn.onclick = async (e) => { 
-            e.stopPropagation(); 
-            menuDrop.classList.add('hidden');
-            if(confirm("Vuoi ripristinare il Template Standard Realmong ai valori predefiniti?")) {
-                if (currentUser) {
-                    await remove(ref(db, `users/${currentUser.uid}/templates/base`));
-                }
-                delete userTemplates['base'];
-                renderAllTemplates();
-            }
-        };
-        menuDrop.appendChild(resetBtn);
-    }
 
     if (isCustom) {
         const delBtn = document.createElement('button');
@@ -467,15 +441,15 @@ function setFormDisabled(disabled) {
 
 function openCreateSettings(id, data, isDuplicate = false, isBase = false) {
     const isBaseTemplate = (isBase || id === 'base') && !isDuplicate;
-    currentEditId = isDuplicate ? null : id;
+    currentEditId = (isDuplicate || isBaseTemplate) ? null : id;
 
     if (data) {
         if (isBaseTemplate) {
-            createTemplateSubtitle.textContent = "Stai modificando il Template Standard Realmong. Le modifiche verranno salvate come la tua configurazione standard.";
+            createTemplateSubtitle.textContent = "Stai usando il Template Base come partenza. Le modifiche verranno salvate come un nuovo template personalizzato.";
             btnSaveTemplateOnly.classList.remove('hidden');
             btnSaveStartRoom.classList.remove('hidden');
-            btnSaveTemplateOnly.textContent = "SALVA TEMPLATE";
-            btnSaveStartRoom.textContent = "SALVA E AVVIA STANZA";
+            btnSaveTemplateOnly.textContent = "SALVA COME NUOVO TEMPLATE";
+            btnSaveStartRoom.textContent = "AVVIA STANZA CON QUESTI SETTAGGI";
             btnCreateCancelBottom.textContent = "INDIETRO / ANNULLA";
             setFormDisabled(false);
         } else {
@@ -492,7 +466,7 @@ function openCreateSettings(id, data, isDuplicate = false, isBase = false) {
             setFormDisabled(false);
         }
 
-        createTemplateName.value = (data.name || "") + (isDuplicate ? " (Copia)" : "");
+        createTemplateName.value = isBaseTemplate ? "Template Personalizzato" : ((data.name || "") + (isDuplicate ? " (Copia)" : ""));
         createImpostors.value = data.impostorCount || 1;
         createKillCooldown.value = data.killCooldown || 120;
         createMaxMeetings.value = data.maxMeetings !== undefined ? data.maxMeetings : 1;
