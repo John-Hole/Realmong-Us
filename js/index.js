@@ -288,7 +288,8 @@ function createTemplateCard(id, data, isCustom) {
     menuContainer.style = `position: relative;`;
 
     const menuBtn = document.createElement('button');
-    menuBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2.2"/><circle cx="12" cy="12" r="2.2"/><circle cx="12" cy="19" r="2.2"/></svg>`;
+    menuBtn.style = `appearance: none; -webkit-appearance: none; background: transparent; border: none; outline: none; box-shadow: none; color: #8a99ad; cursor: pointer; padding: 0; margin: 0; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 6px;`;
+    menuBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>`;
     menuBtn.className = 'template-menu-btn';
     menuBtn.title = 'Opzioni template';
     

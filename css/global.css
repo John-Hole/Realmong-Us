@@ -759,24 +759,30 @@ h1, h2, h3 {
  } 
 
 .template-menu-btn {
-    background: transparent;
-    border: none;
-    color: #8a99ad;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    color: #8a99ad !important;
     cursor: pointer;
     z-index: 10;
-    padding: 4px;
-    border-radius: 6px;
-    width: 28px;
-    height: 28px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: all 0.15s ease;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 6px !important;
+    width: 28px !important;
+    height: 28px !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    transition: all 0.15s ease !important;
 }
 
 .template-menu-btn:hover {
-    background: rgba(0, 229, 255, 0.15);
-    color: var(--accent-cyan);
+    background: rgba(0, 229, 255, 0.18) !important;
+    color: var(--accent-cyan) !important;
 }
 
 .template-menu-dropdown {
