@@ -445,7 +445,7 @@ function openCreateSettings(id, data, isDuplicate = false, isBase = false) {
 
     if (data) {
         if (isBaseTemplate) {
-            createTemplateSubtitle.innerHTML = `<span style="color: #f59e0b; font-weight: 800; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">🔒 TEMPLATE STANDARD (SOLA VISUALIZZAZIONE)</span><br><span style="color: #94a3b8; font-size: 0.78rem;">Questo template è lo Standard ufficiale e non può essere modificato. Clicca "Duplica" per crearne una versione personalizzabile.</span>`;
+            createTemplateSubtitle.textContent = "Stai visualizzando i parametri del Template Standard Realmong.";
             btnSaveTemplateOnly.classList.add('hidden');
             btnSaveStartRoom.classList.remove('hidden');
             btnSaveStartRoom.textContent = "AVVIA STANZA CON QUESTI SETTAGGI";
