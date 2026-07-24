@@ -80,14 +80,23 @@
             </div>
 
             <div class="side-nav-footer">
-                <div class="side-nav-user-card">
-                    <div class="user-card-icon">👤</div>
-                    <div class="user-card-details">
-                        <div class="user-card-label">STATO ACCOUNT</div>
-                        <div id="nav-user-email-text" class="user-card-email">${userEmailText || 'Ospite / Non loggato'}</div>
-                    </div>
-                </div>
-                <button id="nav-btn-logout" class="${logoutBtnClass} btn-side-logout">LOGOUT ACCOUNT</button>
+                ${isUserLoggedIn ? `
+                    <div class="side-nav-user-label" style="font-size: 0.65rem; color: #64748b; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 0.3rem;">ACCOUNT COLLEGATO</div>
+                    <button id="nav-btn-logout-side" class="nav-user-email-btn" title="Clicca per uscire dall'account">
+                        <span class="user-email-default">
+                            <span class="user-email-icon">📧</span>
+                            <span class="user-email-text">${userEmailText}</span>
+                        </span>
+                        <span class="user-email-hover">
+                            <span class="logout-icon">🚪</span>
+                            <span class="logout-text">ESCI DALL'ACCOUNT</span>
+                        </span>
+                    </button>
+                ` : `
+                    <button id="btn-side-auth" class="btn btn-primary" style="width: 100%; border-radius: 50px; font-weight: 800; padding: 0.75rem; background: linear-gradient(135deg, #0284c7, #0369a1); color: white; border: none;">
+                        ACCEDI / REGISTRATI
+                    </button>
+                `}
             </div>
         </div>
     `;
@@ -148,6 +157,40 @@
             closeNav();
         }
     });
+
+    function performLogout() {
+        try {
+            localStorage.removeItem('realmong_user_cache');
+            localStorage.removeItem('playerSession');
+            sessionStorage.removeItem('playerSession');
+        } catch(e) {}
+        if (window.authService) {
+            window.authService.logout().then(() => window.location.href = '/').catch(() => window.location.href = '/');
+        } else {
+            window.location.href = '/';
+        }
+    }
+
+    document.querySelectorAll('#nav-btn-logout-top, #nav-btn-logout-side, #nav-btn-logout').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (confirm("Vuoi davvero effettuare il logout dall'account?")) {
+                performLogout();
+            }
+        });
+    });
+
+    const btnSideAuth = document.getElementById('btn-side-auth');
+    if (btnSideAuth) {
+        btnSideAuth.addEventListener('click', () => {
+            closeNav();
+            if (typeof window.showSection === 'function') {
+                window.showSection('auth');
+            } else {
+                window.location.href = '/?go=auth';
+            }
+        });
+    }
 
     const inGame = isMaster || isGiocatore || isScienziato || (isSchermo && new URLSearchParams(window.location.search).get('room'));
 
