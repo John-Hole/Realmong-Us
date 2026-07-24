@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
 import { getDatabase } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
-import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signInAnonymously, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
 
 // Firebase Configuration for realmong-us-g20b
 const firebaseConfig = {
@@ -18,6 +18,13 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
 
+// Explicitly set persistent storage across browser sessions (at least 7 days / permanent until logout)
+setPersistence(auth, browserLocalPersistence).catch((e) => {
+  console.warn("Firebase auth setPersistence error:", e);
+});
+
+const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+
 let authPromise = null;
 
 export function ensureAuth() {
@@ -25,6 +32,7 @@ export function ensureAuth() {
   authPromise = new Promise((resolve) => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       unsubscribe();
+      const now = Date.now();
       if (user) {
         try {
           const displayName = user.isAnonymous ? 'Ospite' : (user.displayName || user.email || 'Utente');
@@ -33,7 +41,9 @@ export function ensureAuth() {
             uid: user.uid,
             displayName,
             email: displayEmail,
-            isAnonymous: user.isAnonymous
+            isAnonymous: user.isAnonymous,
+            loginTime: now,
+            expiresAt: now + SEVEN_DAYS_MS
           }));
         } catch (e) {}
         resolve(user);
@@ -46,7 +56,9 @@ export function ensureAuth() {
               uid: u.uid,
               displayName: 'Ospite',
               email: 'Account Ospite',
-              isAnonymous: true
+              isAnonymous: true,
+              loginTime: now,
+              expiresAt: now + SEVEN_DAYS_MS
             }));
           } catch (e) {}
           resolve(u);

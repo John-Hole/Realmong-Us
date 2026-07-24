@@ -262,15 +262,22 @@ function renderMasterRoundTimesUI(timesArr = [10, 7, 5]) {
     timesArr.forEach((mins, idx) => {
         const isLast = idx === timesArr.length - 1;
         const div = document.createElement('div');
-        div.style = `display: flex; align-items: center; gap: 0.5rem; background: rgba(0,0,0,0.25); padding: 0.35rem 0.5rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);`;
+        div.className = 'round-time-row';
         
         const labelText = isLast && idx > 0 ? `Round ${idx + 1}+ (ripete ∞)` : `Round ${idx + 1}`;
+        const badgeClass = isLast && idx > 0 ? 'round-time-badge infinite' : 'round-time-badge';
         
         div.innerHTML = `
-            <span style="font-size: 0.75rem; font-weight: bold; width: 120px; color: ${isLast ? 'var(--accent-cyan, #00e5ff)' : 'white'};">${labelText}:</span>
-            <input type="number" class="master-round-time-input" value="${mins}" min="1" max="120" style="flex: 1; padding: 0.35rem; border-radius: 6px; background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.15); font-weight: 600;">
-            <span style="font-size: 0.75rem; color: #aaa;">min</span>
-            ${timesArr.length > 1 ? `<button type="button" class="btn-master-remove-round" style="background: none; border: none; color: #ff4b4b; cursor: pointer; font-weight: bold; padding: 0 0.3rem;">✕</button>` : ''}
+            <div class="round-time-label-wrapper">
+                <span class="${badgeClass}">
+                    ${labelText}
+                </span>
+            </div>
+            <div class="round-time-controls">
+                <input type="number" class="master-round-time-input round-time-input" value="${mins}" min="1" max="120">
+                <span class="round-time-unit">min</span>
+                ${timesArr.length > 1 ? `<button type="button" class="btn-remove-round btn-master-remove-round" title="Rimuovi round">✕</button>` : ''}
+            </div>
         `;
 
         if (timesArr.length > 1) {

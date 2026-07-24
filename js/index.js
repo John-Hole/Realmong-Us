@@ -246,11 +246,15 @@ onAuthStateChanged(auth, (user) => {
         const displayEmail = user.isAnonymous ? 'Account Ospite' : (user.email || user.displayName || 'Utente');
         
         try {
+            const now = Date.now();
+            const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
             localStorage.setItem('realmong_user_cache', JSON.stringify({
                 uid: user.uid,
                 displayName,
                 email: displayEmail,
-                isAnonymous: user.isAnonymous
+                isAnonymous: user.isAnonymous,
+                loginTime: now,
+                expiresAt: now + SEVEN_DAYS_MS
             }));
         } catch (e) {}
 
@@ -856,21 +860,20 @@ function renderRoundTimesUI(timesArr = [10, 7, 5]) {
         div.className = 'round-time-row';
         
         const labelText = isLast && idx > 0 ? `Round ${idx + 1}+ (ripete ∞)` : `Round ${idx + 1}`;
-        const pillBg = isLast ? 'rgba(56, 189, 248, 0.15)' : 'rgba(255, 255, 255, 0.08)';
-        const pillBorder = isLast ? 'rgba(56, 189, 248, 0.35)' : 'rgba(255, 255, 255, 0.12)';
-        const pillColor = isLast ? '#38bdf8' : '#e2e8f0';
-        
+        const badgeClass = isLast && idx > 0 ? 'round-time-badge infinite' : 'round-time-badge';
         const showRemove = timesArr.length > 1 && !currentFormDisabled;
 
         div.innerHTML = `
-            <div style="width: 155px; flex-shrink: 0; display: flex; align-items: center;">
-                <span style="background: ${pillBg}; border: 1px solid ${pillBorder}; color: ${pillColor}; padding: 0.25rem 0.65rem; border-radius: 50px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.3px; display: inline-block; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+            <div class="round-time-label-wrapper">
+                <span class="${badgeClass}">
                     ${labelText}
                 </span>
             </div>
-            <input type="number" class="round-time-input" value="${mins}" min="1" max="120" style="flex: 1;" ${currentFormDisabled ? 'disabled' : ''}>
-            <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 700; flex-shrink: 0;">min</span>
-            ${showRemove ? `<button type="button" class="btn btn-danger btn-remove-round" style="padding: 0.3rem 0.65rem; font-size: 0.75rem; min-height: 32px; border-radius: 8px; font-weight: 800; flex-shrink: 0;" title="Rimuovi round">✕</button>` : ''}
+            <div class="round-time-controls">
+                <input type="number" class="round-time-input" value="${mins}" min="1" max="120" ${currentFormDisabled ? 'disabled' : ''}>
+                <span class="round-time-unit">min</span>
+                ${showRemove ? `<button type="button" class="btn-remove-round" title="Rimuovi round">✕</button>` : ''}
+            </div>
         `;
 
         if (showRemove) {
@@ -1243,6 +1246,7 @@ btnJoinRoom.addEventListener('click', async () => {
             : (Date.now() + '_' + Math.random().toString(36).substring(2));
         
         sessionStorage.setItem(`realmong_token_${code}_${name}`, playerToken);
+        localStorage.setItem(`realmong_token_${code}_${name}`, playerToken);
 
         await set(ref(db, `rooms/${code}/players/${name}`), {
             status: 'alive',

@@ -8,7 +8,14 @@
     let cachedUser = null;
     try {
         const rawCache = localStorage.getItem('realmong_user_cache');
-        if (rawCache) cachedUser = JSON.parse(rawCache);
+        if (rawCache) {
+            const parsed = JSON.parse(rawCache);
+            if (parsed && parsed.expiresAt && Date.now() > parsed.expiresAt) {
+                localStorage.removeItem('realmong_user_cache');
+            } else {
+                cachedUser = parsed;
+            }
+        }
     } catch (e) {}
 
     const isUserLoggedIn = !!(cachedUser && cachedUser.uid);

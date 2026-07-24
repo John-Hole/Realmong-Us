@@ -108,7 +108,8 @@ if (roomCode) {
 
         // Role verification check: Only scientist can access this view
         const players = room.players || {};
-        const localToken = sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`);
+        const localToken = sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`) ||
+                           localStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`);
         if (!myPlayerName || !players[myPlayerName] || players[myPlayerName].role !== 'scientist') {
             alert("Accesso negato: Solo il giocatore con ruolo 'Scienziato' può accedere a questo monitor.");
             window.location.href = `giocatore?room=${encodeURIComponent(roomCode)}${myPlayerName ? `&player=${encodeURIComponent(myPlayerName)}` : ''}`;

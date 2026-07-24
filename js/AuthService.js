@@ -39,11 +39,15 @@ class AuthService {
           try {
             const displayName = user.isAnonymous ? 'Ospite' : (user.displayName || user.email || 'Utente');
             const displayEmail = user.isAnonymous ? 'Account Ospite' : (user.email || user.displayName || 'Utente');
+            const now = Date.now();
+            const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
             localStorage.setItem('realmong_user_cache', JSON.stringify({
               uid: user.uid,
               displayName,
               email: displayEmail,
-              isAnonymous: user.isAnonymous
+              isAnonymous: user.isAnonymous,
+              loginTime: now,
+              expiresAt: now + SEVEN_DAYS_MS
             }));
           } catch (e) {}
           try {
@@ -152,17 +156,24 @@ class AuthService {
     this.currentRoom = roomCode;
     this.playerName = playerName;
 
+    const now = Date.now();
+    const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+
     const session = {
       userId: this.currentUser.uid,
       roomCode,
       playerName,
-      joinedAt: Date.now(),
+      joinedAt: now,
+      expiresAt: now + SEVEN_DAYS_MS,
       idToken: this.idToken,
       isAuthenticated: true,
     };
 
-    // Store in sessionStorage (available only during browser session)
-    sessionStorage.setItem('playerSession', JSON.stringify(session));
+    // Store in both sessionStorage and localStorage for 7-day tab/browser session durability
+    try {
+      sessionStorage.setItem('playerSession', JSON.stringify(session));
+      localStorage.setItem('playerSession', JSON.stringify(session));
+    } catch (e) {}
 
     return session;
   }
@@ -173,8 +184,15 @@ class AuthService {
    */
   getPlayerSession() {
     try {
-      const stored = sessionStorage.getItem('playerSession');
-      return stored ? JSON.parse(stored) : null;
+      const stored = sessionStorage.getItem('playerSession') || localStorage.getItem('playerSession');
+      if (!stored) return null;
+      const session = JSON.parse(stored);
+      if (session && session.expiresAt && Date.now() > session.expiresAt) {
+        sessionStorage.removeItem('playerSession');
+        localStorage.removeItem('playerSession');
+        return null;
+      }
+      return session;
     } catch (e) {
       console.error('Failed to retrieve player session:', e);
       return null;
@@ -222,6 +240,7 @@ class AuthService {
       this.playerName = null;
       this.idToken = null;
       sessionStorage.removeItem('playerSession');
+      localStorage.removeItem('playerSession');
       try {
         localStorage.removeItem('realmong_user_cache');
       } catch (e) {}

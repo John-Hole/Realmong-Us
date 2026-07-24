@@ -125,7 +125,8 @@ onValue(roomRef, async (snapshot) => {
             myData = data.players[myPlayerName];
 
             // Session Token Validation
-            const localToken = sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`);
+            const localToken = sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`) ||
+                               localStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`);
             if (myData.token) {
                 if (!localToken || myData.token !== localToken) {
                     alert("Accesso non autorizzato: questa sessione di gioco appartiene a un altro utente o a un'altra scheda.");
@@ -168,7 +169,8 @@ onValue(roomRef, async (snapshot) => {
             overlayDead.classList.add('hidden');
 
             // Show Not-In-Room UI & check game status
-            const localToken = sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`);
+            const localToken = sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`) ||
+                               localStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`);
             const canRejoinMidGame = !!localToken;
 
             if (notInRoomScreen) {
@@ -1012,7 +1014,8 @@ async function rejoinRoom() {
             }
         }
 
-        let localToken = sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`);
+        let localToken = sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`) ||
+                         localStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`);
 
         if (roomData.state && roomData.state.game_status !== 'waiting' && !localToken) {
             alert("Impossibile rientrare: la partita è già in corso. Puoi rientrare solo se eri già parte della partita.");
@@ -1026,6 +1029,7 @@ async function rejoinRoom() {
                 ? crypto.randomUUID()
                 : (Date.now() + '_' + Math.random().toString(36).substring(2));
             sessionStorage.setItem(`realmong_token_${roomCode}_${myPlayerName}`, localToken);
+            localStorage.setItem(`realmong_token_${roomCode}_${myPlayerName}`, localToken);
         }
 
         // Re-add player node if not present
@@ -1099,13 +1103,15 @@ async function promptChangeName() {
         }
 
         if (myData) {
-            let currentToken = sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`);
+            let currentToken = sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`) ||
+                               localStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`);
             if (!currentToken) {
                 currentToken = (typeof crypto !== 'undefined' && crypto.randomUUID)
                     ? crypto.randomUUID()
                     : (Date.now() + '_' + Math.random().toString(36).substring(2));
             }
             sessionStorage.setItem(`realmong_token_${roomCode}_${cleanName}`, currentToken);
+            localStorage.setItem(`realmong_token_${roomCode}_${cleanName}`, currentToken);
 
             const oldNameRef = ref(db, `rooms/${roomCode}/players/${myPlayerName}`);
             const newNameRef = ref(db, `rooms/${roomCode}/players/${cleanName}`);
