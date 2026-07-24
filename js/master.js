@@ -1130,23 +1130,23 @@ btnStartRandom.addEventListener('click', async () => {
     if(!confirm("Sei sicuro di voler avviare il gioco con i giocatori attuali?")) return;
     
     // Logic for impostors
-    let numImpostors = roomConfig.impostorCount || 1;
+    let numImpostors = (roomConfig && roomConfig.impostorCount) ? roomConfig.impostorCount : 1;
     if (playerNames.length <= numImpostors) {
         numImpostors = 1; // Fallback rule as requested
         alert("Il numero di giocatori è troppo basso per il numero di impostori scelto. Forzato a 1 Impostore.");
     }
     
-    const hasScientist = roomConfig.scientistEnabled;
+    const hasScientist = roomConfig && roomConfig.scientistEnabled;
 
     const shuffledPlayers = [...playerNames].sort(() => 0.5 - Math.random());
     const randomImpostors = shuffledPlayers.slice(0, numImpostors);
     const randomScientist = hasScientist && shuffledPlayers.length > numImpostors ? shuffledPlayers[numImpostors] : null;
 
-    const enableTasks = roomConfig.enableTasks !== false;
-    const taskType = roomConfig.taskType || (roomConfig.mapMode === 'text' ? 'custom' : 'default');
+    const enableTasks = roomConfig ? (roomConfig.enableTasks !== false) : true;
+    const taskType = roomConfig ? (roomConfig.taskType || (roomConfig.mapMode === 'text' ? 'custom' : 'default')) : 'default';
 
     let tasksSource = null;
-    if (enableTasks && taskType === 'custom' && roomConfig.tasks && roomConfig.tasks.length > 0) {
+    if (enableTasks && taskType === 'custom' && roomConfig && roomConfig.tasks && roomConfig.tasks.length > 0) {
         tasksSource = roomConfig.tasks.map(t => {
             const titleText = t.name || t.obj || '';
             const hasSeparateObj = Boolean(t.obj && t.obj.trim() !== '' && t.obj.trim() !== (t.name || '').trim());
