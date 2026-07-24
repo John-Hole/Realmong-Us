@@ -128,7 +128,9 @@ onValue(roomRef, async (snapshot) => {
             const localToken = sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`) ||
                                localStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`);
             if (myData.token) {
-                if (!localToken || myData.token !== localToken) {
+                if (!localToken) {
+                    sessionStorage.setItem(`realmong_token_${roomCode}_${myPlayerName}`, myData.token);
+                } else if (myData.token !== localToken) {
                     alert("Accesso non autorizzato: questa sessione di gioco appartiene a un altro utente o a un'altra scheda.");
                     window.location.href = "/";
                     return;
@@ -403,6 +405,11 @@ function updateUI(state, playersMap) {
             const cdSec = (roomConfig && roomConfig.killCooldown) ? roomConfig.killCooldown : 120;
             killCooldownEnd = Date.now() + (cdSec * 1000);
             startCooldownTimer();
+
+            // Auto-hide role screen after 5 seconds as safety fallback
+            setTimeout(() => {
+                if (roleScreen) roleScreen.classList.add('hidden');
+            }, 5000);
         }
 
         crewmateUI.classList.remove('hidden'); // Everyone sees tasks now

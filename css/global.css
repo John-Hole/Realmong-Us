@@ -3354,14 +3354,15 @@ input:checked + .slider:before {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
-    padding: 1.5rem;
+    z-index: 9999;
+    padding: 1rem;
     box-sizing: border-box;
+    overflow-y: auto;
 }
 
 .role-text {
-    font-size: clamp(2.2rem, 10vw, 4.5rem);
-    margin-bottom: 2rem;
+    font-size: clamp(1.8rem, 8vw, 4.5rem);
+    margin-bottom: 1.5rem;
     text-align: center;
     word-wrap: break-word;
     max-width: 90%;
