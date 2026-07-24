@@ -1786,6 +1786,12 @@ body.schermo-body, body.teatro-body {
     transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
 }
 
+.glass-card + .glass-card,
+.glass-card + .dashboard-card,
+.dashboard-card + .glass-card {
+    margin-top: 0.85rem;
+}
+
 .glass-card:hover, .dashboard-card:hover {
     border-color: rgba(255, 255, 255, 0.14) !important;
     box-shadow: 0 12px 35px rgba(0, 0, 0, 0.55) !important;
@@ -2807,6 +2813,8 @@ input:checked + .slider:before {
     .hub-layout,
     .schermo-lobby-container,
     .section-container {
+        display: flex !important;
+        flex-direction: column !important;
         width: 100% !important;
         max-width: 100% !important;
         margin: 0 auto !important;
@@ -2842,8 +2850,13 @@ input:checked + .slider:before {
         max-width: 100% !important;
         padding: var(--mobile-card-padding) !important;
         border-radius: 14px !important;
-        margin: 0 !important;
         box-sizing: border-box !important;
+    }
+
+    .glass-card + .glass-card,
+    .glass-card + .dashboard-card,
+    .dashboard-card + .glass-card {
+        margin-top: var(--mobile-section-gap) !important;
     }
 
     #templates-grid {
