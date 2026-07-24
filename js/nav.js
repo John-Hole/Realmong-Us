@@ -46,19 +46,49 @@
 
     const navHTML = `
         <div class="top-navbar ${isSchermo ? 'autohide' : ''}">
-            <div id="hamburger-btn" class="hamburger-btn">☰</div>
+            <button id="hamburger-btn" class="hamburger-btn" aria-label="Menu navigazione">
+                <span class="hamburger-icon">☰</span>
+            </button>
             <div class="navbar-title glitch-text">REALMONG US</div>
             <div class="navbar-right">
                 ${rightSideHTML}
             </div>
         </div>
+        <div id="side-nav-overlay" class="side-nav-overlay"></div>
         <div id="side-nav" class="side-nav">
-            <a href="#" id="nav-home">Homepage</a>
-            <a href="#" id="nav-schermo">Schermata generale</a>
-            <a href="#" id="nav-account">Account (Template)</a>
-            <div style="flex-grow: 1;"></div>
-            <div id="nav-auth-status" style="font-size: 0.8rem; color: #ccc; margin-bottom: 10px;">${authStatusText}</div>
-            <button id="nav-btn-logout" class="${logoutBtnClass}" style="padding: 10px; font-size: 0.8rem; border-radius: 50px;">LOGOUT ACCOUNT</button>
+            <div class="side-nav-header">
+                <div class="side-nav-brand">
+                    <span class="side-nav-logo">🚀</span>
+                    <span class="side-nav-title">MENU GIOCO</span>
+                </div>
+                <button id="side-nav-close" class="side-nav-close" aria-label="Chiudi menu">✕</button>
+            </div>
+            
+            <div class="side-nav-links">
+                <a href="#" id="nav-home" class="side-nav-link ${isIndex ? 'active' : ''}">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-text">Homepage</span>
+                </a>
+                <a href="#" id="nav-schermo" class="side-nav-link ${isSchermo ? 'active' : ''}">
+                    <span class="nav-icon">📺</span>
+                    <span class="nav-text">Schermata generale</span>
+                </a>
+                <a href="#" id="nav-account" class="side-nav-link">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-text">Account (Template)</span>
+                </a>
+            </div>
+
+            <div class="side-nav-footer">
+                <div class="side-nav-user-card">
+                    <div class="user-card-icon">👤</div>
+                    <div class="user-card-details">
+                        <div class="user-card-label">STATO ACCOUNT</div>
+                        <div id="nav-user-email-text" class="user-card-email">${userEmailText || 'Ospite / Non loggato'}</div>
+                    </div>
+                </div>
+                <button id="nav-btn-logout" class="${logoutBtnClass} btn-side-logout">LOGOUT ACCOUNT</button>
+            </div>
         </div>
     `;
     document.body.insertAdjacentHTML('afterbegin', navHTML);
@@ -69,12 +99,30 @@
 
     const hamburgerBtn = document.getElementById('hamburger-btn');
     const sideNav = document.getElementById('side-nav');
+    const sideNavOverlay = document.getElementById('side-nav-overlay');
+    const sideNavClose = document.getElementById('side-nav-close');
     const navHome = document.getElementById('nav-home');
     const navSchermo = document.getElementById('nav-schermo');
     const navAccount = document.getElementById('nav-account');
 
+    function openNav() {
+        sideNav.classList.add('open');
+        sideNavOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeNav() {
+        sideNav.classList.remove('open');
+        sideNavOverlay.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
     function toggleNav() {
-        sideNav.classList.toggle('open');
+        if (sideNav.classList.contains('open')) {
+            closeNav();
+        } else {
+            openNav();
+        }
     }
 
     hamburgerBtn.addEventListener('click', (e) => {
@@ -82,15 +130,29 @@
         toggleNav();
     });
 
-    document.addEventListener('click', (e) => {
-        if (sideNav.classList.contains('open') && !sideNav.contains(e.target)) {
-            toggleNav();
+    if (sideNavClose) {
+        sideNavClose.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeNav();
+        });
+    }
+
+    if (sideNavOverlay) {
+        sideNavOverlay.addEventListener('click', () => {
+            closeNav();
+        });
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && sideNav.classList.contains('open')) {
+            closeNav();
         }
     });
 
     const inGame = isMaster || isGiocatore || isScienziato || (isSchermo && new URLSearchParams(window.location.search).get('room'));
 
     function handleNavigate(targetUrl) {
+        closeNav();
         if (inGame) {
             if (confirm("Stai per abbandonare la partita. Vuoi continuare?")) {
                 window.location.href = targetUrl;
