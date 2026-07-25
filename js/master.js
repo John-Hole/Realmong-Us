@@ -1295,20 +1295,14 @@ if (btnStartVoting) {
 
 if (btnEndDiscussion) {
     btnEndDiscussion.addEventListener('click', async () => {
-        resolvingMeeting = false;
-        finalizingMeeting = false;
-        let votSec = 60;
-        if (roomConfig) {
-            const rawVot = roomConfig.votingDuration !== undefined ? roomConfig.votingDuration : roomConfig.meetingDuration;
-            if (rawVot !== undefined && rawVot !== null && !isNaN(parseInt(rawVot))) {
-                votSec = parseInt(rawVot);
-            }
-        }
-        const votingEndTime = votSec > 0 ? Date.now() + (votSec * 1000) : 0;
+        const remaining = currentState ? (currentState.timer_remaining || 0) : 0;
+        const newTimerEnd = remaining > 0 ? (Date.now() + remaining) : Date.now();
         await update(roomRef, {
-            'state/game_status': 'voting',
-            'state/voting_endtime': votingEndTime
+            'state/game_status': 'playing',
+            'state/timer_paused': false,
+            'state/timer': newTimerEnd
         });
+        addLog(`🛑 Discussione interrotta dal Master. Partita ripresa.`);
     });
 }
 
