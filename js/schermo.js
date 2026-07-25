@@ -181,60 +181,7 @@ function startConnection() {
         container._scrollTimer = requestAnimationFrame(autoScrollLoop);
     }
 
-    // Initialize players list & limit
-    function renderPlayers(playersData, votesData, maxPlayers) {
-        if (!playersListContainer) return;
-        playersListContainer.innerHTML = '';
-        
-        let playerCount = 0;
 
-        if (playersData) {
-            for (const playerName in playersData) {
-                playerCount++;
-                const pData = playersData[playerName];
-                const isRevealedDead = pData.status === 'killed_revealed';
-                const hasVoted = votesData && votesData[playerName] !== undefined;
-                
-                const div = document.createElement('div');
-                div.className = `player-card ${isRevealedDead ? 'dead' : ''}`;
-                
-                let statusHtml = '';
-                if (isRevealedDead) {
-                    statusHtml = '<span class="player-status dead-icon">❌</span>';
-                } else if (previousStatus === 'voting') {
-                    statusHtml = hasVoted 
-                        ? '<span class="player-status voted-badge">VOTATO</span>' 
-                        : '<span class="player-status waiting-badge">IN ATTESA</span>';
-                }
-
-                div.innerHTML = `
-                    <div class="player-avatar">👨‍🚀</div>
-                    <span class="player-name">${escapeHtml(playerName)}</span>
-                    ${statusHtml}
-                `;
-                playersListContainer.appendChild(div);
-            }
-        }
-
-        if (playerCount === 0) {
-            const emptyDiv = document.createElement('div');
-            emptyDiv.style.cssText = 'color: #94a3b8; text-align: center; padding: 2rem 1rem; font-family: var(--font-ui), sans-serif; font-size: 0.95rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;';
-            emptyDiv.textContent = 'In attesa di giocatori...';
-            playersListContainer.appendChild(emptyDiv);
-        }
-        
-        const countDisplay = document.getElementById('waiting-players-count');
-        if (countDisplay) {
-            if (maxPlayers && maxPlayers !== 'unlimited' && !isNaN(parseInt(maxPlayers))) {
-                countDisplay.textContent = `(${playerCount}/${maxPlayers})`;
-            } else {
-                countDisplay.textContent = `(${playerCount})`;
-            }
-        }
-
-        const playersScroll = document.getElementById('players-scroll-container');
-        if (playersScroll) setupAutoScroll(playersScroll);
-    }
 
     // Render task list in left panel & center table
     function renderTasks(configTasks, enableTasks = true) {
@@ -778,74 +725,7 @@ function startConnection() {
         if (overlay) overlay.classList.add('hidden');
     }
 
-    function showVictoryOverlay(status, playersData) {
-        const victoryOverlay = document.getElementById('overlay-victory');
-        const title = document.getElementById('victory-title');
-        const subtitle = document.getElementById('victory-subtitle');
-        const teamCardsContainer = document.getElementById('victory-team-cards');
-        if (!victoryOverlay || !title || !subtitle || !teamCardsContainer) return;
 
-        const isCrewmates = (status === 'crewmates_win');
-        
-        if (isCrewmates) {
-            victoryOverlay.style.background = 'radial-gradient(circle, rgba(0,242,254,0.2) 0%, rgba(5,8,20,1) 70%)';
-            title.textContent = 'VITTORIA CREWMATES';
-            title.style.color = '#00f2fe';
-            title.style.textShadow = '0 0 30px rgba(0, 242, 254, 0.6)';
-            subtitle.textContent = 'I CREWMATES HANNO COMPLETATO TUTTE LE TASK';
-        } else {
-            victoryOverlay.style.background = 'radial-gradient(circle, rgba(255,68,68,0.25) 0%, rgba(15,5,5,1) 70%)';
-            title.textContent = 'VITTORIA IMPOSTORI';
-            title.style.color = '#ff4444';
-            title.style.textShadow = '0 0 30px rgba(255, 68, 68, 0.6)';
-            subtitle.textContent = 'GLI IMPOSTORI HANNO CONQUISTATO LA NAVE';
-        }
-
-        teamCardsContainer.innerHTML = '';
-        if (playersData) {
-            for (const pName in playersData) {
-                const p = playersData[pName];
-                const role = (p.role || '').toLowerCase();
-                const isWinner = isCrewmates 
-                    ? (role === 'crewmate' || role === 'innocente' || role === 'medico' || role === 'investigatore') 
-                    : (role === 'impostore' || role === 'impostor' || role === 'assassino');
-
-                if (isWinner) {
-                    const card = document.createElement('div');
-                    card.className = 'victory-member-card';
-                    card.style.background = isCrewmates 
-                        ? 'linear-gradient(145deg, rgba(0, 242, 254, 0.15), rgba(10, 15, 30, 0.95))' 
-                        : 'linear-gradient(145deg, rgba(255, 68, 68, 0.2), rgba(30, 10, 10, 0.95))';
-                    card.style.border = isCrewmates ? '2px solid #00f2fe' : '2px solid #ff4444';
-                    card.style.borderRadius = '16px';
-                    card.style.padding = '1.2rem 1.8rem';
-                    card.style.minWidth = '180px';
-                    card.style.display = 'flex';
-                    card.style.flexDirection = 'column';
-                    card.style.alignItems = 'center';
-                    card.style.gap = '0.6rem';
-                    card.style.boxShadow = isCrewmates 
-                        ? '0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 242, 254, 0.3)' 
-                        : '0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 68, 68, 0.4)';
-
-                    const icon = isCrewmates ? '👨‍🚀' : '👺';
-                    const roleBadge = isCrewmates ? 'CREWMATE' : 'IMPOSTORE';
-
-                    card.innerHTML = `
-                        <div style="font-size: 3rem; filter: drop-shadow(0 0 10px ${isCrewmates ? 'rgba(0,242,254,0.5)' : 'rgba(255,68,68,0.6)'})">
-                            ${icon}
-                        </div>
-                        <div style="font-family: var(--font-ui), sans-serif; font-weight: 800; font-size: 1.2rem; color: #ffffff; text-transform: uppercase; letter-spacing: 1px;">
-                            ${escapeHtml(pName)}
-                        </div>
-                        <div style="font-family: var(--font-ui), sans-serif; font-size: 0.75rem; font-weight: 800; padding: 0.25rem 0.7rem; border-radius: 12px; letter-spacing: 1.5px; ${isCrewmates ? 'background: rgba(0,242,254,0.2); color: #00f2fe; border: 1px solid #00f2fe;' : 'background: rgba(255,68,68,0.25); color: #ff6666; border: 1px solid #ff4444;'}">
-                            ${roleBadge}
-                        </div>
-                    `;
-                    teamCardsContainer.appendChild(card);
-                }
-            }
-        }
 
     function showVictoryOverlay(status, playersData) {
         const victoryOverlay = document.getElementById('overlay-victory');
