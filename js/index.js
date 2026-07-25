@@ -257,44 +257,24 @@ onAuthStateChanged(auth, (user) => {
     const navUserInfoEl = document.getElementById('nav-user-info');
     const navUserNameEl = document.getElementById('nav-user-name');
 
-    // Check cached 7-day session fallback
-    let validCachedUser = null;
-    try {
-        const rawCache = localStorage.getItem('realmong_user_cache');
-        if (rawCache) {
-            const parsed = JSON.parse(rawCache);
-            if (parsed && parsed.expiresAt && Date.now() < parsed.expiresAt && parsed.uid && !parsed.isAnonymous) {
-                validCachedUser = parsed;
-            }
-        }
-    } catch (e) {}
-
-    const effectiveUser = (user && !user.isAnonymous) ? user : validCachedUser;
-
-    if (effectiveUser) {
-        currentUser = effectiveUser;
+    if (user && !user.isAnonymous) {
+        currentUser = user;
         if (authModal && !authModal.classList.contains('hidden')) {
             authModal.classList.add('hidden');
         }
-        const displayName = effectiveUser.displayName || effectiveUser.email || 'Utente';
-        const displayEmail = effectiveUser.email || effectiveUser.displayName || 'Utente';
+        const displayName = user.displayName || user.email || 'Utente';
+        const displayEmail = user.email || user.displayName || 'Utente';
         
         try {
             const now = Date.now();
             const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
-            let loginTime = now;
-            let expiresAt = now + SEVEN_DAYS_MS;
-            if (validCachedUser) {
-                loginTime = validCachedUser.loginTime || now;
-                expiresAt = validCachedUser.expiresAt || (loginTime + SEVEN_DAYS_MS);
-            }
             localStorage.setItem('realmong_user_cache', JSON.stringify({
-                uid: effectiveUser.uid,
+                uid: user.uid,
                 displayName,
                 email: displayEmail,
                 isAnonymous: false,
-                loginTime,
-                expiresAt
+                loginTime: now,
+                expiresAt: now + SEVEN_DAYS_MS
             }));
         } catch (e) {}
 
@@ -306,13 +286,13 @@ onAuthStateChanged(auth, (user) => {
         if (navUserInfoEl) navUserInfoEl.style.display = 'flex';
         if (navUserNameEl) navUserNameEl.textContent = `👤 ${displayName}`;
 
-        loadUserTemplates(effectiveUser.uid);
+        loadUserTemplates(user.uid);
         
         if (!authSection.classList.contains('hidden') || urlParams.get('go') === 'account') {
             showSection('templates');
         }
     } else {
-        currentUser = null;
+        currentUser = user;
         try {
             localStorage.removeItem('realmong_user_cache');
         } catch (e) {}
@@ -323,11 +303,15 @@ onAuthStateChanged(auth, (user) => {
         if (btnLogoutEl) btnLogoutEl.classList.add('hidden');
         if (btnShowAuthEl) btnShowAuthEl.style.display = 'inline-block';
         if (navUserInfoEl) navUserInfoEl.style.display = 'none';
-        userTemplates = {};
         
-        renderAllTemplates();
+        if (user && user.isAnonymous) {
+            loadUserTemplates(user.uid);
+        } else {
+            userTemplates = {};
+            renderAllTemplates();
+        }
 
-        if (urlParams.get('go') === 'account') {
+        if (urlParams.get('go') === 'account' && !user) {
             authModal.classList.remove('hidden');
         }
     }

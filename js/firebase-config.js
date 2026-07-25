@@ -81,22 +81,12 @@ export function ensureAuth() {
       return;
     }
 
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
       unsubscribe();
-      if (user) {
-        if (!user.isAnonymous) {
-          cacheRealUser(user);
-        }
-        resolve(user);
-      } else {
-        try {
-          const cred = await signInAnonymously(auth);
-          resolve(cred.user);
-        } catch (e) {
-          console.error("Auto sign-in failed:", e);
-          resolve(null);
-        }
+      if (user && !user.isAnonymous) {
+        cacheRealUser(user);
       }
+      resolve(user);
     });
   });
   return authPromise;
