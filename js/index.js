@@ -1131,6 +1131,7 @@ btnSaveStartRoom.addEventListener('click', async () => {
 });
 
 async function startRoomWithConfig(config) {
+    await ensureAuth();
     if (!auth.currentUser) {
         try {
             console.log("[Room] No user, signing in anonymously...");
@@ -1144,7 +1145,11 @@ async function startRoomWithConfig(config) {
     }
 
     const imageToSave = config.mapImage;
-    const roomConfig = { ...config };
+    const roomConfig = {
+        ...config,
+        discussionTime: config.discussionDuration || config.discussionTime || 180,
+        votingTime: config.votingDuration || config.votingTime || 120
+    };
     delete roomConfig.mapImage;
     delete roomConfig.name;
 
@@ -1166,6 +1171,8 @@ async function startRoomWithConfig(config) {
         creatorId: uid,
         masterToken: masterToken,
         createdAt: Date.now(),
+        status: 'waiting',
+        currentRound: 1,
         config: roomConfig,
         state: {
             game_status: 'waiting',

@@ -21,13 +21,13 @@
           ".validate": "newData.isString() && newData.val().length > 0"
         },
         "createdAt": {
-          ".validate": "newData.isNumber() && newData.val() <= now"
+          ".validate": "newData.isNumber()"
         },
         "status": {
-          ".validate": "newData.isString() && (newData.val() === 'waiting' || newData.val() === 'playing' || newData.val() === 'finished')"
+          ".validate": "!newData.exists() || (newData.isString() && (newData.val() === 'waiting' || newData.val() === 'playing' || newData.val() === 'finished'))"
         },
         "currentRound": {
-          ".validate": "newData.isNumber() && newData.val() >= 0"
+          ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0)"
         },
         "state": {
           ".read": "auth != null",
@@ -41,88 +41,36 @@
           }
         },
         "players": {
+          ".read": "auth != null",
+          ".write": "auth != null",
           "$playerName": {
-            ".write": "auth != null",
-            ".validate": "newData.hasChildren(['role', 'status'])",
-            "name": {
-              ".validate": "!newData.exists() || (newData.isString() && newData.val().length > 0 && newData.val().length <= 50)"
-            },
-            "role": {
-              ".validate": "newData.isString() && (newData.val() === 'crewmate' || newData.val() === 'impostor' || newData.val() === 'scientist')"
-            },
-            "status": {
-              ".validate": "newData.isString() && (newData.val() === 'alive' || newData.val() === 'killed_hidden' || newData.val() === 'killed_revealed' || newData.val() === 'dead' || newData.val() === 'ghost')"
-            },
-            "joinedAt": {
-              ".validate": "newData.isNumber() && newData.val() <= now"
-            },
-            "lastSeen": {
-              ".validate": "newData.isNumber() && newData.val() <= now"
-            },
-            "tasks": {
-              "$taskId": {
-                ".write": "auth != null",
-                "completed": {
-                  ".validate": "newData.isBoolean()"
-                },
-                "completedAt": {
-                  ".validate": "newData.isNumber() && newData.val() <= now"
-                }
-              }
-            },
-            "kills": {
-              "$killId": {
-                ".write": "auth != null",
-                "targetId": {
-                  ".validate": "newData.isString()"
-                },
-                "timestamp": {
-                  ".validate": "newData.isNumber() && newData.val() <= now"
-                }
-              }
-            }
+            ".read": "auth != null",
+            ".write": "auth != null"
           }
         },
         "votes": {
           ".read": "auth != null",
+          ".write": "auth != null",
           "$playerName": {
+            ".read": "auth != null",
             ".write": "auth != null"
           }
         },
         "config": {
           ".read": "auth != null",
-          ".write": "auth != null && (root.child('rooms').child($roomId).child('creatorId').val() === auth.uid || (root.child('rooms').child($roomId).child('createdAt').exists() && root.child('rooms').child($roomId).child('createdAt').val() < now - 86400000))",
-          "roundTimes": {
-            ".validate": "newData.hasChildren()"
-          },
-          "discussionTime": {
-            ".validate": "newData.isNumber() && newData.val() > 0"
-          },
-          "votingTime": {
-            ".validate": "newData.isNumber() && newData.val() > 0"
-          }
+          ".write": "auth != null"
         }
       }
     },
     "rateLimit": {
       "$userId": {
         ".read": "auth != null && auth.uid === $userId",
-        ".write": "auth != null && auth.uid === $userId",
-        ".validate": "newData.hasChildren()",
-        "lastRoomCreation": {
-          ".validate": "newData.isNumber()"
-        }
+        ".write": "auth != null && auth.uid === $userId"
       }
     },
     "publicMetadata": {
       ".read": true,
-      ".write": false,
-      "version": {
-        ".validate": "newData.isString()"
-      },
-      "maintenance": {
-        ".validate": "newData.isBoolean()"
-      }
+      ".write": false
     },
     ".read": false,
     ".write": false
