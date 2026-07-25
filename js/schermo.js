@@ -126,6 +126,7 @@ function startConnection() {
     // Load default SVG Map of Oratorio
     loadSVGMap();
     renderTasks(null, true);
+    renderPlayers(null, null, null);
 
     let previousStatus = null;
     let timerInterval = null;
@@ -353,9 +354,9 @@ function startConnection() {
         if (!svgContainer) return;
 
         try {
-            let response = await fetch('assets/MappaOratotorio.svg');
+            let response = await fetch('public/assets/MappaOratotorio.svg');
             if (!response.ok) {
-                response = await fetch('public/assets/MappaOratotorio.svg');
+                response = await fetch('assets/MappaOratotorio.svg');
             }
             if (!response.ok) throw new Error("HTTP error " + response.status);
             const svgText = await response.text();
