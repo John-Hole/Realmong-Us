@@ -58,6 +58,10 @@ function startConnection() {
         joinOverlay.classList.add('hidden');
         joinOverlay.style.display = 'none';
     }
+    const mainDashboard = document.getElementById('main-dashboard-layout');
+    if (mainDashboard) {
+        mainDashboard.classList.remove('hidden');
+    }
     
     // Attempt fullscreen
     enableFullscreen();
