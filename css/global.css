@@ -184,81 +184,78 @@ h1, h2, h3 {
 }
 
 .overlay-screen.emergency-active {
-    background: radial-gradient(circle at center, rgba(140, 0, 30, 0.6) 0%, rgba(5, 1, 3, 0.99) 75%) !important;
-    animation: emergencySirenBg 1.1s ease-in-out infinite alternate !important;
+    background: radial-gradient(circle at center, rgba(140, 0, 35, 0.75) 0%, rgba(12, 1, 4, 0.96) 80%) !important;
+    animation: emergencySirenBg 1s ease-in-out infinite alternate !important;
 }
 
 @keyframes emergencySirenBg {
     0% {
-        background: radial-gradient(circle at center, rgba(160, 0, 35, 0.75) 0%, #060002 75%);
-        box-shadow: inset 0 0 120px rgba(255, 0, 51, 0.45);
+        background: radial-gradient(circle at center, rgba(180, 0, 45, 0.85) 0%, rgba(15, 2, 5, 0.97) 80%);
+        box-shadow: inset 0 0 150px rgba(255, 0, 68, 0.6);
     }
     100% {
-        background: radial-gradient(circle at center, rgba(40, 0, 8, 0.25) 0%, #020001 85%);
-        box-shadow: inset 0 0 220px rgba(255, 0, 51, 0.85);
+        background: radial-gradient(circle at center, rgba(80, 0, 18, 0.5) 0%, rgba(5, 1, 2, 0.98) 85%);
+        box-shadow: inset 0 0 250px rgba(255, 0, 68, 0.9);
     }
 }
 
-@keyframes emergencyBounce {
+@keyframes emergencyPopBounce {
     0% {
         opacity: 0;
-        transform: scale(0.1) translateY(-40px);
-        filter: blur(10px);
-        text-shadow: 0 0 10px rgba(255, 0, 51, 0.4);
-    }
-    18% {
-        opacity: 1;
-        transform: scale(1.38) translateY(12px);
-        filter: blur(0px);
-        text-shadow: 0 0 35px #ff0033, 0 0 70px #ff0033, 0 0 120px rgba(255, 0, 51, 0.95);
+        transform: scale(0.2);
+        filter: blur(12px) drop-shadow(0 0 10px #ff0044);
+        text-shadow: 0 0 10px #ff0044;
     }
     30% {
-        transform: scale(0.86) translateY(-6px);
-        text-shadow: 0 0 20px #ff0033, 0 0 40px rgba(255, 0, 51, 0.7);
+        opacity: 1;
+        transform: scale(1.28);
+        filter: blur(0px) drop-shadow(0 0 30px #ff0044);
+        text-shadow: 0 0 20px #ff0044, 0 0 40px #ff0044, 0 0 80px rgba(255, 0, 68, 0.9);
     }
-    42% {
-        transform: scale(1.18) translateY(2px);
-        text-shadow: 0 0 40px #ff0033, 0 0 80px #ff0033, 0 0 130px rgba(255, 0, 51, 0.9);
+    45% {
+        transform: scale(0.92);
+        text-shadow: 0 0 15px #ff0044, 0 0 30px #ff0044;
     }
-    54% {
-        transform: scale(0.95) translateY(0);
-        text-shadow: 0 0 20px #ff0033;
+    60% {
+        transform: scale(1.08);
+        text-shadow: 0 0 25px #ff0044, 0 0 50px #ff0044, 0 0 90px rgba(255, 0, 68, 0.95);
     }
-    64% {
-        transform: scale(1.05);
-        text-shadow: 0 0 30px #ff0033, 0 0 50px #ff0033;
+    75% {
+        transform: scale(0.98);
     }
-    72% {
+    85%, 100% {
         transform: scale(1);
-        text-shadow: 0 0 25px #ff0033, 0 0 45px rgba(255, 0, 51, 0.8);
+        text-shadow: 0 0 20px #ff0044, 0 0 40px #ff0044, 0 0 75px rgba(255, 0, 68, 0.85);
     }
-    84% {
-        transform: scale(1.22);
-        text-shadow: 0 0 50px #ff0033, 0 0 90px #ff0033, 0 0 140px rgba(255, 0, 51, 1);
-    }
-    92% {
-        transform: scale(0.94);
-        text-shadow: 0 0 20px #ff0033;
-    }
-    100% {
+}
+
+@keyframes emergencyPulseGlow {
+    0%, 100% {
         transform: scale(1);
-        text-shadow: 0 0 30px #ff0033, 0 0 60px rgba(255, 0, 51, 0.8);
+        text-shadow: 0 0 20px #ff0044, 0 0 45px #ff0044, 0 0 80px rgba(255, 0, 68, 0.85);
+        filter: drop-shadow(0 0 25px rgba(255, 0, 68, 0.9));
+    }
+    50% {
+        transform: scale(1.06);
+        text-shadow: 0 0 35px #ff0044, 0 0 70px #ff0044, 0 0 120px rgba(255, 0, 68, 1);
+        filter: drop-shadow(0 0 40px rgba(255, 0, 68, 1));
     }
 }
 
 .emergency-text-anim {
     font-family: 'Orbitron', var(--font-ui), sans-serif !important;
     font-weight: 900 !important;
-    font-size: clamp(2.6rem, 9vw, 6rem) !important;
-    color: #ff0033 !important;
+    font-size: clamp(2.8rem, 10vw, 6.5rem) !important;
+    color: #ff0044 !important;
     text-align: center !important;
     text-transform: uppercase !important;
     letter-spacing: 6px !important;
     white-space: nowrap !important;
     word-break: normal !important;
     display: inline-block !important;
-    text-shadow: 0 0 30px #ff0033, 0 0 60px rgba(255, 0, 51, 0.8), 0 0 110px rgba(255, 0, 51, 0.6) !important;
-    animation: emergencyBounce 2s cubic-bezier(0.175, 0.885, 0.32, 1.275) infinite !important;
+    text-shadow: 0 0 20px #ff0044, 0 0 45px #ff0044, 0 0 80px rgba(255, 0, 68, 0.85) !important;
+    filter: drop-shadow(0 0 25px rgba(255, 0, 68, 0.9)) !important;
+    animation: emergencyPopBounce 0.9s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, emergencyPulseGlow 1.5s ease-in-out infinite alternate 0.9s !important;
 }
 
 /* TOP NAVBAR & MENU */
@@ -1214,15 +1211,25 @@ h1, h2, h3 {
 }
 
 @keyframes roleReveal {
-    0% { opacity: 0; transform: scale(0.8); }
-    20% { opacity: 1; transform: scale(1.1); }
-    30% { transform: scale(1); }
-    80% { opacity: 1; transform: scale(1); }
-    100% { opacity: 0; transform: scale(1.5); }
+    0% { opacity: 0; transform: scale(0.2); filter: blur(8px); }
+    20% { opacity: 1; transform: scale(1.25); filter: blur(0px); }
+    30% { transform: scale(0.95); }
+    40% { transform: scale(1.05); }
+    50% { transform: scale(1); }
+    85% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(1.4); filter: blur(6px); }
 }
 
 .role-animation-text {
-    animation: roleReveal 5s ease-in-out forwards;
+    font-family: 'Orbitron', var(--font-ui), sans-serif !important;
+    font-weight: 900 !important;
+    color: var(--accent-red) !important;
+    font-size: clamp(2.2rem, 7vw, 5.5rem) !important;
+    letter-spacing: 6px !important;
+    text-align: center !important;
+    text-transform: uppercase !important;
+    text-shadow: 0 0 20px rgba(255, 75, 75, 0.7), 0 0 45px rgba(255, 75, 75, 0.4) !important;
+    animation: roleReveal 5s ease-in-out forwards !important;
 }
 
 body.schermo-body, body.teatro-body {
