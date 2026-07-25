@@ -36,20 +36,26 @@ class AuthService {
       onAuthStateChanged(auth, async (user) => {
         if (user) {
           this.currentUser = user;
-          try {
-            const displayName = user.isAnonymous ? 'Ospite' : (user.displayName || user.email || 'Utente');
-            const displayEmail = user.isAnonymous ? 'Account Ospite' : (user.email || user.displayName || 'Utente');
-            const now = Date.now();
-            const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
-            localStorage.setItem('realmong_user_cache', JSON.stringify({
-              uid: user.uid,
-              displayName,
-              email: displayEmail,
-              isAnonymous: user.isAnonymous,
-              loginTime: now,
-              expiresAt: now + SEVEN_DAYS_MS
-            }));
-          } catch (e) {}
+          if (!user.isAnonymous) {
+            try {
+              const displayName = user.displayName || user.email || 'Utente';
+              const displayEmail = user.email || user.displayName || 'Utente';
+              const now = Date.now();
+              const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+              localStorage.setItem('realmong_user_cache', JSON.stringify({
+                uid: user.uid,
+                displayName,
+                email: displayEmail,
+                isAnonymous: false,
+                loginTime: now,
+                expiresAt: now + SEVEN_DAYS_MS
+              }));
+            } catch (e) {}
+          } else {
+            try {
+              localStorage.removeItem('realmong_user_cache');
+            } catch (e) {}
+          }
           try {
             this.idToken = await getIdToken(user);
           } catch (e) {

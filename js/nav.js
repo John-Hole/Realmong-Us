@@ -12,13 +12,15 @@
             const parsed = JSON.parse(rawCache);
             if (parsed && parsed.expiresAt && Date.now() > parsed.expiresAt) {
                 localStorage.removeItem('realmong_user_cache');
-            } else {
+            } else if (parsed && parsed.uid && !parsed.isAnonymous) {
                 cachedUser = parsed;
+            } else {
+                localStorage.removeItem('realmong_user_cache');
             }
         }
     } catch (e) {}
 
-    const isUserLoggedIn = !!(cachedUser && cachedUser.uid);
+    const isUserLoggedIn = !!(cachedUser && cachedUser.uid && !cachedUser.isAnonymous);
     const userEmailText = isUserLoggedIn ? (cachedUser.email || cachedUser.displayName || 'Utente') : '';
     const authStatusText = isUserLoggedIn ? `Loggato come: ${cachedUser.displayName || 'Utente'}` : 'Non loggato';
     const logoutBtnClass = isUserLoggedIn ? 'btn btn-danger' : 'btn btn-danger hidden';

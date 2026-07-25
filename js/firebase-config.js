@@ -27,43 +27,58 @@ const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 
 let authPromise = null;
 
+function cacheRealUser(user) {
+  try {
+    const now = Date.now();
+    const displayName = user.displayName || user.email || 'Utente';
+    const displayEmail = user.email || user.displayName || 'Utente';
+    localStorage.setItem('realmong_user_cache', JSON.stringify({
+      uid: user.uid,
+      displayName,
+      email: displayEmail,
+      isAnonymous: false,
+      loginTime: now,
+      expiresAt: now + SEVEN_DAYS_MS
+    }));
+  } catch (e) {}
+}
+
+function clearUserCache() {
+  try {
+    localStorage.removeItem('realmong_user_cache');
+  } catch (e) {}
+}
+
 export function ensureAuth() {
   if (authPromise) return authPromise;
   authPromise = new Promise((resolve) => {
+    if (auth.currentUser) {
+      if (!auth.currentUser.isAnonymous) {
+        cacheRealUser(auth.currentUser);
+      } else {
+        clearUserCache();
+      }
+      resolve(auth.currentUser);
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       unsubscribe();
-      const now = Date.now();
       if (user) {
-        try {
-          const displayName = user.isAnonymous ? 'Ospite' : (user.displayName || user.email || 'Utente');
-          const displayEmail = user.isAnonymous ? 'Account Ospite' : (user.email || user.displayName || 'Utente');
-          localStorage.setItem('realmong_user_cache', JSON.stringify({
-            uid: user.uid,
-            displayName,
-            email: displayEmail,
-            isAnonymous: user.isAnonymous,
-            loginTime: now,
-            expiresAt: now + SEVEN_DAYS_MS
-          }));
-        } catch (e) {}
+        if (!user.isAnonymous) {
+          cacheRealUser(user);
+        } else {
+          clearUserCache();
+        }
         resolve(user);
       } else {
         try {
           const cred = await signInAnonymously(auth);
-          const u = cred.user;
-          try {
-            localStorage.setItem('realmong_user_cache', JSON.stringify({
-              uid: u.uid,
-              displayName: 'Ospite',
-              email: 'Account Ospite',
-              isAnonymous: true,
-              loginTime: now,
-              expiresAt: now + SEVEN_DAYS_MS
-            }));
-          } catch (e) {}
-          resolve(u);
+          clearUserCache();
+          resolve(cred.user);
         } catch (e) {
           console.error("Auto sign-in failed:", e);
+          clearUserCache();
           resolve(null);
         }
       }

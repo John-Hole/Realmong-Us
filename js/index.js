@@ -78,8 +78,10 @@ try {
     const rawCache = localStorage.getItem('realmong_user_cache');
     if (rawCache) {
         const parsed = JSON.parse(rawCache);
-        if (parsed && parsed.expiresAt && Date.now() < parsed.expiresAt && parsed.uid) {
+        if (parsed && parsed.expiresAt && Date.now() < parsed.expiresAt && parsed.uid && !parsed.isAnonymous) {
             cachedUser = parsed;
+        } else {
+            localStorage.removeItem('realmong_user_cache');
         }
     }
 } catch (e) {}
@@ -179,13 +181,13 @@ function showSection(sectionName) {
 }
 
 btnShowAuth?.addEventListener('click', async () => {
-    if (currentUser) {
+    if (currentUser && !currentUser.isAnonymous) {
         showSection('templates');
         return;
     }
     if (!isAuthReady) {
         const user = await authReadyPromise;
-        if (user || currentUser) {
+        if (user && !user.isAnonymous) {
             showSection('templates');
             return;
         }
@@ -207,13 +209,13 @@ btnCreateBack?.addEventListener('click', () => { currentEditId = null; showSecti
 btnCreateCancelBottom?.addEventListener('click', () => { currentEditId = null; showSection('templates'); });
 
 btnGoCreate.addEventListener('click', async () => {
-    if (currentUser) {
+    if (currentUser && !currentUser.isAnonymous) {
         showSection('templates');
         return;
     }
     if (!isAuthReady) {
         const user = await authReadyPromise;
-        if (user || currentUser) {
+        if (user && !user.isAnonymous) {
             showSection('templates');
             return;
         }
@@ -254,13 +256,13 @@ onAuthStateChanged(auth, (user) => {
     const navUserInfoEl = document.getElementById('nav-user-info');
     const navUserNameEl = document.getElementById('nav-user-name');
 
-    if (user) {
+    if (user && !user.isAnonymous) {
         currentUser = user;
         if (authModal && !authModal.classList.contains('hidden')) {
             authModal.classList.add('hidden');
         }
-        const displayName = user.isAnonymous ? 'Ospite' : (user.displayName || user.email || 'Utente');
-        const displayEmail = user.isAnonymous ? 'Account Ospite' : (user.email || user.displayName || 'Utente');
+        const displayName = user.displayName || user.email || 'Utente';
+        const displayEmail = user.email || user.displayName || 'Utente';
         
         try {
             const now = Date.now();
@@ -269,7 +271,7 @@ onAuthStateChanged(auth, (user) => {
                 uid: user.uid,
                 displayName,
                 email: displayEmail,
-                isAnonymous: user.isAnonymous,
+                isAnonymous: false,
                 loginTime: now,
                 expiresAt: now + SEVEN_DAYS_MS
             }));
@@ -289,17 +291,21 @@ onAuthStateChanged(auth, (user) => {
             showSection('templates');
         }
     } else {
-        currentUser = null;
+        currentUser = user;
         try {
             localStorage.removeItem('realmong_user_cache');
         } catch (e) {}
 
+        const navUserEmailEl = document.getElementById('nav-user-email');
+        if (navUserEmailEl) navUserEmailEl.textContent = '';
         if (authStatusEl) authStatusEl.textContent = "Non loggato";
         if (btnLogoutEl) btnLogoutEl.classList.add('hidden');
         if (btnShowAuthEl) btnShowAuthEl.style.display = 'inline-block';
         if (navUserInfoEl) navUserInfoEl.style.display = 'none';
         userTemplates = {};
         
+        renderAllTemplates();
+
         if (urlParams.get('go') === 'account') {
             authModal.classList.remove('hidden');
         }
