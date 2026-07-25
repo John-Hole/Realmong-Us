@@ -162,67 +162,98 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // C. Voting Results Mock (Living players grid + SKIP card at the bottom, no ESPULSO tags)
+    // C. Voting Results Mock (Exact original 1:1 logic from schermo.js)
     function renderVotingResultsMock() {
         const container = document.getElementById('mock-voting-results-grid');
         if (!container) return;
         container.innerHTML = '';
 
-        const livingPlayers = [
-            {
-                name: 'Mario Rossi',
-                count: 3,
-                voters: ['Giuseppe B.', 'Sofia M.', 'Elena V.']
-            },
-            {
-                name: 'Elena V.',
-                count: 1,
-                voters: ['Marco T.']
-            },
-            {
-                name: 'Giuseppe B.',
-                count: 0,
-                voters: []
-            },
-            {
-                name: 'Sofia M.',
-                count: 0,
-                voters: []
-            },
-            {
-                name: 'Marco T.',
-                count: 0,
-                voters: []
-            }
-        ];
-
-        const skipData = {
-            name: 'SALTA VOTO (SKIP)',
-            count: 1,
-            voters: ['Mario Rossi']
+        const mockPlayersData = {
+            'Mario Rossi': { status: 'alive' },
+            'Elena V.': { status: 'alive' },
+            'Giuseppe B.': { status: 'alive' },
+            'Sofia M.': { status: 'alive' },
+            'Marco T.': { status: 'alive' },
+            'Luca S.': { status: 'killed_revealed' }
         };
 
-        // Container per la griglia dei giocatori in vita
-        const playersGrid = document.createElement('div');
-        playersGrid.style.display = 'flex';
-        playersGrid.style.flexWrap = 'wrap';
-        playersGrid.style.justifyContent = 'center';
-        playersGrid.style.gap = '1.2rem';
-        playersGrid.style.width = '100%';
+        const mockVotesData = {
+            'Giuseppe B.': 'Mario Rossi',
+            'Sofia M.': 'Mario Rossi',
+            'Elena V.': 'Mario Rossi',
+            'Marco T.': 'Elena V.',
+            'Mario Rossi': 'SKIP'
+        };
 
-        livingPlayers.forEach(item => {
+        const ejectedPlayer = 'Mario Rossi';
+
+        const votesByTarget = {};
+        for (const pName in mockPlayersData) {
+            votesByTarget[pName] = [];
+        }
+        votesByTarget['SKIP'] = [];
+
+        for (const voterName in mockVotesData) {
+            const target = mockVotesData[voterName];
+            if (target) {
+                if (!votesByTarget[target]) votesByTarget[target] = [];
+                votesByTarget[target].push(voterName);
+            }
+        }
+
+        const targetsArray = [];
+        for (const targetName in votesByTarget) {
+            if (targetName === 'SKIP') {
+                if (votesByTarget['SKIP'].length > 0) {
+                    targetsArray.push({
+                        name: 'SALTA VOTO (SKIP)',
+                        key: 'SKIP',
+                        isSkip: true,
+                        voters: votesByTarget['SKIP'],
+                        count: votesByTarget['SKIP'].length
+                    });
+                }
+            } else {
+                const pData = mockPlayersData[targetName];
+                const isDeadBeforeVote = pData && 
+                    (pData.status === 'killed_revealed' || pData.status === 'dead' || pData.status === 'ghost') && 
+                    targetName !== ejectedPlayer;
+
+                if (isDeadBeforeVote && votesByTarget[targetName].length === 0) {
+                    continue;
+                }
+
+                targetsArray.push({
+                    name: targetName,
+                    key: targetName,
+                    isSkip: false,
+                    pData: pData,
+                    voters: votesByTarget[targetName],
+                    count: votesByTarget[targetName].length
+                });
+            }
+        }
+
+        targetsArray.sort((a, b) => {
+            if (b.count !== a.count) return b.count - a.count;
+            if (a.key === ejectedPlayer) return -1;
+            if (b.key === ejectedPlayer) return 1;
+            return a.name.localeCompare(b.name);
+        });
+
+        targetsArray.forEach(item => {
             const card = document.createElement('div');
-            card.className = 'voting-results-card';
-            card.style.background = 'linear-gradient(145deg, #181824, #0b0c14)';
-            card.style.border = '2px solid rgba(168, 85, 247, 0.4)';
-            card.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.8), 0 0 15px rgba(168, 85, 247, 0.15)';
+            const isEjected = item.key === ejectedPlayer && item.key !== 'SKIP';
+            
+            card.className = `voting-results-card ${isEjected ? 'ejected-highlight' : ''} ${item.isSkip ? 'skip-card' : ''}`;
 
-            const countText = item.count === 1 ? '1 Voto' : `${item.count} Voti`;
-            const badgeHtml = item.count > 0 
+            let avatarIcon = item.isSkip ? '⏭️' : (item.pData && item.pData.status === 'killed_revealed' ? '💀' : '👨‍🚀');
+            let countText = item.count === 1 ? '1 Voto' : `${item.count} Voti`;
+            let badgeHtml = item.count > 0 
                 ? `<span class="vote-count-badge active">${countText}</span>` 
                 : `<span class="vote-count-badge zero">0 Voti</span>`;
 
-            let votersHtml = '<div style="font-size: 0.85rem; color: #64748b; font-style: italic; margin-top: 0.4rem;">Nessun voto ricevuto</div>';
+            let votersHtml = '';
             if (item.voters && item.voters.length > 0) {
                 votersHtml = `
                     <div class="voters-list-container">
@@ -232,73 +263,32 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                 `;
+            } else {
+                votersHtml = `<div class="no-voters-label">Nessun voto ricevuto</div>`;
             }
 
+            let ejectedBadgeHtml = isEjected 
+                ? `<span class="ejected-ribbon">🚨 ESPULSO</span>` 
+                : '';
+
             card.innerHTML = `
-                <div class="voting-results-card-inner">
-                    <div class="voting-avatar-box">👨‍🚀</div>
-                    <div class="voting-info-box">
-                        <div class="voting-player-name" style="font-family: var(--font-ui), sans-serif; font-weight: 800; font-size: 1.2rem; color: #ffffff; text-transform: uppercase;">
-                            ${item.name}
-                        </div>
-                        ${votersHtml}
+                <div class="voting-card-top">
+                    <div class="voting-card-user">
+                        <span class="voting-card-avatar">${avatarIcon}</span>
+                        <span class="voting-card-name">${item.name}</span>
                     </div>
-                    <div class="voting-badge-box">
+                    <div class="voting-card-badges">
+                        ${ejectedBadgeHtml}
                         ${badgeHtml}
                     </div>
                 </div>
+                <div class="voting-card-bottom">
+                    ${votersHtml}
+                </div>
             `;
-            playersGrid.appendChild(card);
+
+            container.appendChild(card);
         });
-
-        container.appendChild(playersGrid);
-
-        // Container e Card in basso per lo SKIP (Colore Giallo/Arancione Amber)
-        const skipContainer = document.createElement('div');
-        skipContainer.style.width = '100%';
-        skipContainer.style.display = 'flex';
-        skipContainer.style.justifyContent = 'center';
-        skipContainer.style.marginTop = '1rem';
-
-        const skipCard = document.createElement('div');
-        skipCard.className = 'voting-results-card skip-card';
-        skipCard.style.background = 'linear-gradient(145deg, #261f10, #0f0c06)';
-        skipCard.style.border = '2px solid #f59e0b';
-        skipCard.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.8), 0 0 20px rgba(245, 158, 11, 0.3)';
-        skipCard.style.maxWidth = '500px';
-
-        const skipCountText = skipData.count === 1 ? '1 Voto' : `${skipData.count} Voti`;
-        const skipBadgeHtml = `<span class="vote-count-badge active" style="background: rgba(245, 158, 11, 0.25); color: #fbbf24; border: 1px solid #f59e0b;">${skipCountText}</span>`;
-
-        let skipVotersHtml = '';
-        if (skipData.voters && skipData.voters.length > 0) {
-            skipVotersHtml = `
-                <div class="voters-list-container">
-                    <span class="voters-label" style="color: #fcd34d;">Votato da:</span>
-                    <div class="voters-pills">
-                        ${skipData.voters.map(v => `<span class="voter-pill" style="background: rgba(245,158,11,0.2); border-color: #f59e0b; color: #fef08a;">👨‍🚀 ${v}</span>`).join('')}
-                    </div>
-                </div>
-            `;
-        }
-
-        skipCard.innerHTML = `
-            <div class="voting-results-card-inner">
-                <div class="voting-avatar-box" style="font-size: 2rem;">⏭️</div>
-                <div class="voting-info-box">
-                    <div class="voting-player-name" style="font-family: var(--font-ui), sans-serif; font-weight: 800; font-size: 1.2rem; color: #fbbf24; text-transform: uppercase;">
-                        ${skipData.name}
-                    </div>
-                    ${skipVotersHtml}
-                </div>
-                <div class="voting-badge-box">
-                    ${skipBadgeHtml}
-                </div>
-            </div>
-        `;
-
-        skipContainer.appendChild(skipCard);
-        container.appendChild(skipContainer);
     }
 
     // D. Victory Team Toggle Mock
