@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab Test & Presentazione Schermate - Realmong Us</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/global.css?v=12">
+    <style>
+        /* Sandbox Test Harness Toolbar & Presentation Styles */
+        :root {
+            --lab-bg: #090b10;
+            --lab-card-bg: rgba(18, 24, 38, 0.92);
+            --lab-accent: #00f2fe;
+            --lab-border: rgba(0, 242, 254, 0.3);
+        }
+
+        body.lab-mode {
+            background-color: var(--lab-bg);
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* Top Controls Toolbar */
+        .lab-toolbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 9999;
+            background: rgba(10, 14, 23, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 2px solid var(--lab-border);
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            transition: transform 0.3s ease;
+        }
+
+        .lab-toolbar.collapsed {
+            transform: translateY(-100%);
+        }
+
+        .lab-title-box {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .lab-badge {
+            background: linear-gradient(135deg, #ff0055, #ff5500);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .lab-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            color: #fff;
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .lab-nav-buttons {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .lab-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #e0e6ed;
+            padding: 0.5rem 0.9rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .lab-btn:hover {
+            background: rgba(0, 242, 254, 0.2);
+            border-color: var(--lab-accent);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        .lab-btn.active {
+            background: var(--lab-accent);
+            color: #090b10;
+            border-color: var(--lab-accent);
+            font-weight: 700;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
+        }
+
+        .lab-toggle-bar {
+            position: fixed;
+            top: 10px;
+            right: 15px;
+            z-index: 10000;
+            background: var(--lab-accent);
+            color: #000;
+            border: none;
+            border-radius: 20px;
+            padding: 0.4rem 0.9rem;
+            font-size: 0.8rem;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Mode containers */
+        .lab-presentation-container {
+            margin-top: 75px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .lab-screen-card {
+            width: 100%;
+            max-width: 1300px;
+            background: var(--lab-card-bg);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+            position: relative;
+            transition: border-color 0.3s ease;
+        }
+
+        .lab-screen-card.active-in-view {
+            border-color: var(--lab-accent);
+            box-shadow: 0 0 30px rgba(0, 242, 254, 0.25);
+        }
+
+        .lab-card-header {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .lab-card-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            color: var(--lab-accent);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .lab-screen-stage {
+            position: relative;
+            min-height: 650px;
+            width: 100%;
+            background: #05050a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Overlay embedded overrides in stage */
+        .lab-screen-stage .overlay-screen {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            display: flex !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
+        .lab-screen-stage .overlay-screen.hidden {
+            display: flex !important;
+        }
+
+        /* Single Fullscreen Overlay Sandbox */
+        #fullscreen-stage {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 9000;
+            background: #000;
+        }
+
+        #fullscreen-stage.active {
+            display: block;
+        }
+
+        /* Toast info */
+        .lab-toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            color: #00f2fe;
+            border: 1px solid #00f2fe;
+            padding: 0.6rem 1.2rem;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            z-index: 10001;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .lab-toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="lab-mode">
+
+    <!-- Toggle Toolbar Button -->
+    <button class="lab-toggle-bar" id="btn-toggle-toolbar">⚡ TOOLBAR</button>
+
+    <!-- Controls Header Toolbar -->
+    <header class="lab-toolbar" id="lab-toolbar">
+        <div class="lab-title-box">
+            <span class="lab-badge">LAB TEST</span>
+            <h1 class="lab-title">Galleria & Modifica Schermate</h1>
+        </div>
+
+        <nav class="lab-nav-buttons">
+            <button class="lab-btn active" data-target="all">📜 Modalità Presentazione</button>
+            <button class="lab-btn" data-target="screen-role">🎭 Ruoli</button>
+            <button class="lab-btn" data-target="screen-meeting">🚨 Riunione</button>
+            <button class="lab-btn" data-target="screen-dead">💀 Rapporto Vittime</button>
+            <button class="lab-btn" data-target="screen-discussion">🗣️ Discussione Voti</button>
+            <button class="lab-btn" data-target="screen-voting">📊 Risultati Votazione</button>
+            <button class="lab-btn" data-target="screen-ejected">🚪 Espulsione</button>
+            <button class="lab-btn" data-target="screen-victory">🏆 Vittoria / Sconfitta</button>
+            <button class="lab-btn" id="btn-replay-all" style="margin-left: 0.5rem; background: rgba(0,242,254,0.15); border-color: var(--lab-accent);">🔄 Riavvia Animazioni</button>
+        </nav>
+    </header>
+
+    <div class="lab-toast" id="lab-toast">Animazioni Riavviate!</div>
+
+    <!-- MAIN PRESENTATION / LAB CONTAINER -->
+    <main class="lab-presentation-container" id="presentation-container">
+
+        <!-- 1. ASSEGNAZIONE RUOLI -->
+        <section class="lab-screen-card" id="screen-role">
+            <div class="lab-card-header">
+                <h2 class="lab-card-title">🎭 Assegnazione Ruoli (Role Assignment Overlay)</h2>
+                <button class="lab-btn btn-replay" data-card="screen-role">🔄 Animazione</button>
+            </div>
+            <div class="lab-screen-stage">
+                <div class="overlay-screen" style="z-index: 10; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.95);">
+                    <h1 class="role-animation-text" style="color: var(--accent-red); font-size: clamp(2rem, 6vw, 5rem); letter-spacing: 5px; text-align: center; text-transform: uppercase;">ASSEGNAZIONE RUOLI...</h1>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. RIUNIONE CHIAMATA (EMERGENCY MEETING ALERT) -->
+        <section class="lab-screen-card" id="screen-meeting">
+            <div class="lab-card-header">
+                <h2 class="lab-card-title">🚨 Riunione Chiamata / Allarme Emergente</h2>
+                <button class="lab-btn btn-replay" data-card="screen-meeting">🔄 Animazione</button>
+            </div>
+            <div class="lab-screen-stage">
+                <div class="overlay-screen" style="z-index: 10; display: flex; align-items: center; justify-content: center; background: rgba(150, 0, 0, 0.85);">
+                    <h1 class="alert-text" style="font-size: clamp(3rem, 8vw, 6rem); text-align: center;">RIUNIONE CHIAMATA</h1>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. RAPPORTO VITTIME (DEAD REVEAL) -->
+        <section class="lab-screen-card" id="screen-dead">
+            <div class="lab-card-header">
+                <h2 class="lab-card-title">💀 Rapporto Vittime (Dead Reveal Screen)</h2>
+                <div>
+                    <button class="lab-btn btn-toggle-dead" style="display: inline-flex; margin-right: 0.5rem;">🔀 Cambia Dati Mock</button>
+                    <button class="lab-btn btn-replay" data-card="screen-dead">🔄 Animazione</button>
+                </div>
+            </div>
+            <div class="lab-screen-stage">
+                <div class="overlay-screen" style="z-index: 10; background: rgba(5, 5, 10, 0.96); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem;">
+                    <div class="dead-reveal-container">
+                        <div class="dead-reveal-header-box">
+                            <h1 class="dead-reveal-header">RAPPORTO VITTIME</h1>
+                            <p class="dead-reveal-subtitle">ESITO DELL'ULTIMO ROUND</p>
+                        </div>
+                        <div class="dead-reveal-grid" id="mock-dead-reveal-grid">
+                            <!-- Populated dynamically by js/schermi-test.js -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. DISCUSSIONE IN CORSO (MEETING SCREEN) -->
+        <section class="lab-screen-card" id="screen-discussion">
+            <div class="lab-card-header">
+                <h2 class="lab-card-title">🗣️ Discussione In Corso (Meeting Screen & Griglia Voti)</h2>
+                <button class="lab-btn btn-replay" data-card="screen-discussion">🔄 Animazione</button>
+            </div>
+            <div class="lab-screen-stage">
+                <div class="overlay-screen" style="z-index: 10; background: #0b0e14; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem;">
+                    <h1 class="alert-text" style="font-size: 2.5rem; margin-bottom: 0.5rem;">DISCUSSIONE IN CORSO</h1>
+                    <p style="font-size: 1.2rem; color: #a0aec0; margin-bottom: 2rem;">Chi è l'impostore?</p>
+                    <div class="meeting-votes-grid" id="mock-discussion-votes-grid" style="display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: center; max-width: 900px; width: 100%;">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. RISULTATI VOTAZIONE (VOTING RESULTS OVERLAY) -->
+        <section class="lab-screen-card" id="screen-voting">
+            <div class="lab-card-header">
+                <h2 class="lab-card-title">📊 Risultati Votazione (Voting Results Screen)</h2>
+                <button class="lab-btn btn-replay" data-card="screen-voting">🔄 Animazione</button>
+            </div>
+            <div class="lab-screen-stage">
+                <div class="overlay-screen" style="z-index: 10; background: rgba(5, 5, 12, 0.97); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem;">
+                    <div class="voting-results-container">
+                        <div class="voting-results-header-box">
+                            <h1 class="voting-results-header">RISULTATI VOTAZIONE</h1>
+                            <p class="voting-results-subheader">DETTAGLIO VOTI RICEVUTI DA CIASCUN GIOCATORE</p>
+                        </div>
+                        <div class="voting-results-grid" id="mock-voting-results-grid">
+                            <!-- Populated dynamically by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. ESPULSIONE GIOCATORE (EJECTED OVERLAY) -->
+        <section class="lab-screen-card" id="screen-ejected">
+            <div class="lab-card-header">
+                <h2 class="lab-card-title">🚪 Schermata Espulsione (Ejected Overlay)</h2>
+                <button class="lab-btn btn-replay" data-card="screen-ejected">🔄 Animazione</button>
+            </div>
+            <div class="lab-screen-stage">
+                <div class="overlay-screen" style="z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #000;">
+                    <h1 class="ejected-text-anim" style="color: white; font-size: clamp(2rem, 5vw, 3.5rem); text-align: center; font-family: 'Orbitron', sans-serif;">Marco è stato espulso.</h1>
+                    <p style="color: #ff4444; font-size: 1.5rem; margin-top: 1rem; font-family: 'Orbitron', sans-serif; text-transform: uppercase;">Era un Impostore.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7. VITTORIA / SCONFITTA -->
+        <section class="lab-screen-card" id="screen-victory">
+            <div class="lab-card-header">
+                <h2 class="lab-card-title">🏆 Schermata Fine Partita (Vittoria Crewmates / Impostori)</h2>
+                <div>
+                    <button class="lab-btn btn-toggle-victory-team" style="display: inline-flex; margin-right: 0.5rem;">🔁 Altro Team</button>
+                    <button class="lab-btn btn-replay" data-card="screen-victory">🔄 Animazione</button>
+                </div>
+            </div>
+            <div class="lab-screen-stage">
+                <div class="overlay-screen" id="mock-victory-overlay" style="z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle, rgba(0,242,254,0.2) 0%, rgba(5,8,20,0.98) 70%);">
+                    <h1 class="victory-title-anim" id="victory-title" style="color: #00f2fe; font-size: clamp(3rem, 7vw, 5.5rem); font-family: 'Orbitron', sans-serif; font-weight: 900; text-shadow: 0 0 30px rgba(0,242,254,0.6); text-transform: uppercase;">VITTORIA</h1>
+                    <p class="victory-subtitle-anim" id="victory-subtitle" style="font-size: 1.5rem; color: #e0e6ed; font-family: 'Inter', sans-serif; letter-spacing: 2px;">I CREWMATES HANNO COMPLETATO TUTTE LE TASK</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FULLSCREEN ISOLATED STAGE -->
+    <div id="fullscreen-stage"></div>
+
+    <!-- Script for Lab Presentation logic -->
+    <script src="js/schermi-test.js"></script>
+</body>
+</html>
