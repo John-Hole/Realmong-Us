@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/global.css?v=12">
+    <link rel="stylesheet" href="css/global.css?v=13">
     <style>
         /* Sandbox Test Harness Toolbar & Presentation Styles */
         :root {
@@ -20,7 +20,7 @@
         body.lab-mode {
             background-color: var(--lab-bg);
             color: #ffffff;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Orbitron', sans-serif;
             margin: 0;
             padding: 0;
             overflow-x: hidden;
@@ -60,10 +60,11 @@
             color: white;
             font-size: 0.75rem;
             font-weight: 800;
-            padding: 0.2rem 0.6rem;
+            padding: 0.25rem 0.7rem;
             border-radius: 20px;
             letter-spacing: 1px;
             text-transform: uppercase;
+            font-family: 'Orbitron', sans-serif;
         }
 
         .lab-title {
@@ -88,13 +89,14 @@
             padding: 0.5rem 0.9rem;
             border-radius: 8px;
             font-size: 0.85rem;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.2s ease;
             display: flex;
             align-items: center;
             gap: 0.4rem;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
         }
 
         .lab-btn:hover {
@@ -108,7 +110,7 @@
             background: var(--lab-accent);
             color: #090b10;
             border-color: var(--lab-accent);
-            font-weight: 700;
+            font-weight: 900;
             box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
         }
 
@@ -123,7 +125,7 @@
             border-radius: 20px;
             padding: 0.4rem 0.9rem;
             font-size: 0.8rem;
-            font-weight: 800;
+            font-weight: 900;
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
             font-family: 'Orbitron', sans-serif;
@@ -168,11 +170,13 @@
         .lab-card-title {
             font-family: 'Orbitron', sans-serif;
             font-size: 1.2rem;
+            font-weight: 800;
             color: var(--lab-accent);
             margin: 0;
             display: flex;
             align-items: center;
             gap: 0.6rem;
+            letter-spacing: 1px;
         }
 
         .lab-screen-stage {
@@ -202,20 +206,37 @@
             display: flex !important;
         }
 
-        /* Single Fullscreen Overlay Sandbox */
-        #fullscreen-stage {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 9000;
-            background: #000;
+        /* Emergency Hazard Stripes */
+        .emergency-hazard-bar {
+            width: 100%;
+            height: 12px;
+            background: repeating-linear-gradient(
+                -45deg,
+                #ff0033,
+                #ff0033 20px,
+                #000000 20px,
+                #000000 40px
+            );
+            box-shadow: 0 0 15px rgba(255, 0, 51, 0.8);
         }
 
-        #fullscreen-stage.active {
-            display: block;
+        .emergency-badge {
+            background: rgba(255, 0, 51, 0.2);
+            border: 2px solid #ff0044;
+            color: #ffffff;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            letter-spacing: 4px;
+            padding: 0.5rem 1.5rem;
+            border-radius: 30px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 0 20px rgba(255, 0, 68, 0.5);
+            animation: pulseGlow 1s infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            from { box-shadow: 0 0 10px rgba(255, 0, 68, 0.4); }
+            to { box-shadow: 0 0 25px rgba(255, 0, 68, 0.9); }
         }
 
         /* Toast info */
@@ -235,6 +256,7 @@
             opacity: 0;
             transition: opacity 0.3s ease;
             font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
         }
 
         .lab-toast.show {
@@ -279,8 +301,8 @@
                 <button class="lab-btn btn-replay" data-card="screen-role">🔄 Animazione</button>
             </div>
             <div class="lab-screen-stage">
-                <div class="overlay-screen" style="z-index: 10; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.95);">
-                    <h1 class="role-animation-text" style="color: var(--accent-red); font-size: clamp(2rem, 6vw, 5rem); letter-spacing: 5px; text-align: center; text-transform: uppercase;">ASSEGNAZIONE RUOLI...</h1>
+                <div class="overlay-screen" style="z-index: 10; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.96);">
+                    <h1 class="role-animation-text" style="font-family: 'Orbitron', sans-serif; font-weight: 900; color: var(--accent-red); font-size: clamp(2rem, 6vw, 5rem); letter-spacing: 6px; text-align: center; text-transform: uppercase;">ASSEGNAZIONE RUOLI...</h1>
                 </div>
             </div>
         </section>
@@ -292,8 +314,15 @@
                 <button class="lab-btn btn-replay" data-card="screen-meeting">🔄 Animazione</button>
             </div>
             <div class="lab-screen-stage">
-                <div class="overlay-screen" style="z-index: 10; display: flex; align-items: center; justify-content: center; background: rgba(150, 0, 0, 0.85);">
-                    <h1 class="alert-text" style="font-size: clamp(3rem, 8vw, 6rem); text-align: center;">RIUNIONE CHIAMATA</h1>
+                <div class="overlay-screen emergency-overlay-bg" style="z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 0;">
+                    <div class="emergency-hazard-bar"></div>
+                    
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem;">
+                        <div class="emergency-badge">🚨 ALLARME EMERGENTE 🚨</div>
+                        <h1 class="alert-text">RIUNIONE CHIAMATA</h1>
+                    </div>
+
+                    <div class="emergency-hazard-bar"></div>
                 </div>
             </div>
         </section>
@@ -311,8 +340,8 @@
                 <div class="overlay-screen" style="z-index: 10; background: rgba(5, 5, 10, 0.96); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem;">
                     <div class="dead-reveal-container">
                         <div class="dead-reveal-header-box">
-                            <h1 class="dead-reveal-header">RAPPORTO VITTIME</h1>
-                            <p class="dead-reveal-subtitle">ESITO DELL'ULTIMO ROUND</p>
+                            <h1 class="dead-reveal-header" style="font-family: 'Orbitron', sans-serif; font-weight: 900; letter-spacing: 4px;">RAPPORTO VITTIME</h1>
+                            <p class="dead-reveal-subtitle" style="font-family: 'Orbitron', sans-serif; font-weight: 700; letter-spacing: 2px;">ESITO DELL'ULTIMO ROUND</p>
                         </div>
                         <div class="dead-reveal-grid" id="mock-dead-reveal-grid">
                             <!-- Populated dynamically by js/schermi-test.js -->
@@ -330,8 +359,8 @@
             </div>
             <div class="lab-screen-stage">
                 <div class="overlay-screen" style="z-index: 10; background: #0b0e14; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem;">
-                    <h1 class="alert-text" style="font-size: 2.5rem; margin-bottom: 0.5rem;">DISCUSSIONE IN CORSO</h1>
-                    <p style="font-size: 1.2rem; color: #a0aec0; margin-bottom: 2rem;">Chi è l'impostore?</p>
+                    <h1 class="alert-text" style="font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: clamp(2rem, 5vw, 3.5rem); margin-bottom: 0.5rem; letter-spacing: 4px;">DISCUSSIONE IN CORSO</h1>
+                    <p style="font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 1.2rem; color: #a0aec0; margin-bottom: 2rem; letter-spacing: 2px;">CHI È L'IMPOSTORE?</p>
                     <div class="meeting-votes-grid" id="mock-discussion-votes-grid" style="display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: center; max-width: 900px; width: 100%;">
                         <!-- Populated by JS -->
                     </div>
@@ -349,8 +378,8 @@
                 <div class="overlay-screen" style="z-index: 10; background: rgba(5, 5, 12, 0.97); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem;">
                     <div class="voting-results-container">
                         <div class="voting-results-header-box">
-                            <h1 class="voting-results-header">RISULTATI VOTAZIONE</h1>
-                            <p class="voting-results-subheader">DETTAGLIO VOTI RICEVUTI DA CIASCUN GIOCATORE</p>
+                            <h1 class="voting-results-header" style="font-family: 'Orbitron', sans-serif; font-weight: 900; letter-spacing: 4px;">RISULTATI VOTAZIONE</h1>
+                            <p class="voting-results-subheader" style="font-family: 'Orbitron', sans-serif; font-weight: 700; letter-spacing: 2px;">DETTAGLIO VOTI RICEVUTI DA CIASCUN GIOCATORE</p>
                         </div>
                         <div class="voting-results-grid" id="mock-voting-results-grid">
                             <!-- Populated dynamically by JS -->
@@ -368,8 +397,8 @@
             </div>
             <div class="lab-screen-stage">
                 <div class="overlay-screen" style="z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #000;">
-                    <h1 class="ejected-text-anim" style="color: white; font-size: clamp(2rem, 5vw, 3.5rem); text-align: center; font-family: 'Orbitron', sans-serif;">Marco è stato espulso.</h1>
-                    <p style="color: #ff4444; font-size: 1.5rem; margin-top: 1rem; font-family: 'Orbitron', sans-serif; text-transform: uppercase;">Era un Impostore.</p>
+                    <h1 class="ejected-text-anim" style="color: white; font-size: clamp(2rem, 5vw, 3.5rem); text-align: center; font-family: 'Orbitron', sans-serif; font-weight: 900; letter-spacing: 4px;">MARIO ROSSI È STATO ESPULSO.</h1>
+                    <p style="color: #ff4444; font-size: 1.6rem; margin-top: 1.5rem; font-family: 'Orbitron', sans-serif; font-weight: 800; text-transform: uppercase; letter-spacing: 3px;">ERA UN IMPOSTORE.</p>
                 </div>
             </div>
         </section>
@@ -385,16 +414,13 @@
             </div>
             <div class="lab-screen-stage">
                 <div class="overlay-screen" id="mock-victory-overlay" style="z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle, rgba(0,242,254,0.2) 0%, rgba(5,8,20,0.98) 70%);">
-                    <h1 class="victory-title-anim" id="victory-title" style="color: #00f2fe; font-size: clamp(3rem, 7vw, 5.5rem); font-family: 'Orbitron', sans-serif; font-weight: 900; text-shadow: 0 0 30px rgba(0,242,254,0.6); text-transform: uppercase;">VITTORIA</h1>
-                    <p class="victory-subtitle-anim" id="victory-subtitle" style="font-size: 1.5rem; color: #e0e6ed; font-family: 'Inter', sans-serif; letter-spacing: 2px;">I CREWMATES HANNO COMPLETATO TUTTE LE TASK</p>
+                    <h1 class="victory-title-anim" id="victory-title" style="color: #00f2fe; font-size: clamp(3rem, 7vw, 5.5rem); font-family: 'Orbitron', sans-serif; font-weight: 900; text-shadow: 0 0 30px rgba(0,242,254,0.6); text-transform: uppercase; letter-spacing: 6px;">VITTORIA CREWMATES</h1>
+                    <p class="victory-subtitle-anim" id="victory-subtitle" style="font-size: 1.4rem; color: #e0e6ed; font-family: 'Orbitron', sans-serif; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; margin-top: 1rem;">I CREWMATES HANNO COMPLETATO TUTTE LE TASK</p>
                 </div>
             </div>
         </section>
 
     </main>
-
-    <!-- FULLSCREEN ISOLATED STAGE -->
-    <div id="fullscreen-stage"></div>
 
     <!-- Script for Lab Presentation logic -->
     <script src="js/schermi-test.js"></script>
