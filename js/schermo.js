@@ -2,8 +2,19 @@ import { db, ensureAuth } from './firebase-config.js';
 import { ref, onValue, get, update } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
 import { formatTime, TASKS_LIST, escapeHtml } from './game-logic.js';
 
-const urlParams = new URLSearchParams(window.location.search);
-let roomCode = urlParams.get('room');
+function getRoomCodeFromUrl() {
+    const searchParams = new URLSearchParams(window.location.search);
+    let code = searchParams.get('room');
+    if (!code) {
+        const match = window.location.href.match(/[?&]room=([^&/#]+)/i);
+        if (match && match[1]) {
+            code = match[1];
+        }
+    }
+    return code ? code.trim().toUpperCase() : null;
+}
+
+let roomCode = getRoomCodeFromUrl();
 
 function enableFullscreen() {
     if (!document.fullscreenElement) {
@@ -86,6 +97,21 @@ function startConnection() {
 
     if (headerEl) headerEl.textContent = roomCode;
     if (lobbyCodeDisplay) lobbyCodeDisplay.textContent = roomCode;
+
+    // Render QR Code immediately
+    const qrContainer = document.getElementById("qrcode");
+    if (qrContainer && typeof QRCode !== 'undefined' && roomCode) {
+        qrContainer.innerHTML = '';
+        const joinUrl = `${window.location.origin}/?room=${roomCode}`;
+        new QRCode(qrContainer, {
+            text: joinUrl,
+            width: 150,
+            height: 150,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.L
+        });
+    }
     
     // Load default SVG Map of Oratorio
     loadSVGMap();
