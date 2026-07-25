@@ -1029,7 +1029,6 @@ function startConnection() {
                     clearTimerFlashing();
                     if(overlayMeeting) {
                         overlayMeeting.classList.remove('hidden');
-                        overlayMeeting.classList.add('emergency-active');
                     }
                     if(overlayText) {
                         overlayText.textContent = "EMERGENZA!";

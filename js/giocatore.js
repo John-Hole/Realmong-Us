@@ -73,6 +73,7 @@ const votingStatus = document.getElementById('voting-status');
 const notInRoomScreen = document.getElementById('not-in-room-screen');
 const btnRejoinRoom = document.getElementById('btn-rejoin-room');
 const btnNotInRoomChangeName = document.getElementById('btn-not-in-room-change-name');
+const discussionPlayersMobile = document.getElementById('discussion-players-mobile');
 
 // Initialization
 let myData = null;
@@ -310,7 +311,6 @@ function updateUI(state, playersMap) {
     if (state.game_status === 'emergency') {
         if (overlayMeeting) {
             overlayMeeting.classList.remove('hidden');
-            overlayMeeting.classList.add('emergency-active');
         }
         overlayDead.classList.add('hidden');
         roleScreen.classList.add('hidden');
@@ -334,7 +334,6 @@ function updateUI(state, playersMap) {
         }
         return;
     } else {
-        if (overlayMeeting) overlayMeeting.classList.remove('emergency-active');
         if (overlayMeetingH1) {
             overlayMeetingH1.className = "alert-text";
             overlayMeetingH1.style.animation = "";
