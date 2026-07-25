@@ -560,13 +560,27 @@ function startConnection() {
 
             overlayDeadReveal.classList.remove('hidden');
             isDeadRevealActive = true;
-
             setTimeout(() => {
                 overlayDeadReveal.classList.add('hidden');
                 isDeadRevealActive = false;
                 renderPlayers(latestPlayersData || playersData, latestVotesData || votesData, latestMaxPlayers || maxPlayers);
             }, 2500);
         }
+    }
+
+    function triggerEjectedTypewriter(element, fullText, speed = 70) {
+        if (!element) return;
+        if (element._typewriterTimer) clearInterval(element._typewriterTimer);
+        element.textContent = '';
+        let i = 0;
+        element._typewriterTimer = setInterval(() => {
+            if (i < fullText.length) {
+                element.textContent += fullText.charAt(i);
+                i++;
+            } else {
+                clearInterval(element._typewriterTimer);
+            }
+        }, speed);
     }
 
     function showVotingResultsOverlay(playersData, votesData, ejectedPlayer) {
@@ -596,17 +610,7 @@ function startConnection() {
 
         const targetsArray = [];
         for (const targetName in votesByTarget) {
-            if (targetName === 'SKIP') {
-                if (votesByTarget['SKIP'].length > 0) {
-                    targetsArray.push({
-                        name: 'SALTA VOTO (SKIP)',
-                        key: 'SKIP',
-                        isSkip: true,
-                        voters: votesByTarget['SKIP'],
-                        count: votesByTarget['SKIP'].length
-                    });
-                }
-            } else {
+            if (targetName !== 'SKIP') {
                 const pData = playersData ? playersData[targetName] : null;
                 // Exclude players who were dead before the vote and received no votes (unless they are the ejected player)
                 const isDeadBeforeVote = pData && 
@@ -627,6 +631,15 @@ function startConnection() {
                 });
             }
         }
+
+        // Always add SKIP card in the grid with exact same card styling
+        targetsArray.push({
+            name: 'SALTA VOTO (SKIP)',
+            key: 'SKIP',
+            isSkip: true,
+            voters: votesByTarget['SKIP'] || [],
+            count: (votesByTarget['SKIP'] || []).length
+        });
 
         // Ordina: più voti prima, l'espulso prima a parità di voti, skip, infine alfabetico
         targetsArray.sort((a, b) => {
@@ -662,10 +675,6 @@ function startConnection() {
                 votersHtml = `<div class="no-voters-label">Nessun voto ricevuto</div>`;
             }
 
-            let ejectedBadgeHtml = isEjected 
-                ? `<span class="ejected-ribbon">🚨 PIÙ VOTATO</span>` 
-                : '';
-
             card.innerHTML = `
                 <div class="voting-card-top">
                     <div class="voting-card-user">
@@ -673,7 +682,6 @@ function startConnection() {
                         <span class="voting-card-name">${escapeHtml(item.name)}</span>
                     </div>
                     <div class="voting-card-badges">
-                        ${ejectedBadgeHtml}
                         ${badgeHtml}
                     </div>
                 </div>
@@ -813,9 +821,10 @@ function startConnection() {
                     if (previousStatus === 'voting_results' || previousStatus === 'voting' || previousStatus === 'discussion' || previousStatus === 'emergency') {
                         if(overlayEjected) {
                             overlayEjected.classList.remove('hidden');
-                            if(ejectedText) ejectedText.textContent = data.state.last_ejected && data.state.last_ejected !== 'SKIP' 
-                                ? `${data.state.last_ejected} è stato espulso` 
-                                : "Nessuno è stato espulso";
+                            const ejectedMsg = data.state.last_ejected && data.state.last_ejected !== 'SKIP' 
+                                ? `${data.state.last_ejected} è stato espulso...` 
+                                : "Nessuno è stato espulso...";
+                            triggerEjectedTypewriter(ejectedText, ejectedMsg, 70);
                             setTimeout(() => {
                                 overlayEjected.classList.add('hidden');
                             }, 5000);
