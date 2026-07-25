@@ -378,6 +378,17 @@ function clearAuthError() {
 emailInput.addEventListener('input', clearAuthError);
 passwordInput.addEventListener('input', clearAuthError);
 
+async function migrateGuestTemplates(newUid, pendingTemplates) {
+    if (!pendingTemplates || Object.keys(pendingTemplates).length === 0) return;
+    for (const tplId in pendingTemplates) {
+        try {
+            await set(ref(db, `users/${newUid}/templates/${tplId}`), pendingTemplates[tplId]);
+        } catch (e) {
+            console.error("[Template Migration] Failed to migrate template:", tplId, e);
+        }
+    }
+}
+
 btnLogin.addEventListener('click', async () => {
     clearAuthError();
     const email = emailInput.value.trim();
@@ -393,9 +404,14 @@ btnLogin.addEventListener('click', async () => {
         return showAuthError("Inserisci la password.", "password");
     }
 
+    const pendingTemplates = (userTemplates && Object.keys(userTemplates).length > 0) ? { ...userTemplates } : null;
+
     try {
         // Tenta prima l'accesso
-        await signInWithEmailAndPassword(auth, email, password);
+        const cred = await signInWithEmailAndPassword(auth, email, password);
+        if (pendingTemplates && cred.user) {
+            await migrateGuestTemplates(cred.user.uid, pendingTemplates);
+        }
         clearAuthError();
         showSection('home');
     } catch (loginError) {
@@ -404,7 +420,10 @@ btnLogin.addEventListener('click', async () => {
         // Se l'account non esiste, prova la registrazione automatica
         if (loginError.code === 'auth/user-not-found' || loginError.code === 'auth/invalid-credential') {
             try {
-                await createUserWithEmailAndPassword(auth, email, password);
+                const regCred = await createUserWithEmailAndPassword(auth, email, password);
+                if (pendingTemplates && regCred.user) {
+                    await migrateGuestTemplates(regCred.user.uid, pendingTemplates);
+                }
                 clearAuthError();
                 showSection('home');
                 return;
