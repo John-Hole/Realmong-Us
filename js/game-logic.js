@@ -55,8 +55,12 @@ export function escapeHtml(value) {
 
 // Sanitize player names to be safe as Firebase RTDB keys (removing ., #, $, /, [, ])
 export function sanitizePlayerKey(name) {
-    if (!name) return 'player_unknown';
-    return String(name).replace(/[\.\#\$\/\[\]]/g, '_').trim();
+    if (name === null || name === undefined || String(name).trim() === '') return 'player_unknown';
+    const sanitized = String(name).replace(/[\.\#\$\/\[\]]/g, '_').trim();
+    if (/^\d+$/.test(sanitized)) {
+        return `p_${sanitized}`;
+    }
+    return sanitized;
 }
 
 // Helper to extract room code from URL parameters or session

@@ -180,11 +180,16 @@ roomUnsubscribe = onValue(roomRef, (snapshot) => {
     try { if (myPlayerRef) onDisconnect(myPlayerRef).cancel(); } catch(e){}
     try { if (myVoteRef) onDisconnect(myVoteRef).cancel(); } catch(e){}
 
-    const playerObj = data.players ? (
-        data.players[myPlayerKey] ||
-        data.players[myPlayerName] ||
-        Object.values(data.players).find(p => p && p.name && p.name.toLowerCase() === myPlayerName.toLowerCase())
-    ) : null;
+    let playerObj = null;
+    if (data.players) {
+        if (Array.isArray(data.players)) {
+            playerObj = data.players.find(p => p && p.name && p.name.toLowerCase() === myPlayerName.toLowerCase());
+        } else {
+            playerObj = data.players[myPlayerKey] ||
+                        data.players[myPlayerName] ||
+                        Object.values(data.players).find(p => p && p.name && p.name.toLowerCase() === myPlayerName.toLowerCase());
+        }
+    }
 
     if (playerObj) {
         myData = playerObj;

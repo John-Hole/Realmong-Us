@@ -1,7 +1,7 @@
 import { db, auth, ensureAuth } from './firebase-config.js';
 import { ref, get, set, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
-import { getRandomTasks, ROUND_TIMES, formatTime, escapeHtml } from './game-logic.js';
+import { getRandomTasks, ROUND_TIMES, formatTime, escapeHtml, sanitizePlayerKey } from './game-logic.js';
 
 // Get room code
 const urlParams = new URLSearchParams(window.location.search);
@@ -1171,7 +1171,25 @@ if (btnStartRandom) {
             if (btnStartRandom) btnStartRandom.disabled = true;
 
             const snapshot = await get(ref(db, `rooms/${roomCode}/players`));
-            const playersMap = snapshot.val() || {};
+            const rawPlayers = snapshot.val() || {};
+            const playersMap = {};
+
+            if (Array.isArray(rawPlayers)) {
+                rawPlayers.forEach((p, idx) => {
+                    if (p && (p.name || p.role)) {
+                        const key = sanitizePlayerKey(p.name || `player_${idx}`);
+                        playersMap[key] = p;
+                    }
+                });
+            } else {
+                for (const k in rawPlayers) {
+                    if (rawPlayers[k] && (rawPlayers[k].name || rawPlayers[k].role || typeof rawPlayers[k] === 'object')) {
+                        const cleanKey = sanitizePlayerKey(rawPlayers[k].name || k);
+                        playersMap[cleanKey] = rawPlayers[k];
+                    }
+                }
+            }
+
             const playerNames = Object.keys(playersMap);
             
             if (playerNames.length === 0) {
@@ -1253,11 +1271,7 @@ if (btnStartRandom) {
             updates['state/game_status'] = 'playing';
             updates['state/timer_paused'] = false;
             updates['state/timer'] = Date.now() + roundDuration;
-
-            // Add player updates to the same atomic payload
-            for (const key in playersMap) {
-                updates[`players/${key}`] = playersMap[key];
-            }
+            updates['players'] = playersMap;
 
             await update(roomRef, updates);
             addLog("🚀 La partita è stata avviata con successo!");
