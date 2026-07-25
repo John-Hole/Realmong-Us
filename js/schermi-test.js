@@ -128,35 +128,41 @@ document.addEventListener('DOMContentLoaded', () => {
         container.innerHTML = '';
 
         const players = [
-            { name: 'Mario Rossi', status: 'alive', votes: ['Giuseppe B.', 'Sofia M.'] },
-            { name: 'Elena V.', status: 'alive', votes: ['Luca S.'] },
-            { name: 'Giuseppe B.', status: 'alive', votes: [] },
-            { name: 'Luca S.', status: 'killed_revealed', votes: [] },
-            { name: 'Sofia M.', status: 'alive', votes: [] }
+            { name: 'Mario Rossi', status: 'alive' },
+            { name: 'Elena V.', status: 'alive' },
+            { name: 'Giuseppe B.', status: 'alive' },
+            { name: 'Sofia M.', status: 'alive' },
+            { name: 'Luca S.', status: 'killed_revealed' },
+            { name: 'Marco T.', status: 'alive' }
         ];
 
         players.forEach(p => {
+            const isDead = p.status === 'killed_revealed' || p.status === 'dead';
             const pCard = document.createElement('div');
-            pCard.className = 'meeting-player-card';
-            pCard.style.background = p.status === 'killed_revealed' ? 'rgba(50, 50, 50, 0.6)' : 'rgba(26, 32, 44, 0.9)';
-            pCard.style.border = p.status === 'killed_revealed' ? '1px solid #555' : '2px solid rgba(0, 242, 254, 0.4)';
-            pCard.style.borderRadius = '12px';
-            pCard.style.padding = '1rem 1.5rem';
-            pCard.style.minWidth = '200px';
+            pCard.className = 'discussion-player-card';
+            pCard.style.background = isDead ? 'rgba(20, 20, 25, 0.6)' : 'linear-gradient(145deg, rgba(20, 28, 45, 0.9), rgba(10, 15, 25, 0.95))';
+            pCard.style.border = isDead ? '1px solid rgba(255, 255, 255, 0.1)' : '2px solid rgba(0, 242, 254, 0.4)';
+            pCard.style.borderRadius = '14px';
+            pCard.style.padding = '1.2rem 1.8rem';
+            pCard.style.minWidth = '210px';
             pCard.style.display = 'flex';
             pCard.style.flexDirection = 'column';
             pCard.style.alignItems = 'center';
-            pCard.style.gap = '0.5rem';
-            pCard.style.opacity = p.status === 'killed_revealed' ? '0.6' : '1';
+            pCard.style.gap = '0.6rem';
+            pCard.style.opacity = isDead ? '0.45' : '1';
+            pCard.style.boxShadow = isDead ? 'none' : '0 8px 25px rgba(0, 0, 0, 0.6), 0 0 15px rgba(0, 242, 254, 0.15)';
+            pCard.style.transition = 'all 0.3s ease';
 
             pCard.innerHTML = `
-                <div style="font-size: 2.2rem;">${p.status === 'killed_revealed' ? '💀' : '👨‍🚀'}</div>
-                <div style="font-family: 'Orbitron', sans-serif; font-weight: 700; color: ${p.status === 'killed_revealed' ? '#888' : '#fff'}">${p.name}</div>
-                ${p.votes.length > 0 ? `
-                    <div style="display: flex; gap: 0.3rem; margin-top: 0.5rem; flex-wrap: wrap;">
-                        ${p.votes.map(v => `<span style="background: rgba(255, 68, 68, 0.2); border: 1px solid #ff4444; color: #ff8888; font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 10px;">🗳️ ${v}</span>`).join('')}
-                    </div>
-                ` : ''}
+                <div style="font-size: 2.8rem; filter: drop-shadow(0 0 10px ${isDead ? 'rgba(0,0,0,0.5)' : 'rgba(0,242,254,0.3)'})">
+                    ${isDead ? '💀' : '👨‍🚀'}
+                </div>
+                <div style="font-family: var(--font-ui), sans-serif; font-weight: 800; font-size: 1.1rem; color: ${isDead ? '#888' : '#ffffff'}; text-transform: uppercase; letter-spacing: 1px;">
+                    ${p.name}
+                </div>
+                <div style="font-family: var(--font-ui), sans-serif; font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 12px; letter-spacing: 1px; ${isDead ? 'background: rgba(255,68,68,0.15); color: #ff6666; border: 1px solid rgba(255,68,68,0.3);' : 'background: rgba(0,242,254,0.15); color: #00f2fe; border: 1px solid rgba(0,242,254,0.3);'}">
+                    ${isDead ? '💀 DEFUNTO' : '🟢 IN VITA'}
+                </div>
             `;
             container.appendChild(pCard);
         });
