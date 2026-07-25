@@ -101,7 +101,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="dead-reveal-info">
                     <span class="dead-reveal-name">${p.name}</span>
                 </div>
-                <div class="dead-stamp">❌ DEFUNTO</div>
             `;
             container.appendChild(card);
         });

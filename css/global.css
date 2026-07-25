@@ -2713,6 +2713,8 @@ input:checked + .slider:before {
     font-size: 3rem;
     filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.2));
     flex-shrink: 0;
+    position: relative;
+    z-index: 5;
 }
 
 .dead-reveal-info {
@@ -2723,7 +2725,7 @@ input:checked + .slider:before {
     z-index: 5;
     flex: 1;
     min-width: 0;
-    padding-right: 7.2rem;
+    padding-right: 0;
 }
 
 .dead-reveal-name {
@@ -2731,33 +2733,31 @@ input:checked + .slider:before {
     font-weight: 800;
     font-size: clamp(1.4rem, 2.5vw, 1.9rem);
     color: #ffffff;
-    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9), 0 0 4px #000;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9), 0 0 10px rgba(0, 0, 0, 0.9);
     transition: all 0.4s ease;
     word-break: break-word;
 }
 
 .dead-reveal-card.slashed .dead-reveal-name {
     color: #ffffff;
-    text-decoration: line-through;
-    text-decoration-color: #ef4444;
-    text-decoration-thickness: 3.5px;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9), 0 0 10px rgba(239, 68, 68, 0.5);
+    text-decoration: none;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9), 0 0 12px rgba(255, 255, 255, 0.4);
 }
 
-/* Linea sbarrata animata (Strike-through animation) */
+/* Linea sbarrata animata DI SFONDO (Sotto omino ed emoji) */
 .dead-slash-line {
     position: absolute;
     top: 50%;
-    left: -5%;
-    height: 7px;
-    background: linear-gradient(90deg, #ff0000, #ff4b4b, #dc2626);
-    box-shadow: 0 0 15px #ff0000, 0 0 25px #ff0000;
+    left: -20%;
+    height: 100%;
+    background: linear-gradient(90deg, rgba(255, 0, 0, 0.35), rgba(239, 68, 68, 0.5), rgba(220, 38, 38, 0.35));
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.4);
     width: 0%;
-    transform: translateY(-50%) rotate(-5deg);
-    border-radius: 4px;
-    z-index: 3;
+    transform: translateY(-50%) rotate(-8deg);
+    z-index: 1;
     pointer-events: none;
-    opacity: 0.85;
+    border-top: 2px solid rgba(255, 68, 68, 0.8);
+    border-bottom: 2px solid rgba(255, 68, 68, 0.8);
 }
 
 .dead-reveal-card.slashed .dead-slash-line {
@@ -2766,40 +2766,12 @@ input:checked + .slider:before {
 
 @keyframes animateSlash {
     0% { width: 0%; }
-    100% { width: 110%; }
+    100% { width: 140%; }
 }
 
-/* Timbro DEFUNTO */
+/* Timbro DEFUNTO rimosso */
 .dead-stamp {
-    position: absolute;
-    right: 0.9rem;
-    top: 50%;
-    transform: translateY(-50%) scale(0) rotate(-15deg);
-    border: 2.5px solid #ef4444;
-    color: #ef4444;
-    font-family: var(--font-pixel, monospace), sans-serif;
-    font-size: 0.9rem;
-    font-weight: 900;
-    padding: 0.2rem 0.6rem;
-    border-radius: 8px;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    background: rgba(15, 5, 5, 0.85);
-    box-shadow: 0 0 15px rgba(239, 68, 68, 0.6), inset 0 0 10px rgba(239, 68, 68, 0.25);
-    z-index: 4;
-    opacity: 0;
-    pointer-events: none;
-    white-space: nowrap;
-    backdrop-filter: blur(4px);
-}
-
-.dead-reveal-card.slashed .dead-stamp {
-    animation: stampDrop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.27) 0.25s forwards;
-}
-
-@keyframes stampDrop {
-    0% { opacity: 0; transform: translateY(-50%) scale(2.5) rotate(-30deg); }
-    100% { opacity: 1; transform: translateY(-50%) scale(1) rotate(-12deg); }
+    display: none !important;
 }
 
 .no-dead-card {

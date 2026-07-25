@@ -523,7 +523,6 @@ function startConnection() {
                     <div class="dead-reveal-info">
                         <span class="dead-reveal-name">${escapeHtml(pName)}</span>
                     </div>
-                    <div class="dead-stamp">❌ DEFUNTO</div>
                 `;
                 deadCardsContainer.appendChild(card);
             });
