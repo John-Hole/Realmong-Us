@@ -1234,6 +1234,13 @@ btnJoinRoom.addEventListener('click', async () => {
 
     localStorage.setItem('lastNickname', name);
     await ensureAuth();
+    if (!auth.currentUser) {
+        try {
+            await signInAnonymously(auth);
+        } catch (e) {
+            console.error("Anonymous sign in error:", e);
+        }
+    }
 
     const dbRef = ref(db);
     try {

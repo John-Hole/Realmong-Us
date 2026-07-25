@@ -70,17 +70,15 @@ function clearUserCache() {
   } catch (e) {}
 }
 
-export function ensureAuth() {
-  if (authPromise) return authPromise;
-  authPromise = new Promise((resolve) => {
-    if (auth.currentUser) {
-      if (!auth.currentUser.isAnonymous) {
-        cacheRealUser(auth.currentUser);
-      }
-      resolve(auth.currentUser);
-      return;
+export async function ensureAuth() {
+  if (auth.currentUser) {
+    if (!auth.currentUser.isAnonymous) {
+      cacheRealUser(auth.currentUser);
     }
+    return auth.currentUser;
+  }
 
+  return new Promise((resolve) => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       unsubscribe();
       if (user) {
@@ -99,7 +97,6 @@ export function ensureAuth() {
       }
     });
   });
-  return authPromise;
 }
 
 export { db, auth, app, firebaseConfig };
