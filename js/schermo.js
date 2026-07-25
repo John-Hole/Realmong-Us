@@ -400,19 +400,24 @@ function startConnection() {
             await loadSVGMap();
         } else {
             // Check if user uploaded a custom map image in Firebase
-            const imgSnapshot = await get(ref(db, `images/${roomCode}`));
-            const svgContainer = document.getElementById('svg-map-container');
+            try {
+                const imgSnapshot = await get(ref(db, `images/${roomCode}`));
+                const svgContainer = document.getElementById('svg-map-container');
 
-            // Default to vector SVG map of Oratorio
-            // Only use custom uploaded photo if it exists and is a custom uploaded image
-            if (imgSnapshot.exists() && imgSnapshot.val() && !imgSnapshot.val().includes('mappa.jpg') && imgSnapshot.val().length > 100000) {
-                const imgSrc = imgSnapshot.val();
-                if (svgContainer) {
-                    svgContainer.innerHTML = `<img id="map-image" src="${imgSrc}" alt="Mappa Stanza" class="map-img">`;
+                // Default to vector SVG map of Oratorio
+                // Only use custom uploaded photo if it exists and is a custom uploaded image
+                if (imgSnapshot.exists() && imgSnapshot.val() && !imgSnapshot.val().includes('mappa.jpg') && imgSnapshot.val().length > 100000) {
+                    const imgSrc = imgSnapshot.val();
+                    if (svgContainer) {
+                        svgContainer.innerHTML = `<img id="map-image" src="${imgSrc}" alt="Mappa Stanza" class="map-img">`;
+                    }
+                    if (mapViewWrapper) mapViewWrapper.classList.remove('hidden');
+                    if (textMapContainer) textMapContainer.classList.add('hidden');
+                } else {
+                    await loadSVGMap();
                 }
-                if (mapViewWrapper) mapViewWrapper.classList.remove('hidden');
-                if (textMapContainer) textMapContainer.classList.add('hidden');
-            } else {
+            } catch (err) {
+                console.warn("Mappa personalizzata non caricata, uso SVG di fallback:", err);
                 await loadSVGMap();
             }
         }
@@ -505,15 +510,19 @@ function startConnection() {
         const targetVotes = votesData || latestVotesData;
 
         if (targetData) {
-            for (const playerName in targetData) {
+            for (const key in targetData) {
+                const pData = targetData[key];
+                if (!pData) continue;
                 playerCount++;
-                const pData = targetData[playerName];
-                const isRevealedDead = pData.status === 'killed_revealed' || 
-                                       pData.status === 'dead' || 
-                                       pData.status === 'ghost' || 
-                                       ((currentGameState === 'discussion' || currentGameState === 'voting') && pData.status === 'killed_hidden');
 
-                const hasVoted = targetVotes && targetVotes[playerName] !== undefined;
+                const displayName = (typeof pData === 'object' && pData.name) ? pData.name : key;
+                const pStatus = (typeof pData === 'object' && pData.status) ? pData.status : 'alive';
+                const isRevealedDead = pStatus === 'killed_revealed' || 
+                                       pStatus === 'dead' || 
+                                       pStatus === 'ghost' || 
+                                       ((currentGameState === 'discussion' || currentGameState === 'voting') && pStatus === 'killed_hidden');
+
+                const hasVoted = targetVotes && (targetVotes[key] !== undefined || targetVotes[displayName] !== undefined);
                 
                 const div = document.createElement('div');
                 div.className = `player-card ${isRevealedDead ? 'dead' : ''}`;
@@ -529,11 +538,18 @@ function startConnection() {
 
                 div.innerHTML = `
                     <div class="player-avatar">👨‍🚀</div>
-                    <span class="player-name">${escapeHtml(playerName)}</span>
+                    <span class="player-name">${escapeHtml(displayName)}</span>
                     ${statusHtml}
                 `;
                 playersListContainer.appendChild(div);
             }
+        }
+
+        if (playerCount === 0) {
+            const emptyDiv = document.createElement('div');
+            emptyDiv.style.cssText = 'color: #94a3b8; text-align: center; padding: 2rem 1rem; font-family: var(--font-ui), sans-serif; font-size: 0.95rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;';
+            emptyDiv.textContent = 'In attesa di giocatori...';
+            playersListContainer.appendChild(emptyDiv);
         }
         
         const countDisplay = document.getElementById('waiting-players-count');
@@ -946,24 +962,25 @@ function startConnection() {
                     });
                 }
             }
-            
+            const players = data.players || {};
+            const votes = data.votes || {};
+            const maxPlayers = data.config ? data.config.maxPlayers : null;
+
+            latestPlayersData = players;
+            latestVotesData = votes;
+            latestMaxPlayers = maxPlayers;
+
+            // Real-time taskbar & players update on any room change
+            updateTaskBar(players);
+            renderPlayers(players, votes, maxPlayers);
+
             if (data.config) {
                 renderMapConfig(data.config);
             }
 
             if (data.state) {
-                const status = data.state.game_status;
+                const status = data.state.game_status || 'waiting';
                 currentGameState = status;
-                const players = data.players || {};
-                const votes = data.votes || {};
-                const maxPlayers = data.config ? data.config.maxPlayers : null;
-
-                latestPlayersData = players;
-                latestVotesData = votes;
-                latestMaxPlayers = maxPlayers;
-
-                // Real-time taskbar update on any room change
-                updateTaskBar(players);
 
                 const qrCodeBox = document.getElementById('qr-code-container');
                 const roomCodeDisplay = document.getElementById('room-code-display');
