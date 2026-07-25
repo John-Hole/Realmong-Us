@@ -95,6 +95,13 @@
                 <h2>Unisciti a una Stanza</h2>
                 <button id="btn-join-back" class="btn btn-danger" style="padding: 0.5rem 1rem;">Indietro</button>
             </div>
+
+            <!-- INLINE JOIN ERROR BANNER -->
+            <div id="join-error-msg" class="hidden" style="background: rgba(239, 68, 68, 0.15); border: 1.5px solid #ef4444; color: #fca5a5; padding: 0.75rem 1rem; border-radius: 12px; margin-top: 0.8rem; margin-bottom: 0.8rem; font-size: 0.9rem; text-align: center; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 0.5rem; animation: shake 0.3s ease-in-out;">
+                <span style="font-size: 1.1rem;">⚠️</span>
+                <span id="join-error-text"></span>
+            </div>
+
             <div class="form-group" style="margin-top: 1rem;">
                 <input type="text" id="join-code" placeholder="Codice Stanza (es. ABCDE)" style="text-transform: uppercase;" maxlength="5">
             </div>

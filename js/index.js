@@ -36,6 +36,8 @@ const btnAnonLogin = document.getElementById('btn-anon-login');
 const joinCode = document.getElementById('join-code');
 const joinName = document.getElementById('join-name');
 const btnJoinRoom = document.getElementById('btn-join-room');
+const joinErrorMsg = document.getElementById('join-error-msg');
+const joinErrorText = document.getElementById('join-error-text');
 
 // Templates Grid
 const templatesGrid = document.getElementById('templates-grid');
@@ -169,6 +171,7 @@ function hideAllSections() {
     createSection.classList.add('hidden');
     templatesSection.classList.add('hidden');
     authModal.classList.add('hidden');
+    clearJoinError();
 }
 
 function showSection(sectionName) {
@@ -361,6 +364,38 @@ function clearAuthError() {
 
 emailInput.addEventListener('input', clearAuthError);
 passwordInput.addEventListener('input', clearAuthError);
+
+function showJoinError(message, targetField = null) {
+    if (joinErrorText && joinErrorMsg) {
+        joinErrorText.textContent = message;
+        joinErrorMsg.classList.remove('hidden');
+    }
+    
+    if (joinCode) joinCode.classList.remove('input-error');
+    if (joinName) joinName.classList.remove('input-error');
+
+    if (targetField === 'code' && joinCode) {
+        joinCode.classList.add('input-error');
+        joinCode.focus();
+    } else if (targetField === 'name' && joinName) {
+        joinName.classList.add('input-error');
+        joinName.focus();
+    } else if (targetField === 'both') {
+        if (joinCode) joinCode.classList.add('input-error');
+        if (joinName) joinName.classList.add('input-error');
+        if (joinCode && !joinCode.value) joinCode.focus();
+        else if (joinName) joinName.focus();
+    }
+}
+
+function clearJoinError() {
+    if (joinErrorMsg) joinErrorMsg.classList.add('hidden');
+    if (joinCode) joinCode.classList.remove('input-error');
+    if (joinName) joinName.classList.remove('input-error');
+}
+
+if (joinCode) joinCode.addEventListener('input', clearJoinError);
+if (joinName) joinName.addEventListener('input', clearJoinError);
 
 async function migrateGuestTemplates(newUid, pendingTemplates) {
     if (!pendingTemplates || Object.keys(pendingTemplates).length === 0) return;
@@ -1225,20 +1260,35 @@ async function startRoomWithConfig(config) {
 }
 
 btnJoinRoom.addEventListener('click', async () => {
+    clearJoinError();
     const code = joinCode.value.trim().toUpperCase();
     const name = joinName.value.trim();
 
     if (!code || !name) {
-        return alert("Inserisci sia il codice stanza che il nome giocatore.");
+        if (!code && !name) {
+            return showJoinError("Inserisci sia il codice stanza che il nome giocatore.", "both");
+        } else if (!code) {
+            return showJoinError("Inserisci il codice della stanza.", "code");
+        } else {
+            return showJoinError("Inserisci il tuo nome da giocatore.", "name");
+        }
     }
 
+    const origBtnText = btnJoinRoom.textContent;
+    btnJoinRoom.disabled = true;
+    btnJoinRoom.textContent = "CONNESSIONE...";
+
+    const resetBtn = () => {
+        btnJoinRoom.disabled = false;
+        btnJoinRoom.textContent = origBtnText;
+    };
+
     localStorage.setItem('lastNickname', name);
-    await ensureAuth();
     if (!auth.currentUser) {
         try {
-            await signInAnonymously(auth);
+            await ensureAuth();
         } catch (e) {
-            console.error("Anonymous sign in error:", e);
+            console.error("Auth sign in error:", e);
         }
     }
 
@@ -1246,7 +1296,8 @@ btnJoinRoom.addEventListener('click', async () => {
     try {
         const snapshot = await get(child(dbRef, `rooms/${code}`));
         if (!snapshot.exists()) {
-            return alert("Stanza non trovata!");
+            resetBtn();
+            return showJoinError("Stanza non trovata! Verifica il codice inserito.", "code");
         }
 
         const roomData = snapshot.val();
@@ -1260,7 +1311,8 @@ btnJoinRoom.addEventListener('click', async () => {
             } catch (e) {
                 console.warn("Could not delete expired room:", e);
             }
-            return alert("Questa stanza è scaduta (superati 7 giorni di durata) ed è stata eliminata.");
+            resetBtn();
+            return showJoinError("Questa stanza è scaduta (superati 7 giorni di durata) ed è stata eliminata.", "code");
         }
 
         if (roomData.kickedPlayers) {
@@ -1268,16 +1320,19 @@ btnJoinRoom.addEventListener('click', async () => {
                 p => p.toLowerCase() === name.toLowerCase()
             );
             if (isKicked) {
-                return alert(`Sei stato espulso da questa stanza! Non puoi accedere finché il Master non ti riammette.`);
+                resetBtn();
+                return showJoinError(`Sei stato espulso da questa stanza! Non puoi accedere.`, "name");
             }
         }
 
         const playerKey = sanitizePlayerKey(name);
+        // TAB-SCOPED session token check (sessionStorage preferred, unique per tab)
         const existingToken = sessionStorage.getItem(`realmong_token_${code}_${playerKey}`) ||
-                              localStorage.getItem(`realmong_token_${code}_${playerKey}`);
+                              sessionStorage.getItem(`realmong_token_${code}_${name}`);
 
         if (roomData.state && roomData.state.game_status !== 'waiting' && !existingToken) {
-            return alert("Impossibile accedere: partita già in corso!");
+            resetBtn();
+            return showJoinError("Impossibile accedere: partita già in corso!", "code");
         }
 
         if (roomData.players) {
@@ -1287,11 +1342,12 @@ btnJoinRoom.addEventListener('click', async () => {
             if (existingPlayerKey) {
                 const existingPlayerObj = roomData.players[existingPlayerKey];
                 if (existingToken && existingPlayerObj && existingPlayerObj.token === existingToken) {
-                    // Same session token, allow rejoining directly!
+                    // Same session token in this tab, allow rejoining directly!
                     window.location.href = `giocatore?room=${code}&player=${encodeURIComponent(name)}`;
                     return;
                 } else {
-                    return alert(`Il nome "${name}" è già in uso in questa stanza! Per favore scegli un altro nome.`);
+                    resetBtn();
+                    return showJoinError(`Il nome "${name}" è già in uso in questa stanza! Per favore scegli un altro nome.`, "name");
                 }
             }
         }
@@ -1300,7 +1356,8 @@ btnJoinRoom.addEventListener('click', async () => {
         const maxLimit = roomData.config ? roomData.config.maxPlayers : 'unlimited';
         
         if (maxLimit !== 'unlimited' && currentPlayersCount >= maxLimit) {
-            return alert("Impossibile accedere: la stanza è al completo!");
+            resetBtn();
+            return showJoinError("Impossibile accedere: la stanza è al completo!", "code");
         }
 
         const playerToken = (typeof crypto !== 'undefined' && crypto.randomUUID)
@@ -1308,7 +1365,9 @@ btnJoinRoom.addEventListener('click', async () => {
             : (Date.now() + '_' + Math.random().toString(36).substring(2));
         
         sessionStorage.setItem(`realmong_token_${code}_${playerKey}`, playerToken);
+        sessionStorage.setItem(`realmong_token_${code}_${name}`, playerToken);
         localStorage.setItem(`realmong_token_${code}_${playerKey}`, playerToken);
+        localStorage.setItem(`realmong_token_${code}_${name}`, playerToken);
 
         await set(ref(db, `rooms/${code}/players/${playerKey}`), {
             name: name,
@@ -1320,6 +1379,7 @@ btnJoinRoom.addEventListener('click', async () => {
 
         window.location.href = `giocatore?room=${code}&player=${encodeURIComponent(name)}`;
     } catch (error) {
-        alert("Errore di connessione: " + error.message);
+        resetBtn();
+        showJoinError("Errore di connessione: " + error.message, "both");
     }
 });

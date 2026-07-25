@@ -186,13 +186,17 @@ roomUnsubscribe = onValue(roomRef, (snapshot) => {
         myData = playerObj;
 
         // Session Token Validation
-        const localToken = sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerKey}`) ||
-                           localStorage.getItem(`realmong_token_${roomCode}_${myPlayerKey}`) ||
-                           sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`) ||
-                           localStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`);
+        let localToken = sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerKey}`) ||
+                         sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`) ||
+                         localStorage.getItem(`realmong_token_${roomCode}_${myPlayerKey}`) ||
+                         localStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`);
         if (myData.token) {
             if (!localToken) {
-                sessionStorage.setItem(`realmong_token_${roomCode}_${myPlayerKey}`, myData.token);
+                localToken = myData.token;
+                sessionStorage.setItem(`realmong_token_${roomCode}_${myPlayerKey}`, localToken);
+                sessionStorage.setItem(`realmong_token_${roomCode}_${myPlayerName}`, localToken);
+                localStorage.setItem(`realmong_token_${roomCode}_${myPlayerKey}`, localToken);
+                localStorage.setItem(`realmong_token_${roomCode}_${myPlayerName}`, localToken);
             } else if (myData.token !== localToken) {
                 alert("Accesso non autorizzato: questa sessione di gioco appartiene a un altro utente o a un'altra scheda.");
                 window.location.href = "/";
@@ -1114,7 +1118,9 @@ async function rejoinRoom() {
             }
         }
 
-        let localToken = sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`) ||
+        let localToken = sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerKey}`) ||
+                         sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`) ||
+                         localStorage.getItem(`realmong_token_${roomCode}_${myPlayerKey}`) ||
                          localStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`);
 
         if (roomData.state && roomData.state.game_status !== 'waiting' && !localToken) {
@@ -1123,13 +1129,24 @@ async function rejoinRoom() {
         }
 
         const playersMap = roomData.players || {};
+        const existingObj = playersMap[myPlayerKey] || playersMap[myPlayerName];
 
-        if (!localToken) {
+        if (existingObj && existingObj.token) {
+            if (!localToken) {
+                localToken = existingObj.token;
+            }
+            sessionStorage.setItem(`realmong_token_${roomCode}_${myPlayerKey}`, localToken);
+            sessionStorage.setItem(`realmong_token_${roomCode}_${myPlayerName}`, localToken);
+            localStorage.setItem(`realmong_token_${roomCode}_${myPlayerKey}`, localToken);
+            localStorage.setItem(`realmong_token_${roomCode}_${myPlayerName}`, localToken);
+        } else if (!localToken) {
             localToken = (typeof crypto !== 'undefined' && crypto.randomUUID)
                 ? crypto.randomUUID()
                 : (Date.now() + '_' + Math.random().toString(36).substring(2));
             sessionStorage.setItem(`realmong_token_${roomCode}_${myPlayerKey}`, localToken);
+            sessionStorage.setItem(`realmong_token_${roomCode}_${myPlayerName}`, localToken);
             localStorage.setItem(`realmong_token_${roomCode}_${myPlayerKey}`, localToken);
+            localStorage.setItem(`realmong_token_${roomCode}_${myPlayerName}`, localToken);
         }
 
         // Re-add player node if not present
@@ -1146,7 +1163,6 @@ async function rejoinRoom() {
             });
         } else {
             const targetRef = playersMap[myPlayerKey] ? newPlayerRef : ref(db, `rooms/${roomCode}/players/${myPlayerName}`);
-            const existingObj = playersMap[myPlayerKey] || playersMap[myPlayerName];
             if (!existingObj.token || !existingObj.name) {
                 await update(targetRef, { token: localToken, name: myPlayerName });
             }
