@@ -117,6 +117,9 @@ if (modalConfigTempi) {
     });
 }
 
+const SVG_PLAY = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="display: block; pointer-events: none;"><path d="M8 5v14l11-7z"/></svg>`;
+const SVG_PAUSE = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="display: block; pointer-events: none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+
 // --- Pop-up 2: Gestione Tempo In Corso ---
 function openTimerModal() {
     if (modalTimer) modalTimer.classList.remove('hidden');
@@ -131,6 +134,17 @@ if (btnOpenTimerModalCard) btnOpenTimerModalCard.addEventListener('click', openT
 if (masterLiveClockEl) masterLiveClockEl.addEventListener('click', openTimerModal);
 if (currentTimerPill) currentTimerPill.addEventListener('click', openTimerModal);
 if (btnCloseTimerModal) btnCloseTimerModal.addEventListener('click', closeTimerModal);
+
+const timerControlsCard = document.getElementById('timer-controls');
+if (timerControlsCard) {
+    timerControlsCard.style.cursor = 'pointer';
+    timerControlsCard.addEventListener('click', (e) => {
+        if (e.target.closest('#btn-timer-pause-card') || e.target.closest('#btn-timer-add-card')) {
+            return;
+        }
+        openTimerModal();
+    });
+}
 
 if (modalTimer) {
     modalTimer.addEventListener('click', (e) => {
@@ -700,22 +714,22 @@ function updateUI(state, players) {
         
         if (btnTimerPause) {
             if (state.timer_paused) {
-                btnTimerPause.textContent = "▶️ RIPRENDI";
-                btnTimerPause.style.background = "#00c853";
+                btnTimerPause.innerHTML = `<span style="display: inline-flex; align-items: center; gap: 0.4rem; pointer-events: none;">${SVG_PLAY} RIPRENDI</span>`;
+                btnTimerPause.style.background = "#10b981";
             } else {
-                btnTimerPause.textContent = "⏸️ PAUSA";
+                btnTimerPause.innerHTML = `<span style="display: inline-flex; align-items: center; gap: 0.4rem; pointer-events: none;">${SVG_PAUSE} PAUSA</span>`;
                 btnTimerPause.style.background = "#ea580c";
             }
         }
         if (btnTimerPauseCard) {
             if (state.timer_paused) {
-                btnTimerPauseCard.textContent = "▶️";
+                btnTimerPauseCard.innerHTML = SVG_PLAY;
                 btnTimerPauseCard.title = "Riprendi Timer";
                 btnTimerPauseCard.style.background = "linear-gradient(135deg, #10b981, #059669)";
                 btnTimerPauseCard.style.borderColor = "rgba(16, 185, 129, 0.5)";
                 btnTimerPauseCard.style.boxShadow = "0 4px 12px rgba(16, 185, 129, 0.35)";
             } else {
-                btnTimerPauseCard.textContent = "▶️";
+                btnTimerPauseCard.innerHTML = SVG_PAUSE;
                 btnTimerPauseCard.title = "Pausa Timer";
                 btnTimerPauseCard.style.background = "linear-gradient(135deg, #ea580c, #c2410c)";
                 btnTimerPauseCard.style.borderColor = "rgba(234, 88, 12, 0.5)";
@@ -1044,10 +1058,20 @@ const addOneMinuteToTimer = async () => {
 };
 
 if (btnTimerPause) btnTimerPause.addEventListener('click', toggleTimerPauseState);
-if (btnTimerPauseCard) btnTimerPauseCard.addEventListener('click', toggleTimerPauseState);
+if (btnTimerPauseCard) {
+    btnTimerPauseCard.addEventListener('click', (e) => {
+        if (e) e.stopPropagation();
+        toggleTimerPauseState();
+    });
+}
 
 if (btnTimerAdd) btnTimerAdd.addEventListener('click', addOneMinuteToTimer);
-if (btnTimerAddCard) btnTimerAddCard.addEventListener('click', addOneMinuteToTimer);
+if (btnTimerAddCard) {
+    btnTimerAddCard.addEventListener('click', (e) => {
+        if (e) e.stopPropagation();
+        addOneMinuteToTimer();
+    });
+}
 
 if (btnTimerSub) {
     btnTimerSub.addEventListener('click', async () => {
