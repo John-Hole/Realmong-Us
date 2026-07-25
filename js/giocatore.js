@@ -85,7 +85,13 @@ if (btnHideDead) {
 
 // Ensure Auth is fully initialized before attempting RTDB reads or calls
 ensureAuth().then(async () => {
-    gameScreen.classList.remove('hidden');
+    if (gameScreen) gameScreen.classList.remove('hidden');
+    if (waitingScreen) waitingScreen.classList.remove('hidden');
+    
+    const waitingPlayerName = document.getElementById('waiting-player-name');
+    const waitingRoomCode = document.getElementById('waiting-room-code');
+    if (waitingPlayerName) waitingPlayerName.textContent = myPlayerName;
+    if (waitingRoomCode) waitingRoomCode.textContent = `Stanza: ${roomCode}`;
     if (playerNameDisplay) playerNameDisplay.textContent = myPlayerName;
 
     // Auto-register/rejoin player node in room if opened via direct URL or script
