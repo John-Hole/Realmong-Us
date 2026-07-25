@@ -832,7 +832,7 @@ function renderMasterTimer() {
     }
     if (masterLiveClockEl) {
         masterLiveClockEl.textContent = liveClockText;
-        masterLiveClockEl.style.fontFamily = "'Orbitron', 'Press Start 2P', monospace";
+        masterLiveClockEl.style.fontFamily = "var(--font-ui), 'Inter', sans-serif";
         masterLiveClockEl.style.color = timerColor;
         masterLiveClockEl.style.textShadow = `0 0 12px ${timerColor}80, 0 0 24px ${timerColor}40`;
         masterLiveClockEl.style.borderColor = `${timerColor}60`;

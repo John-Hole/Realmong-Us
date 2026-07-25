@@ -1817,7 +1817,7 @@ body.schermo-body, body.teatro-body {
 .glass-card + .glass-card,
 .glass-card + .dashboard-card,
 .dashboard-card + .glass-card {
-    margin-top: 0.85rem;
+    margin-top: 0 !important;
 }
 
 .glass-card:hover, .dashboard-card:hover {
@@ -1857,10 +1857,10 @@ body.schermo-body, body.teatro-body {
 .master-layout-container {
     max-width: 1300px;
     margin: 0 auto;
-    padding: 1.25rem;
+    padding: 1rem;
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 0.85rem !important;
     box-sizing: border-box;
 }
 
@@ -1945,7 +1945,7 @@ body.schermo-body, body.teatro-body {
 .master-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1.25rem;
+    gap: 0.85rem !important;
     align-items: start;
 }
 
@@ -1958,7 +1958,7 @@ body.schermo-body, body.teatro-body {
 .master-left-col, .master-right-col {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 0.85rem !important;
 }
 
 /* PROJECTOR BANNER BUTTON */
@@ -3431,11 +3431,11 @@ input:checked + .slider:before {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    font-family: var(--font-digital) !important;
-    font-size: clamp(1.4rem, 4vw, 1.85rem) !important;
-    font-weight: 800 !important;
+    font-family: var(--font-ui), sans-serif !important;
+    font-size: clamp(1.4rem, 4vw, 1.75rem) !important;
+    font-weight: 900 !important;
     font-variant-numeric: tabular-nums !important;
-    letter-spacing: 2.5px !important;
+    letter-spacing: 1.5px !important;
     color: var(--accent-cyan) !important;
     background: rgba(11, 15, 25, 0.85) !important;
     padding: 0.4rem 0.85rem !important;
