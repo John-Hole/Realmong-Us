@@ -815,6 +815,7 @@ function renderMasterTimer() {
     }
     if (masterLiveClockEl) {
         masterLiveClockEl.textContent = liveClockText;
+        masterLiveClockEl.style.fontFamily = "'Orbitron', 'Press Start 2P', monospace";
         masterLiveClockEl.style.color = timerColor;
         masterLiveClockEl.style.textShadow = `0 0 12px ${timerColor}80, 0 0 24px ${timerColor}40`;
         masterLiveClockEl.style.borderColor = `${timerColor}60`;
@@ -1207,7 +1208,7 @@ btnStartRandom.addEventListener('click', async () => {
 let isAutoTriggeringEmergency = false;
 
 async function callEmergencyMeeting() {
-    if (!roomRef || !currentState || isAutoTriggeringEmergency) return;
+    if (!roomRef || !currentState || currentState.game_status !== 'playing' || isAutoTriggeringEmergency) return;
     isAutoTriggeringEmergency = true;
     try {
         const remaining = Math.max(0, (currentState.timer || Date.now()) - Date.now());

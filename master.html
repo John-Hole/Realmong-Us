@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Realmong Us - Pannello Master</title>
-    <link rel="stylesheet" href="css/global.css?v=5">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/global.css?v=12">
 </head>
 <body>
     <div class="master-layout-container">
@@ -28,7 +31,7 @@
                     ROUND <strong id="current-round" style="color: #00e676; font-size: 0.95rem;">1</strong>
                 </div>
                 <div id="current-timer-pill" class="master-round-pill hidden" style="border-color: rgba(56, 189, 248, 0.4); color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 0.35rem 0.85rem; font-size: 0.8rem; border-radius: 50px; display: flex; align-items: center; gap: 0.3rem; cursor: pointer;" title="Clicca per gestire il tempo">
-                    <span>⏱️</span> <strong id="current-timer" style="color: #38bdf8; font-size: 0.9rem;">00:00</strong>
+                    ⏱️ <span id="current-timer">00:00</span>
                 </div>
                 <div class="master-status-pill" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 0.35rem 0.85rem; border-radius: 50px; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 0.3rem;">
                     STATO: <span id="current-status" style="padding: 2px 8px; border-radius: 50px; font-weight: 800; font-size: 0.75rem; letter-spacing: 0.5px;">CARICAMENTO...</span>
@@ -47,46 +50,50 @@
             </a>
         </div>
 
-        <!-- MAIN DASHBOARD GRID -->
+        <!-- MAIN TWO-COLUMN DASHBOARD GRID -->
         <div class="master-grid">
-            
-            <!-- LEFT COLUMN: Quick Actions & Time Config/Timer Controls -->
+
+            <!-- LEFT COLUMN: Game Controls & Phase Setup -->
             <div class="master-left-col">
                 
-                <!-- Quick Actions Card -->
+                <!-- Game Controls Card -->
                 <div class="glass-card">
                     <div class="glass-card-header">
                         <div class="glass-card-header-left">
-                            <span class="header-icon">⚡</span>
-                            <h2>AZIONI RAPIDE PARTITA</h2>
+                            <span class="header-icon">🎮</span>
+                            <h2>CONTROLLI DI GIOCO</h2>
                         </div>
                     </div>
-                    
-                    <div class="master-controls-grid">
-                        <button id="btn-start" class="btn hidden">Avvia Gioco</button>
-                        <button id="btn-start-random" class="btn btn-master-action" style="background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white;">Avvia Partita</button>
-                        <button id="btn-call-meeting" class="btn btn-master-action" style="background: linear-gradient(135deg, #ea580c, #c2410c); color: white;">Chiama Emergenza</button>
-                        <button id="btn-start-discussion" class="btn btn-master-action hidden" style="background: linear-gradient(135deg, #eab308, #ca8a04); color: black;">Inizia Discussione</button>
-                        <button id="btn-start-voting" class="btn btn-master-action hidden" style="background: linear-gradient(135deg, #9333ea, #7e22ce); color: white;">Inizio Votazioni (60s)</button>
-                    </div>
-
-                    <!-- Voting Override Section -->
-                    <div id="voting-section" class="hidden" style="margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.08);">
-                        <p style="margin-bottom: 0.8rem; font-size: 0.85rem; color: #94a3b8;">Termina anticipatamente la riunione forzando il calcolo sui voti parziali.</p>
-                        <button id="btn-end-meeting" class="btn btn-danger" style="width: 100%; font-weight: 700;">Termina Votazione</button>
+                    <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+                        <button id="btn-start-random" class="btn btn-green btn-pulse" style="width: 100%; font-size: 1rem; padding: 0.85rem; border-radius: 50px; font-weight: 900;">
+                            🚀 AVVIA PARTITA CASUALE
+                        </button>
+                        
+                        <!-- Actions Grid (Mostrati a seconda dello stato) -->
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <button id="btn-call-meeting" class="btn btn-orange hidden" style="flex: 1; font-weight: 800; border-radius: 50px; padding: 0.6rem 0.5rem; font-size: 0.85rem;">
+                                🚨 CHIAMA EMERGENZA
+                            </button>
+                            <button id="btn-start-discussion" class="btn btn-orange hidden" style="flex: 1; font-weight: 800; border-radius: 50px; padding: 0.6rem 0.5rem; font-size: 0.85rem;">
+                                💬 INIZIO DISCUSSIONE
+                            </button>
+                            <button id="btn-start-voting" class="btn btn-purple hidden" style="flex: 1; font-weight: 800; border-radius: 50px; padding: 0.6rem 0.5rem; font-size: 0.85rem;">
+                                🗳️ INIZIO VOTAZIONI
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Pre-Start Config Card (Mostrato PRIMA dell'avvio) -->
-                <div id="preset-time-config-card" class="glass-card">
+                <!-- Config Tempi Predefiniti Card (Mostrata SOLO PRIMA dell'avvio partita) -->
+                <div id="preset-time-config-card" class="glass-card" style="border: 1px solid rgba(56, 189, 248, 0.3);">
                     <div class="glass-card-header">
                         <div class="glass-card-header-left">
-                            <span class="header-icon">⚙️</span>
-                            <h2>GESTIONE TEMPI</h2>
+                            <span class="header-icon">⏱️</span>
+                            <h2>CONFIGURAZIONE TEMPI</h2>
                         </div>
                     </div>
-                    <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 0.8rem; line-height: 1.4;">
-                        Configura la durata dei round e delle votazioni prima di far partire il gioco.
+                    <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 0; margin-bottom: 0.75rem; line-height: 1.3;">
+                        Imposta la durata del timer per il prossimo round. Può essere modificata prima di avviare la partita.
                     </p>
                     <button id="btn-open-config-tempi-card" class="btn" style="width: 100%; background: linear-gradient(135deg, #0284c7, #0369a1); color: white; font-weight: 800; border-radius: 50px; padding: 0.75rem; border: none; cursor: pointer;">
                         ⚙️ CONFIGURA TEMPI PREDEFINITI
@@ -101,14 +108,14 @@
                             <h2>CONTROLLO TIMER</h2>
                         </div>
                     </div>
-                    <div class="timer-card-body">
-                        <!-- Left: Live Clock Display in Pixel Font (Clickable for advanced modal) -->
-                        <div id="master-live-clock" class="timer-clock-badge" title="Clicca sul tempo per aprire i controlli avanzati">
-                            --:--
+                    <div class="timer-card-body" style="display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important; gap: 0.75rem !important; width: 100% !important;">
+                        <!-- Left: Live Clock Display in Digital Orbitron Font -->
+                        <div id="master-live-clock" class="timer-clock-badge" style="font-family: 'Orbitron', 'Press Start 2P', monospace !important; font-size: 1.7rem !important; font-weight: 800 !important; font-variant-numeric: tabular-nums !important; letter-spacing: 2.5px !important; color: #00e5ff !important; background: rgba(11, 15, 25, 0.85) !important; padding: 0.4rem 0.85rem !important; border-radius: 14px !important; border: 1.5px solid rgba(56, 189, 248, 0.4) !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; cursor: pointer !important; white-space: nowrap !important; user-select: none !important; box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.6), 0 0 15px rgba(0, 229, 255, 0.2) !important;" title="Clicca sul tempo per aprire i controlli avanzati">
+                            00:00
                         </div>
 
-                        <!-- Right: Quick Action Buttons (Icon-only Pause & +1 MIN) -->
-                        <div class="timer-card-actions">
+                        <!-- Right: Quick Action Buttons -->
+                        <div class="timer-card-actions" style="display: flex !important; flex-direction: row !important; align-items: center !important; gap: 0.6rem !important; flex-shrink: 0 !important;">
                             <button id="btn-timer-pause-card" class="btn btn-timer-icon-btn" title="Pausa / Riprendi Timer">⏸️</button>
                             <button id="btn-timer-add-card" class="btn btn-timer-add-compact" title="Aggiungi 1 Minuto">+ 1 MIN</button>
                         </div>

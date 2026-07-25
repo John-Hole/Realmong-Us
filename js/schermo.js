@@ -360,6 +360,23 @@ function startConnection() {
         }
     }
 
+    let isAutoTriggeringEmergencySchermo = false;
+    async function triggerEmergencyFromSchermo() {
+        if (!roomRef || currentGameState !== 'playing' || isAutoTriggeringEmergencySchermo) return;
+        isAutoTriggeringEmergencySchermo = true;
+        try {
+            await update(roomRef, {
+                'state/game_status': 'emergency',
+                'state/timer_paused': true,
+                'state/timer_remaining': 0
+            });
+        } catch (e) {
+            console.error("Errore scatto emergenza da schermo:", e);
+        } finally {
+            setTimeout(() => { isAutoTriggeringEmergencySchermo = false; }, 3000);
+        }
+    }
+
     function updateTimerUI(endTime, isPaused, remaining) {
         clearInterval(timerInterval);
         
@@ -391,6 +408,9 @@ function startConnection() {
                     globalTimer.style.color = "#ff4b4b";
                 }
                 clearInterval(timerInterval);
+                if (currentTimerEndTime > 0 && currentGameState === 'playing') {
+                    triggerEmergencyFromSchermo();
+                }
             } else {
                 if (globalTimer) globalTimer.textContent = formatTime(rem);
 
