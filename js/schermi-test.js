@@ -177,8 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'Giocatore 6': { status: 'alive' },
             'Giocatore 7': { status: 'alive' },
             'Giocatore 8': { status: 'alive' },
-            'Giocatore 9': { status: 'alive' },
-            'Giocatore 10': { status: 'alive' }
+            'Giocatore 9': { status: 'alive' }
         };
 
         const mockVotesData = {};
@@ -200,17 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const targetsArray = [];
         for (const targetName in votesByTarget) {
-            if (targetName === 'SKIP') {
-                if (votesByTarget['SKIP'].length > 0) {
-                    targetsArray.push({
-                        name: 'SALTA VOTO (SKIP)',
-                        key: 'SKIP',
-                        isSkip: true,
-                        voters: votesByTarget['SKIP'],
-                        count: votesByTarget['SKIP'].length
-                    });
-                }
-            } else {
+            if (targetName !== 'SKIP') {
                 const pData = mockPlayersData[targetName];
                 const isDeadBeforeVote = pData && 
                     (pData.status === 'killed_revealed' || pData.status === 'dead' || pData.status === 'ghost') && 
@@ -230,6 +219,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
         }
+
+        // Always add SKIP card in the grid with exact same card styling
+        targetsArray.push({
+            name: 'SALTA VOTO (SKIP)',
+            key: 'SKIP',
+            isSkip: true,
+            voters: votesByTarget['SKIP'] || [],
+            count: (votesByTarget['SKIP'] || []).length
+        });
 
         targetsArray.sort((a, b) => {
             if (b.count !== a.count) return b.count - a.count;
