@@ -229,10 +229,11 @@ if (btnProjector) {
 }
 
 // Update UI text
-btnStart.classList.add('hidden'); // Hide fixed roles button since we don't have hardcoded players
-btnStartRandom.textContent = "Avvia Partita";
+if (btnStart) btnStart.classList.add('hidden'); // Hide fixed roles button since we don't have hardcoded players
+if (btnStartRandom) btnStartRandom.textContent = "Avvia Partita";
 
-document.querySelector('h1').textContent = `PANNELLO MASTER • ${roomCode}`;
+const h1HeaderEl = document.querySelector('h1');
+if (h1HeaderEl) h1HeaderEl.textContent = `PANNELLO MASTER • ${roomCode}`;
 
 let currentState = {};
 let roomConfig = {};
@@ -665,12 +666,14 @@ function updateUI(state, players) {
     }
 
     // Reset buttons state
-    btnStartRandom.disabled = false;
-    btnCallMeeting.disabled = true;
-    btnCallMeeting.classList.remove('hidden');
-    btnStartDiscussion.classList.add('hidden');
-    btnStartVoting.classList.add('hidden');
-    votingSection.classList.add('hidden');
+    if (btnStartRandom) btnStartRandom.disabled = false;
+    if (btnCallMeeting) {
+        btnCallMeeting.disabled = true;
+        btnCallMeeting.classList.remove('hidden');
+    }
+    if (btnStartDiscussion) btnStartDiscussion.classList.add('hidden');
+    if (btnStartVoting) btnStartVoting.classList.add('hidden');
+    if (votingSection) votingSection.classList.add('hidden');
 
     if (btnStartVoting) {
         const vVal = roomConfig ? (roomConfig.votingDuration !== undefined ? roomConfig.votingDuration : roomConfig.meetingDuration) : 60;
@@ -692,8 +695,8 @@ function updateUI(state, players) {
         // waiting
     }
     else if (state.game_status === 'playing') {
-        btnStartRandom.disabled = true;
-        btnCallMeeting.disabled = false;
+        if (btnStartRandom) btnStartRandom.disabled = true;
+        if (btnCallMeeting) btnCallMeeting.disabled = false;
         
         if (btnTimerPause) {
             if (state.timer_paused) {
@@ -712,7 +715,7 @@ function updateUI(state, players) {
                 btnTimerPauseCard.style.borderColor = "rgba(16, 185, 129, 0.5)";
                 btnTimerPauseCard.style.boxShadow = "0 4px 12px rgba(16, 185, 129, 0.35)";
             } else {
-                btnTimerPauseCard.textContent = "⏸️";
+                btnTimerPauseCard.textContent = "▶️";
                 btnTimerPauseCard.title = "Pausa Timer";
                 btnTimerPauseCard.style.background = "linear-gradient(135deg, #ea580c, #c2410c)";
                 btnTimerPauseCard.style.borderColor = "rgba(234, 88, 12, 0.5)";
@@ -721,22 +724,22 @@ function updateUI(state, players) {
         }
     } 
     else if (state.game_status === 'emergency') {
-        btnStartRandom.disabled = true;
-        btnCallMeeting.classList.add('hidden');
-        btnStartDiscussion.classList.remove('hidden');
+        if (btnStartRandom) btnStartRandom.disabled = true;
+        if (btnCallMeeting) btnCallMeeting.classList.add('hidden');
+        if (btnStartDiscussion) btnStartDiscussion.classList.remove('hidden');
     } 
     else if (state.game_status === 'discussion') {
-        btnStartRandom.disabled = true;
-        btnCallMeeting.classList.add('hidden');
-        btnStartVoting.classList.remove('hidden');
+        if (btnStartRandom) btnStartRandom.disabled = true;
+        if (btnCallMeeting) btnCallMeeting.classList.add('hidden');
+        if (btnStartVoting) btnStartVoting.classList.remove('hidden');
     }
     else if (state.game_status === 'voting') {
-        btnStartRandom.disabled = true;
-        btnCallMeeting.classList.add('hidden');
-        votingSection.classList.remove('hidden');
+        if (btnStartRandom) btnStartRandom.disabled = true;
+        if (btnCallMeeting) btnCallMeeting.classList.add('hidden');
+        if (votingSection) votingSection.classList.remove('hidden');
     }
     else if (state.game_status === 'impostors_win' || state.game_status === 'crewmates_win') {
-        btnStartRandom.disabled = true;
+        if (btnStartRandom) btnStartRandom.disabled = true;
     }
 }
 
@@ -1121,7 +1124,8 @@ if (btnVotingSub30) {
 }
 
 // Actions
-btnStartRandom.addEventListener('click', async () => {
+if (btnStartRandom) {
+    btnStartRandom.addEventListener('click', async () => {
     const snapshot = await get(ref(db, `rooms/${roomCode}/players`));
     const playersMap = snapshot.val() || {};
     const playerNames = Object.keys(playersMap);
@@ -1203,7 +1207,8 @@ btnStartRandom.addEventListener('click', async () => {
     }
 
     await update(roomRef, updates);
-});
+    });
+}
 
 let isAutoTriggeringEmergency = false;
 
@@ -1224,69 +1229,77 @@ async function callEmergencyMeeting() {
     }
 }
 
-btnCallMeeting.addEventListener('click', callEmergencyMeeting);
+if (btnCallMeeting) btnCallMeeting.addEventListener('click', callEmergencyMeeting);
 
-btnStartDiscussion.addEventListener('click', async () => {
-    await update(roomRef, {
-        'state/game_status': 'discussion'
+if (btnStartDiscussion) {
+    btnStartDiscussion.addEventListener('click', async () => {
+        await update(roomRef, {
+            'state/game_status': 'discussion'
+        });
     });
-});
+}
 
-btnStartVoting.addEventListener('click', async () => {
-    resolvingMeeting = false;
-    finalizingMeeting = false;
-    let votSec = 60;
-    if (roomConfig) {
-        const rawVot = roomConfig.votingDuration !== undefined ? roomConfig.votingDuration : roomConfig.meetingDuration;
-        if (rawVot !== undefined && rawVot !== null && !isNaN(parseInt(rawVot))) {
-            votSec = parseInt(rawVot);
-        }
-    }
-    const votingEndTime = votSec > 0 ? Date.now() + (votSec * 1000) : 0;
-    await update(roomRef, {
-        'state/game_status': 'voting',
-        'state/voting_endtime': votingEndTime
-    });
-});
-
-btnEndMeeting.addEventListener('click', async () => {
-    if(confirm("Vuoi forzare il termine della votazione ora?")) {
+if (btnStartVoting) {
+    btnStartVoting.addEventListener('click', async () => {
         resolvingMeeting = false;
-        await resolveMeeting(currentPlayers, currentVotes || {}, currentState);
-    }
-});
-
-btnReset.addEventListener('click', async () => {
-    if(!confirm("ATTENZIONE: Questo formatterà l'intera partita e riporterà allo stato di attesa. Confermi?")) return;
-    
-    const snapshot = await get(ref(db, `rooms/${roomCode}/players`));
-    const playersMap = snapshot.val() || {};
-    
-    for(const name in playersMap) {
-        playersMap[name] = {
-            role: 'crewmate',
-            status: 'alive',
-            tasks: {},
-            meetings_called: 0
+        finalizingMeeting = false;
+        let votSec = 60;
+        if (roomConfig) {
+            const rawVot = roomConfig.votingDuration !== undefined ? roomConfig.votingDuration : roomConfig.meetingDuration;
+            if (rawVot !== undefined && rawVot !== null && !isNaN(parseInt(rawVot))) {
+                votSec = parseInt(rawVot);
+            }
         }
-    }
+        const votingEndTime = votSec > 0 ? Date.now() + (votSec * 1000) : 0;
+        await update(roomRef, {
+            'state/game_status': 'voting',
+            'state/voting_endtime': votingEndTime
+        });
+    });
+}
 
-    const updates = {};
-    updates['state/game_status'] = 'waiting';
-    updates['state/round'] = 1;
-    updates['state/timer'] = 0;
-    updates['state/timer_paused'] = false;
-    updates['state/timer_remaining'] = 0;
-    updates['state/last_ejected'] = null;
-    updates['votes'] = null;
-    updates['kickedPlayers'] = null;
+if (btnEndMeeting) {
+    btnEndMeeting.addEventListener('click', async () => {
+        if(confirm("Vuoi forzare il termine della votazione ora?")) {
+            resolvingMeeting = false;
+            await resolveMeeting(currentPlayers, currentVotes || {}, currentState);
+        }
+    });
+}
 
-    for (const name in playersMap) {
-        updates[`players/${name}`] = playersMap[name];
-    }
+if (btnReset) {
+    btnReset.addEventListener('click', async () => {
+        if(!confirm("ATTENZIONE: Questo formatterà l'intera partita e riporterà allo stato di attesa. Confermi?")) return;
+        
+        const snapshot = await get(ref(db, `rooms/${roomCode}/players`));
+        const playersMap = snapshot.val() || {};
+        
+        for(const name in playersMap) {
+            playersMap[name] = {
+                role: 'crewmate',
+                status: 'alive',
+                tasks: {},
+                meetings_called: 0
+            }
+        }
 
-    await update(roomRef, updates);
-});
+        const updates = {};
+        updates['state/game_status'] = 'waiting';
+        updates['state/round'] = 1;
+        updates['state/timer'] = 0;
+        updates['state/timer_paused'] = false;
+        updates['state/timer_remaining'] = 0;
+        updates['state/last_ejected'] = null;
+        updates['votes'] = null;
+        updates['kickedPlayers'] = null;
+
+        for (const name in playersMap) {
+            updates[`players/${name}`] = playersMap[name];
+        }
+
+        await update(roomRef, updates);
+    });
+}
 
 setInterval(async () => {
     if (currentState && currentState.game_status === 'voting' && !resolvingMeeting) {

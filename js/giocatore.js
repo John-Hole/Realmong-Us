@@ -68,9 +68,11 @@ let isAutoRejoining = false;
 let myPlayerRef = null;
 let myVoteRef = null;
 
-btnHideRole.addEventListener('click', () => {
-    roleScreen.classList.add('hidden');
-});
+if (btnHideRole) {
+    btnHideRole.addEventListener('click', () => {
+        roleScreen.classList.add('hidden');
+    });
+}
 
 if (btnHideDead) {
     btnHideDead.addEventListener('click', () => {
