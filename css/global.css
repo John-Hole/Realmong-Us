@@ -204,6 +204,29 @@ h1, h2, h3 {
     100% { transform: translateY(-8px); }
 }
 
+.ejected-typewriter-text {
+    font-family: var(--font-ui), sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    color: #ffffff;
+    text-align: center;
+    letter-spacing: 3px;
+    word-break: break-word;
+}
+
+.ejected-typewriter-text::after {
+    content: '▋';
+    display: inline-block;
+    margin-left: 6px;
+    color: #ffffff;
+    animation: blinkCursor 0.8s infinite;
+}
+
+@keyframes blinkCursor {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
 .emergency-overlay-bg {
     background: radial-gradient(circle, rgba(255, 0, 68, 0.4) 0%, rgba(10, 2, 5, 0.98) 75%);
     animation: emergencySirenBg 1s ease-in-out infinite alternate;

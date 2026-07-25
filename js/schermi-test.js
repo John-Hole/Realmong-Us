@@ -320,6 +320,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // E. Typewriter Effect for Ejected Overlay
+    function triggerTypewriterAnimation(fullText = "Mario Rossi è stato espulso...") {
+        const el = document.getElementById('ejected-typewriter-text');
+        if (!el) return;
+        if (el._typewriterTimer) clearInterval(el._typewriterTimer);
+        el.textContent = '';
+        let i = 0;
+        el._typewriterTimer = setInterval(() => {
+            if (i < fullText.length) {
+                el.textContent += fullText.charAt(i);
+                i++;
+            } else {
+                clearInterval(el._typewriterTimer);
+            }
+        }, 70);
+    }
+
     // 4. Animation Replay Logic
     function replayCardAnimation(cardId) {
         const card = document.getElementById(cardId);
@@ -335,6 +352,8 @@ document.addEventListener('DOMContentLoaded', () => {
             renderVotingResultsMock();
         } else if (cardId === 'screen-discussion') {
             renderDiscussionMock();
+        } else if (cardId === 'screen-ejected') {
+            triggerTypewriterAnimation("Mario Rossi è stato espulso...");
         } else if (cardId === 'screen-role') {
             const text = card.querySelector('.role-animation-text');
             if (text) {
@@ -386,4 +405,5 @@ document.addEventListener('DOMContentLoaded', () => {
     renderDeadRevealMock();
     renderDiscussionMock();
     renderVotingResultsMock();
+    triggerTypewriterAnimation("Mario Rossi è stato espulso...");
 });
