@@ -24,6 +24,9 @@ const btnStartMeeting = null; // Removed
 const btnStartDiscussion = document.getElementById('btn-start-discussion');
 const btnStartVoting = document.getElementById('btn-start-voting');
 const btnEndMeeting = document.getElementById('btn-end-meeting');
+const btnEndDiscussion = document.getElementById('btn-end-discussion');
+const discussionActions = document.getElementById('discussion-actions');
+const votingActions = document.getElementById('voting-actions');
 const btnReset = document.getElementById('btn-reset');
 const votingSection = document.getElementById('voting-section');
 
@@ -680,14 +683,14 @@ function updateUI(state, players) {
     }
 
     // Reset buttons state
-    if (btnStartRandom) btnStartRandom.disabled = false;
-    if (btnCallMeeting) {
-        btnCallMeeting.disabled = true;
-        btnCallMeeting.classList.remove('hidden');
-    }
+    if (btnStartRandom) btnStartRandom.classList.add('hidden');
+    if (btnCallMeeting) btnCallMeeting.classList.add('hidden');
     if (btnStartDiscussion) btnStartDiscussion.classList.add('hidden');
     if (btnStartVoting) btnStartVoting.classList.add('hidden');
-    if (votingSection) votingSection.classList.add('hidden');
+    if (btnEndDiscussion) btnEndDiscussion.classList.add('hidden');
+    if (btnEndMeeting) btnEndMeeting.classList.add('hidden');
+    if (discussionActions) discussionActions.classList.add('hidden');
+    if (votingActions) votingActions.classList.add('hidden');
 
     if (btnStartVoting) {
         const vVal = roomConfig ? (roomConfig.votingDuration !== undefined ? roomConfig.votingDuration : roomConfig.meetingDuration) : 60;
@@ -706,11 +709,16 @@ function updateUI(state, players) {
     }
 
     if (state.game_status === 'waiting') {
-        // waiting
+        if (btnStartRandom) {
+            btnStartRandom.classList.remove('hidden');
+            btnStartRandom.disabled = false;
+        }
     }
     else if (state.game_status === 'playing') {
-        if (btnStartRandom) btnStartRandom.disabled = true;
-        if (btnCallMeeting) btnCallMeeting.disabled = false;
+        if (btnCallMeeting) {
+            btnCallMeeting.classList.remove('hidden');
+            btnCallMeeting.disabled = false;
+        }
         
         if (btnTimerPause) {
             if (state.timer_paused) {
@@ -738,22 +746,25 @@ function updateUI(state, players) {
         }
     } 
     else if (state.game_status === 'emergency') {
-        if (btnStartRandom) btnStartRandom.disabled = true;
-        if (btnCallMeeting) btnCallMeeting.classList.add('hidden');
-        if (btnStartDiscussion) btnStartDiscussion.classList.remove('hidden');
+        if (btnStartDiscussion) {
+            btnStartDiscussion.classList.remove('hidden');
+            btnStartDiscussion.disabled = false;
+        }
     } 
     else if (state.game_status === 'discussion') {
-        if (btnStartRandom) btnStartRandom.disabled = true;
-        if (btnCallMeeting) btnCallMeeting.classList.add('hidden');
+        if (discussionActions) discussionActions.classList.remove('hidden');
         if (btnStartVoting) btnStartVoting.classList.remove('hidden');
+        if (btnEndDiscussion) btnEndDiscussion.classList.remove('hidden');
     }
     else if (state.game_status === 'voting') {
-        if (btnStartRandom) btnStartRandom.disabled = true;
-        if (btnCallMeeting) btnCallMeeting.classList.add('hidden');
-        if (votingSection) votingSection.classList.remove('hidden');
+        if (votingActions) votingActions.classList.remove('hidden');
+        if (btnEndMeeting) btnEndMeeting.classList.remove('hidden');
     }
     else if (state.game_status === 'impostors_win' || state.game_status === 'crewmates_win') {
-        if (btnStartRandom) btnStartRandom.disabled = true;
+        if (btnStartRandom) {
+            btnStartRandom.classList.remove('hidden');
+            btnStartRandom.disabled = false;
+        }
     }
 }
 
@@ -1265,6 +1276,25 @@ if (btnStartDiscussion) {
 
 if (btnStartVoting) {
     btnStartVoting.addEventListener('click', async () => {
+        resolvingMeeting = false;
+        finalizingMeeting = false;
+        let votSec = 60;
+        if (roomConfig) {
+            const rawVot = roomConfig.votingDuration !== undefined ? roomConfig.votingDuration : roomConfig.meetingDuration;
+            if (rawVot !== undefined && rawVot !== null && !isNaN(parseInt(rawVot))) {
+                votSec = parseInt(rawVot);
+            }
+        }
+        const votingEndTime = votSec > 0 ? Date.now() + (votSec * 1000) : 0;
+        await update(roomRef, {
+            'state/game_status': 'voting',
+            'state/voting_endtime': votingEndTime
+        });
+    });
+}
+
+if (btnEndDiscussion) {
+    btnEndDiscussion.addEventListener('click', async () => {
         resolvingMeeting = false;
         finalizingMeeting = false;
         let votSec = 60;

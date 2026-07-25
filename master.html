@@ -65,20 +65,35 @@
                         </div>
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+                        <!-- State: WAITING (Prima dell'avvio) -->
                         <button id="btn-start-random" class="btn btn-green btn-pulse" style="width: 100%; font-size: 1rem; padding: 0.85rem; border-radius: 50px; font-weight: 900;">
-                            🚀 AVVIA PARTITA CASUALE
+                            🚀 AVVIA PARTITA
                         </button>
                         
-                        <!-- Actions Grid (Mostrati a seconda dello stato) -->
-                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                            <button id="btn-call-meeting" class="btn btn-orange hidden" style="flex: 1; font-weight: 800; border-radius: 50px; padding: 0.6rem 0.5rem; font-size: 0.85rem;">
-                                🚨 CHIAMA EMERGENZA
-                            </button>
-                            <button id="btn-start-discussion" class="btn btn-orange hidden" style="flex: 1; font-weight: 800; border-radius: 50px; padding: 0.6rem 0.5rem; font-size: 0.85rem;">
-                                💬 INIZIO DISCUSSIONE
-                            </button>
-                            <button id="btn-start-voting" class="btn btn-purple hidden" style="flex: 1; font-weight: 800; border-radius: 50px; padding: 0.6rem 0.5rem; font-size: 0.85rem;">
+                        <!-- State: PLAYING (In gioco) -->
+                        <button id="btn-call-meeting" class="btn btn-orange hidden" style="width: 100%; font-size: 1rem; padding: 0.85rem; border-radius: 50px; font-weight: 900;">
+                            🚨 CHIAMA EMERGENZA
+                        </button>
+
+                        <!-- State: EMERGENCY (Emergenza chiamata) -->
+                        <button id="btn-start-discussion" class="btn btn-orange hidden" style="width: 100%; font-size: 1rem; padding: 0.85rem; border-radius: 50px; font-weight: 900;">
+                            💬 INIZIO DISCUSSIONE
+                        </button>
+
+                        <!-- State: DISCUSSION (Discussione in corso) -->
+                        <div id="discussion-actions" class="hidden" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <button id="btn-start-voting" class="btn btn-purple" style="flex: 1; font-weight: 800; border-radius: 50px; padding: 0.75rem 0.5rem; font-size: 0.85rem;">
                                 🗳️ INIZIO VOTAZIONI
+                            </button>
+                            <button id="btn-end-discussion" class="btn" style="flex: 1; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; font-weight: 800; border-radius: 50px; padding: 0.75rem 0.5rem; font-size: 0.85rem; border: none; cursor: pointer;">
+                                ⏹️ INTERROMPI DISCUSSIONE
+                            </button>
+                        </div>
+
+                        <!-- State: VOTING (Votazioni in corso) -->
+                        <div id="voting-actions" class="hidden" style="width: 100%;">
+                            <button id="btn-end-meeting" class="btn btn-danger" style="width: 100%; font-size: 0.85rem; padding: 0.75rem; border-radius: 50px; font-weight: 900;">
+                                ⏭️ SALTA / INTERROMPI VOTAZIONI
                             </button>
                         </div>
                     </div>
