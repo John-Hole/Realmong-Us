@@ -871,8 +871,9 @@ function startConnection() {
     renderPlayers(null, null, null);
 
     roomRef = ref(db, `rooms/${roomCode}`);
-    ensureAuth().then(() => {
-        onValue(roomRef, (snapshot) => {
+    ensureAuth().catch(err => console.warn("Auth warning:", err));
+
+    onValue(roomRef, (snapshot) => {
         if (snapshot.exists()) {
             const data = snapshot.val();
             
@@ -1098,7 +1099,6 @@ function startConnection() {
                 previousStatus = status;
             }
         }
-    });
     });
 }
 
