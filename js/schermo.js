@@ -68,16 +68,9 @@ function startConnection() {
     // Attempt fullscreen
     enableFullscreen();
 
-    const headerEl = document.getElementById('header-room-code');
-    if (headerEl) headerEl.textContent = roomCode;
-    
-    const lobbyCodeDisplay = document.getElementById('waiting-room-code');
-    if (lobbyCodeDisplay) lobbyCodeDisplay.textContent = roomCode;
-    
-    // Load default SVG Map of Oratorio
-    loadSVGMap();
-    
     // Elements
+    const headerEl = document.getElementById('header-room-code');
+    const lobbyCodeDisplay = document.getElementById('waiting-room-code');
     const overlayMeeting = document.getElementById('overlay-meeting');
     const overlayText = document.getElementById('overlay-text');
     const overlayEjected = document.getElementById('overlay-ejected');
@@ -87,10 +80,15 @@ function startConnection() {
     const taskProgressText = document.getElementById('task-progress-text');
     const playersListContainer = document.getElementById('players-list-container');
     const sirenAudio = document.getElementById('siren-audio');
-
     const mapImage = document.getElementById('map-image');
     const mapViewWrapper = document.getElementById('map-view-wrapper');
     const textMapContainer = document.getElementById('text-map-container');
+
+    if (headerEl) headerEl.textContent = roomCode;
+    if (lobbyCodeDisplay) lobbyCodeDisplay.textContent = roomCode;
+    
+    // Load default SVG Map of Oratorio
+    loadSVGMap();
 
     let previousStatus = null;
     let timerInterval = null;
