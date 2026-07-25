@@ -916,9 +916,9 @@ function startConnection() {
         if (snapshot.exists()) {
             const data = snapshot.val();
             
-            // 24-hour expiration check
-            if (data.createdAt && (Date.now() - data.createdAt > 24 * 60 * 60 * 1000)) {
-                alert("La stanza visualizzata è scaduta (durata massima: 24h).");
+            // 7-day expiration check
+            if (data.createdAt && (Date.now() - data.createdAt > 7 * 24 * 60 * 60 * 1000)) {
+                alert("La stanza visualizzata è scaduta (durata massima: 7 giorni).");
                 window.location.href = "/";
                 return;
             }

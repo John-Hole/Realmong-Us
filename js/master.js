@@ -561,13 +561,13 @@ ensureAuth().then((currentUser) => {
                 }
             }
 
-            // 24-hour expiration check
-            if (data.createdAt && (Date.now() - data.createdAt > 24 * 60 * 60 * 1000)) {
+            // 7-day expiration check
+            if (data.createdAt && (Date.now() - data.createdAt > 7 * 24 * 60 * 60 * 1000)) {
                 try {
                     await remove(ref(db, `rooms/${roomCode}`));
                     await remove(ref(db, `images/${roomCode}`));
                 } catch (e) {}
-                alert("Questa stanza è scaduta (superato 1 giorno dalla creazione) ed è stata eliminata.");
+                alert("Questa stanza è scaduta (superati 7 giorni dalla creazione) ed è stata eliminata.");
                 window.location.href = "/";
                 return;
             }

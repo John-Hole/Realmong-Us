@@ -32,19 +32,40 @@ function cacheRealUser(user) {
     const now = Date.now();
     const displayName = user.displayName || user.email || 'Utente';
     const displayEmail = user.email || user.displayName || 'Utente';
+    
+    // Maintain original login expiration window if already set
+    let loginTime = now;
+    let expiresAt = now + SEVEN_DAYS_MS;
+    const existing = localStorage.getItem('realmong_user_cache');
+    if (existing) {
+      const parsed = JSON.parse(existing);
+      if (parsed && parsed.uid === user.uid && parsed.expiresAt && Date.now() < parsed.expiresAt) {
+        loginTime = parsed.loginTime || now;
+        expiresAt = parsed.expiresAt;
+      }
+    }
+
     localStorage.setItem('realmong_user_cache', JSON.stringify({
       uid: user.uid,
       displayName,
       email: displayEmail,
       isAnonymous: false,
-      loginTime: now,
-      expiresAt: now + SEVEN_DAYS_MS
+      loginTime,
+      expiresAt
     }));
   } catch (e) {}
 }
 
 function clearUserCache() {
   try {
+    // Only remove cache if expired or explicitly called
+    const existing = localStorage.getItem('realmong_user_cache');
+    if (existing) {
+      const parsed = JSON.parse(existing);
+      if (parsed && parsed.expiresAt && Date.now() < parsed.expiresAt) {
+        return; // Valid within 7 days, keep cache
+      }
+    }
     localStorage.removeItem('realmong_user_cache');
   } catch (e) {}
 }
@@ -55,8 +76,6 @@ export function ensureAuth() {
     if (auth.currentUser) {
       if (!auth.currentUser.isAnonymous) {
         cacheRealUser(auth.currentUser);
-      } else {
-        clearUserCache();
       }
       resolve(auth.currentUser);
       return;
@@ -67,18 +86,14 @@ export function ensureAuth() {
       if (user) {
         if (!user.isAnonymous) {
           cacheRealUser(user);
-        } else {
-          clearUserCache();
         }
         resolve(user);
       } else {
         try {
           const cred = await signInAnonymously(auth);
-          clearUserCache();
           resolve(cred.user);
         } catch (e) {
           console.error("Auto sign-in failed:", e);
-          clearUserCache();
           resolve(null);
         }
       }

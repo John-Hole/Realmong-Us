@@ -122,9 +122,9 @@ if (roomCode) {
             return;
         }
 
-        // 24-hour expiration check
-        if (room.createdAt && (Date.now() - room.createdAt > 24 * 60 * 60 * 1000)) {
-            alert("La stanza è scaduta (durata massima: 24h).");
+        // 7-day expiration check
+        if (room.createdAt && (Date.now() - room.createdAt > 7 * 24 * 60 * 60 * 1000)) {
+            alert("La stanza è scaduta (durata massima: 7 giorni).");
             window.location.href = "/";
             return;
         }

@@ -28,6 +28,7 @@
             } else {
               updateUI();
             }
+          }
         } catch(e) {}
       })();
     </script>
@@ -37,8 +38,8 @@
 <body class="schermo-body">
     
     <!-- Audio Elements -->
-    <audio id="siren-audio" src="audio/siren.mp3" loop preload="auto"></audio>
-    <audio id="meeting-audio" src="audio/meeting.mp3" preload="auto"></audio>
+    <audio id="siren-audio" src="audio/siren.mp3" loop preload="none"></audio>
+    <audio id="meeting-audio" src="audio/meeting.mp3" preload="none"></audio>
 
     <div id="join-overlay" class="overlay-screen hidden" style="padding: 1rem;">
         <div class="section-container" style="background: var(--card-bg); border-radius: 16px; padding: 1.25rem; border: 2px solid var(--accent-cyan); max-width: 400px; width: 100%; text-align: center;">
@@ -210,7 +211,7 @@
     </div>
 
     <!-- Script as module to use import -->
-    <script type="module" src="js/schermo.js?v=2000"></script>
+    <script type="module" src="js/schermo.js?v=3000"></script>
     <script src="js/nav.js"></script>
 </body>
 </html>

@@ -256,24 +256,44 @@ onAuthStateChanged(auth, (user) => {
     const navUserInfoEl = document.getElementById('nav-user-info');
     const navUserNameEl = document.getElementById('nav-user-name');
 
-    if (user && !user.isAnonymous) {
-        currentUser = user;
+    // Check cached 7-day session fallback
+    let validCachedUser = null;
+    try {
+        const rawCache = localStorage.getItem('realmong_user_cache');
+        if (rawCache) {
+            const parsed = JSON.parse(rawCache);
+            if (parsed && parsed.expiresAt && Date.now() < parsed.expiresAt && parsed.uid && !parsed.isAnonymous) {
+                validCachedUser = parsed;
+            }
+        }
+    } catch (e) {}
+
+    const effectiveUser = (user && !user.isAnonymous) ? user : validCachedUser;
+
+    if (effectiveUser) {
+        currentUser = effectiveUser;
         if (authModal && !authModal.classList.contains('hidden')) {
             authModal.classList.add('hidden');
         }
-        const displayName = user.displayName || user.email || 'Utente';
-        const displayEmail = user.email || user.displayName || 'Utente';
+        const displayName = effectiveUser.displayName || effectiveUser.email || 'Utente';
+        const displayEmail = effectiveUser.email || effectiveUser.displayName || 'Utente';
         
         try {
             const now = Date.now();
             const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+            let loginTime = now;
+            let expiresAt = now + SEVEN_DAYS_MS;
+            if (validCachedUser) {
+                loginTime = validCachedUser.loginTime || now;
+                expiresAt = validCachedUser.expiresAt || (loginTime + SEVEN_DAYS_MS);
+            }
             localStorage.setItem('realmong_user_cache', JSON.stringify({
-                uid: user.uid,
+                uid: effectiveUser.uid,
                 displayName,
                 email: displayEmail,
                 isAnonymous: false,
-                loginTime: now,
-                expiresAt: now + SEVEN_DAYS_MS
+                loginTime,
+                expiresAt
             }));
         } catch (e) {}
 
@@ -285,13 +305,13 @@ onAuthStateChanged(auth, (user) => {
         if (navUserInfoEl) navUserInfoEl.style.display = 'flex';
         if (navUserNameEl) navUserNameEl.textContent = `👤 ${displayName}`;
 
-        loadUserTemplates(user.uid);
+        loadUserTemplates(effectiveUser.uid);
         
         if (!authSection.classList.contains('hidden') || urlParams.get('go') === 'account') {
             showSection('templates');
         }
     } else {
-        currentUser = user;
+        currentUser = null;
         try {
             localStorage.removeItem('realmong_user_cache');
         } catch (e) {}
@@ -1218,8 +1238,8 @@ btnJoinRoom.addEventListener('click', async () => {
 
         const roomData = snapshot.val();
 
-        // 24-hour expiration check
-        const ROOM_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+        // 7-day expiration check
+        const ROOM_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
         if (roomData.createdAt && (Date.now() - roomData.createdAt > ROOM_MAX_AGE_MS)) {
             try {
                 await remove(ref(db, `rooms/${code}`));
@@ -1227,7 +1247,7 @@ btnJoinRoom.addEventListener('click', async () => {
             } catch (e) {
                 console.warn("Could not delete expired room:", e);
             }
-            return alert("Questa stanza è scaduta (superati 1 giorno di durata) ed è stata eliminata.");
+            return alert("Questa stanza è scaduta (superati 7 giorni di durata) ed è stata eliminata.");
         }
 
         if (roomData.kickedPlayers) {

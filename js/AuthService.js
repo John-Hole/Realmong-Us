@@ -42,18 +42,26 @@ class AuthService {
               const displayEmail = user.email || user.displayName || 'Utente';
               const now = Date.now();
               const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+              let loginTime = now;
+              let expiresAt = now + SEVEN_DAYS_MS;
+
+              const existing = localStorage.getItem('realmong_user_cache');
+              if (existing) {
+                const parsed = JSON.parse(existing);
+                if (parsed && parsed.uid === user.uid && parsed.expiresAt && Date.now() < parsed.expiresAt) {
+                  loginTime = parsed.loginTime || now;
+                  expiresAt = parsed.expiresAt;
+                }
+              }
+
               localStorage.setItem('realmong_user_cache', JSON.stringify({
                 uid: user.uid,
                 displayName,
                 email: displayEmail,
                 isAnonymous: false,
-                loginTime: now,
-                expiresAt: now + SEVEN_DAYS_MS
+                loginTime,
+                expiresAt
               }));
-            } catch (e) {}
-          } else {
-            try {
-              localStorage.removeItem('realmong_user_cache');
             } catch (e) {}
           }
           try {
@@ -62,11 +70,28 @@ class AuthService {
             console.error('Failed to get ID token:', e);
           }
         } else {
-          this.currentUser = null;
-          this.idToken = null;
-          try {
-            localStorage.removeItem('realmong_user_cache');
-          } catch (e) {}
+          // Check if valid cache exists before clearing
+          const existing = localStorage.getItem('realmong_user_cache');
+          if (existing) {
+            try {
+              const parsed = JSON.parse(existing);
+              if (parsed && parsed.expiresAt && Date.now() < parsed.expiresAt) {
+                // Session valid for 7 days, keep user
+                this.currentUser = parsed;
+              } else {
+                localStorage.removeItem('realmong_user_cache');
+                this.currentUser = null;
+                this.idToken = null;
+              }
+            } catch (e) {
+              localStorage.removeItem('realmong_user_cache');
+              this.currentUser = null;
+              this.idToken = null;
+            }
+          } else {
+            this.currentUser = null;
+            this.idToken = null;
+          }
         }
         
         this.notifyAuthStateChanged();
