@@ -1,10 +1,11 @@
 import { db, ensureAuth } from './firebase-config.js';
 import { ref, update, onValue, onDisconnect, get, set, remove } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
-import { escapeHtml } from './game-logic.js';
+import { escapeHtml, sanitizePlayerKey } from './game-logic.js';
 
 const urlParams = new URLSearchParams(window.location.search);
 const roomCode = urlParams.get('room');
 let myPlayerName = urlParams.get('player');
+let myPlayerKey = sanitizePlayerKey(myPlayerName);
 
 if (!roomCode || !myPlayerName) {
     alert("Manca il codice stanza o il nome giocatore.");
@@ -67,6 +68,7 @@ let isAutoRejoining = false;
 
 let myPlayerRef = null;
 let myVoteRef = null;
+let roomUnsubscribe = null;
 
 if (btnHideRole) {
     btnHideRole.addEventListener('click', () => {
@@ -89,64 +91,93 @@ ensureAuth().then(async () => {
     // Auto-register/rejoin player node in room if opened via direct URL or script
     await rejoinRoom();
 
-    myPlayerRef = ref(db, `rooms/${roomCode}/players/${myPlayerName}`);
-    myVoteRef = ref(db, `rooms/${roomCode}/votes/${myPlayerName}`);
+    myPlayerRef = ref(db, `rooms/${roomCode}/players/${myPlayerKey}`);
+    myVoteRef = ref(db, `rooms/${roomCode}/votes/${myPlayerKey}`);
     try { onDisconnect(myPlayerRef).cancel(); } catch(e){}
     try { onDisconnect(myVoteRef).cancel(); } catch(e){}
 
     const roomRef = ref(db, `rooms/${roomCode}`);
-    onValue(roomRef, async (snapshot) => {
-        if (snapshot.exists()) {
-            const data = snapshot.val();
+    if (roomUnsubscribe) {
+        try { roomUnsubscribe(); } catch(e){}
+    }
+    roomUnsubscribe = onValue(roomRef, (snapshot) => {
+        if (!snapshot.exists()) {
+            myData = null;
+            if (crewmateUI) crewmateUI.classList.add('hidden');
+            if (scientistUI) scientistUI.classList.add('hidden');
+            if (killSection) killSection.classList.add('hidden');
+            const reportSec = document.getElementById('report-section');
+            if (reportSec) reportSec.classList.add('hidden');
+            if (waitingScreen) waitingScreen.classList.add('hidden');
+            if (votingUI) votingUI.classList.add('hidden');
+            if (roleScreen) roleScreen.classList.add('hidden');
+            if (overlayMeeting) overlayMeeting.classList.add('hidden');
+            if (overlayDead) overlayDead.classList.add('hidden');
 
-            // 7-day expiration check
-            if (data.createdAt && (Date.now() - data.createdAt > 7 * 24 * 60 * 60 * 1000)) {
-                try {
-                    await remove(ref(db, `rooms/${roomCode}`));
-                    await remove(ref(db, `images/${roomCode}`));
-                } catch (e) {}
-                alert("La stanza è scaduta (superati 7 giorni dalla creazione) ed è stata eliminata.");
-                window.location.href = "/";
-                return;
-            }
-
-            currentState = data.state;
-            roomConfig = data.config;
-            currentVotes = data.votes || {};
-            
-            if (previousStatus === 'waiting' && currentState.game_status === 'playing') {
-                hasSeenRoleThisRound = false; 
-                hasSeenDeadOverlay = false;
-            }
-
-            // Keep player nodes persistent during both waiting and active game
-            try { if (myPlayerRef) onDisconnect(myPlayerRef).cancel(); } catch(e){}
-            try { if (myVoteRef) onDisconnect(myVoteRef).cancel(); } catch(e){}
-
-            if (data.players && data.players[myPlayerName]) {
-                myData = data.players[myPlayerName];
-
-                // Session Token Validation
-                const localToken = sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`) ||
-                                   localStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`);
-                if (myData.token) {
-                    if (!localToken) {
-                        sessionStorage.setItem(`realmong_token_${roomCode}_${myPlayerName}`, myData.token);
-                    } else if (myData.token !== localToken) {
-                        alert("Accesso non autorizzato: questa sessione di gioco appartiene a un altro utente o a un'altra scheda.");
-                        window.location.href = "/";
-                        return;
-                    }
-                } else if (localToken) {
-                    // Sync token to RTDB if missing (e.g. legacy rooms)
-                    update(ref(db, `rooms/${roomCode}/players/${myPlayerName}`), { token: localToken }).catch(() => {});
+            if (notInRoomScreen) {
+                notInRoomScreen.classList.remove('hidden');
+                const msgEl = document.getElementById('not-in-room-msg');
+                if (msgEl) msgEl.textContent = `La stanza "${roomCode}" non esiste o è stata eliminata.`;
+                if (btnRejoinRoom) {
+                    btnRejoinRoom.disabled = true;
+                    btnRejoinRoom.textContent = "STANZA NON ESISTENTE";
+                    btnRejoinRoom.style.background = "#555";
+                    btnRejoinRoom.style.color = "#aaa";
                 }
+            }
+            return;
+        }
 
-                if (notInRoomScreen) notInRoomScreen.classList.add('hidden');
-                if (playerNameDisplay) playerNameDisplay.textContent = myPlayerName;
-                updateUI(currentState, data.players);
-            } else {
-                myData = null;
+        const data = snapshot.val();
+
+        // 7-day expiration check (Soft alert without multi-client deletion conflict)
+        if (data.createdAt && (Date.now() - data.createdAt > 7 * 24 * 60 * 60 * 1000)) {
+            alert("La stanza è scaduta (superati 7 giorni dalla creazione).");
+            window.location.href = "/";
+            return;
+        }
+
+        currentState = data.state;
+        roomConfig = data.config;
+        currentVotes = data.votes || {};
+        
+        if (previousStatus === 'waiting' && currentState.game_status === 'playing') {
+            hasSeenRoleThisRound = false; 
+            hasSeenDeadOverlay = false;
+        }
+
+        // Keep player nodes persistent during both waiting and active game
+        try { if (myPlayerRef) onDisconnect(myPlayerRef).cancel(); } catch(e){}
+        try { if (myVoteRef) onDisconnect(myVoteRef).cancel(); } catch(e){}
+
+        const playerObj = (data.players && (data.players[myPlayerKey] || data.players[myPlayerName])) ? (data.players[myPlayerKey] || data.players[myPlayerName]) : null;
+
+        if (playerObj) {
+            myData = playerObj;
+
+            // Session Token Validation
+            const localToken = sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerKey}`) ||
+                               localStorage.getItem(`realmong_token_${roomCode}_${myPlayerKey}`) ||
+                               sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`) ||
+                               localStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`);
+            if (myData.token) {
+                if (!localToken) {
+                    sessionStorage.setItem(`realmong_token_${roomCode}_${myPlayerKey}`, myData.token);
+                } else if (myData.token !== localToken) {
+                    alert("Accesso non autorizzato: questa sessione di gioco appartiene a un altro utente o a un'altra scheda.");
+                    window.location.href = "/";
+                    return;
+                }
+            } else if (localToken) {
+                // Sync token to RTDB if missing (e.g. legacy rooms)
+                update(ref(db, `rooms/${roomCode}/players/${myPlayerKey}`), { token: localToken }).catch(() => {});
+            }
+
+            if (notInRoomScreen) notInRoomScreen.classList.add('hidden');
+            if (playerNameDisplay) playerNameDisplay.textContent = myData.name || myPlayerName;
+            updateUI(currentState, data.players);
+        } else {
+            myData = null;
 
                 // Check if player was kicked
                 const isKicked = data.kickedPlayers && Object.keys(data.kickedPlayers).some(
@@ -1049,23 +1080,28 @@ async function rejoinRoom() {
             localToken = (typeof crypto !== 'undefined' && crypto.randomUUID)
                 ? crypto.randomUUID()
                 : (Date.now() + '_' + Math.random().toString(36).substring(2));
-            sessionStorage.setItem(`realmong_token_${roomCode}_${myPlayerName}`, localToken);
-            localStorage.setItem(`realmong_token_${roomCode}_${myPlayerName}`, localToken);
+            sessionStorage.setItem(`realmong_token_${roomCode}_${myPlayerKey}`, localToken);
+            localStorage.setItem(`realmong_token_${roomCode}_${myPlayerKey}`, localToken);
         }
 
         // Re-add player node if not present
-        const newPlayerRef = ref(db, `rooms/${roomCode}/players/${myPlayerName}`);
-        const newVoteRef = ref(db, `rooms/${roomCode}/votes/${myPlayerName}`);
+        const newPlayerRef = ref(db, `rooms/${roomCode}/players/${myPlayerKey}`);
+        const newVoteRef = ref(db, `rooms/${roomCode}/votes/${myPlayerKey}`);
 
-        if (!playersMap[myPlayerName]) {
+        if (!playersMap[myPlayerKey] && !playersMap[myPlayerName]) {
             await set(newPlayerRef, {
+                name: myPlayerName,
                 status: 'alive',
                 role: 'crewmate',
                 meetings_called: 0,
                 token: localToken
             });
-        } else if (!playersMap[myPlayerName].token) {
-            await update(newPlayerRef, { token: localToken });
+        } else {
+            const targetRef = playersMap[myPlayerKey] ? newPlayerRef : ref(db, `rooms/${roomCode}/players/${myPlayerName}`);
+            const existingObj = playersMap[myPlayerKey] || playersMap[myPlayerName];
+            if (!existingObj.token || !existingObj.name) {
+                await update(targetRef, { token: localToken, name: myPlayerName });
+            }
         }
 
         try { onDisconnect(newPlayerRef).cancel(); } catch(e){}

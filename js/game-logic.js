@@ -52,3 +52,28 @@ export function escapeHtml(value) {
         .replaceAll("'", '&#039;');
 }
 
+// Sanitize player names to be safe as Firebase RTDB keys (removing ., #, $, /, [, ])
+export function sanitizePlayerKey(name) {
+    if (!name) return 'player_unknown';
+    return String(name).replace(/[\.\#\$\/\[\]]/g, '_').trim();
+}
+
+// Helper to extract room code from URL parameters or session
+export function getRoomCodeFromUrl() {
+    try {
+        const searchParams = new URLSearchParams(window.location.search);
+        let code = searchParams.get('room');
+        if (code && code.trim()) return code.trim().toUpperCase();
+
+        const match = window.location.href.match(/[?&]room=([a-zA-Z0-9]+)/i);
+        if (match && match[1]) return match[1].trim().toUpperCase();
+
+        const cached = sessionStorage.getItem('current_room') || localStorage.getItem('current_room');
+        if (cached && cached.trim()) return cached.trim().toUpperCase();
+    } catch (e) {
+        console.error("Error parsing room code:", e);
+    }
+    return null;
+}
+
+

@@ -1,9 +1,11 @@
 import { db, ensureAuth } from './firebase-config.js';
 import { ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+import { escapeHtml, sanitizePlayerKey } from './game-logic.js';
 
 const urlParams = new URLSearchParams(window.location.search);
 const roomCode = urlParams.get('room');
 const myPlayerName = urlParams.get('player');
+const myPlayerKey = sanitizePlayerKey(myPlayerName);
 
 const vitalsContainer = document.getElementById('vitals-container');
 const btnEmergency = document.getElementById('btn-emergency');
@@ -19,15 +21,6 @@ let currentState = null;
 let currentPlayers = {};
 let currentRound = 1;
 let hasUsedMeetingThisRound = false;
-
-function escapeHtml(value) {
-    return String(value)
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#039;');
-}
 
 function updateMeetingButton() {
     const canCall = currentState && currentState.game_status === 'playing' && !hasUsedMeetingThisRound;
@@ -62,15 +55,20 @@ function updateUI(state, players) {
 
 function renderVitals(players) {
     vitalsContainer.innerHTML = '';
-    const playerNames = Object.keys(players).sort((a, b) => a.localeCompare(b, 'it'));
+    const playerKeys = Object.keys(players).sort((a, b) => {
+        const nameA = players[a]?.name || a;
+        const nameB = players[b]?.name || b;
+        return nameA.localeCompare(nameB, 'it');
+    });
 
-    if (playerNames.length === 0) {
+    if (playerKeys.length === 0) {
         vitalsContainer.innerHTML = '<p style="color:#94a3b8;">Nessun giocatore nella stanza.</p>';
         return;
     }
 
-    playerNames.forEach(name => {
-        const player = players[name] || {};
+    playerKeys.forEach(key => {
+        const player = players[key] || {};
+        const displayName = player.name || key;
         const card = document.createElement('div');
         card.className = 'vital-card';
 
@@ -88,7 +86,7 @@ function renderVitals(players) {
 
         card.classList.add(statusClass);
         card.innerHTML = `
-            <div style="font-size:1.2rem; font-family:var(--font-pixel); margin-bottom:0.5rem; word-break:break-word;">${escapeHtml(name)}</div>
+            <div style="font-size:1.2rem; font-family:var(--font-pixel); margin-bottom:0.5rem; word-break:break-word;">${escapeHtml(displayName)}</div>
             <div style="font-size:0.9rem;">${statusText}</div>
         `;
         vitalsContainer.appendChild(card);
@@ -98,29 +96,32 @@ function renderVitals(players) {
 if (roomCode) {
     ensureAuth().then(() => {
         onValue(roomRef, snapshot => {
-        if (!snapshot.exists()) {
-            alert("La stanza non esiste più.");
-            window.location.href = "/";
-            return;
-        }
+            if (!snapshot.exists()) {
+                alert("La stanza non esiste più.");
+                window.location.href = "/";
+                return;
+            }
 
-        const room = snapshot.val() || {};
+            const room = snapshot.val() || {};
 
-        // Role verification check: Only scientist can access this view
-        const players = room.players || {};
-        const localToken = sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`) ||
-                           localStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`);
-        if (!myPlayerName || !players[myPlayerName] || players[myPlayerName].role !== 'scientist') {
-            alert("Accesso negato: Solo il giocatore con ruolo 'Scienziato' può accedere a questo monitor.");
-            window.location.href = `giocatore?room=${encodeURIComponent(roomCode)}${myPlayerName ? `&player=${encodeURIComponent(myPlayerName)}` : ''}`;
-            return;
-        }
+            // Role verification check: Only scientist can access this view
+            const players = room.players || {};
+            const playerObj = players[myPlayerKey] || players[myPlayerName];
+            const localToken = sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerKey}`) ||
+                               localStorage.getItem(`realmong_token_${roomCode}_${myPlayerKey}`) ||
+                               sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`) ||
+                               localStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`);
+            if (!myPlayerName || !playerObj || playerObj.role !== 'scientist') {
+                alert("Accesso negato: Solo il giocatore con ruolo 'Scienziato' può accedere a questo monitor.");
+                window.location.href = `giocatore?room=${encodeURIComponent(roomCode)}${myPlayerName ? `&player=${encodeURIComponent(myPlayerName)}` : ''}`;
+                return;
+            }
 
-        if (players[myPlayerName].token && players[myPlayerName].token !== localToken) {
-            alert("Accesso non autorizzato: questa sessione appartiene a un altro utente o a un'altra scheda.");
-            window.location.href = "/";
-            return;
-        }
+            if (playerObj.token && playerObj.token !== localToken) {
+                alert("Accesso non autorizzato: questa sessione appartiene a un altro utente o a un'altra scheda.");
+                window.location.href = "/";
+                return;
+            } }
 
         // 7-day expiration check
         if (room.createdAt && (Date.now() - room.createdAt > 7 * 24 * 60 * 60 * 1000)) {

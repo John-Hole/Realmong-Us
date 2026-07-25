@@ -45,7 +45,8 @@
           ".write": "auth != null",
           "$playerName": {
             ".read": "auth != null",
-            ".write": "auth != null"
+            ".write": "auth != null",
+            ".validate": "!$playerName.contains('.') && !$playerName.contains('#') && !$playerName.contains('$') && !$playerName.contains('[') && !$playerName.contains(']')"
           }
         },
         "votes": {
@@ -53,7 +54,8 @@
           ".write": "auth != null",
           "$playerName": {
             ".read": "auth != null",
-            ".write": "auth != null"
+            ".write": "auth != null",
+            ".validate": "!$playerName.contains('.') && !$playerName.contains('#') && !$playerName.contains('$') && !$playerName.contains('[') && !$playerName.contains(']')"
           }
         },
         "config": {

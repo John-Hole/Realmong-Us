@@ -1,7 +1,7 @@
 import { db, auth, ensureAuth } from './firebase-config.js';
 import { ref, set, get, child, remove } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
-import { escapeHtml } from './game-logic.js';
+import { escapeHtml, sanitizePlayerKey } from './game-logic.js';
 
 // DOM Elements - Sections
 const homeSection = document.getElementById('section-home');
@@ -1263,9 +1263,10 @@ btnJoinRoom.addEventListener('click', async () => {
             return alert("Impossibile accedere: partita già in corso!");
         }
 
+        const playerKey = sanitizePlayerKey(name);
         if (roomData.players) {
             const isDuplicate = Object.keys(roomData.players).some(
-                p => p.toLowerCase() === name.toLowerCase()
+                p => p.toLowerCase() === playerKey.toLowerCase() || (roomData.players[p] && roomData.players[p].name && roomData.players[p].name.toLowerCase() === name.toLowerCase())
             );
             if (isDuplicate) {
                 return alert(`Il nome "${name}" è già in uso in questa stanza! Per favore scegli un altro nome.`);
@@ -1273,7 +1274,7 @@ btnJoinRoom.addEventListener('click', async () => {
         }
         
         const currentPlayersCount = roomData.players ? Object.keys(roomData.players).length : 0;
-        const maxLimit = roomData.config.maxPlayers;
+        const maxLimit = roomData.config ? roomData.config.maxPlayers : 'unlimited';
         
         if (maxLimit !== 'unlimited' && currentPlayersCount >= maxLimit) {
             return alert("Impossibile accedere: la stanza è al completo!");
@@ -1283,10 +1284,11 @@ btnJoinRoom.addEventListener('click', async () => {
             ? crypto.randomUUID()
             : (Date.now() + '_' + Math.random().toString(36).substring(2));
         
-        sessionStorage.setItem(`realmong_token_${code}_${name}`, playerToken);
-        localStorage.setItem(`realmong_token_${code}_${name}`, playerToken);
+        sessionStorage.setItem(`realmong_token_${code}_${playerKey}`, playerToken);
+        localStorage.setItem(`realmong_token_${code}_${playerKey}`, playerToken);
 
-        await set(ref(db, `rooms/${code}/players/${name}`), {
+        await set(ref(db, `rooms/${code}/players/${playerKey}`), {
+            name: name,
             status: 'alive',
             role: 'crewmate',
             meetings_called: 0,
