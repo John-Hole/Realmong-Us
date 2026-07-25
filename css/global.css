@@ -173,14 +173,14 @@ h1, h2, h3 {
 }
 
 .alert-text {
-    font-family: 'Orbitron', sans-serif;
-    font-weight: 900;
+    font-family: var(--font-ui), sans-serif;
+    font-weight: 800;
     font-size: clamp(2.5rem, 8vw, 5.5rem);
     color: #ffffff;
     text-shadow: 0 0 15px #ffffff, 0 0 30px #ff0044, 0 0 60px #ff0044, 0 0 100px #ff0000;
     text-align: center;
     text-transform: uppercase;
-    letter-spacing: 6px;
+    letter-spacing: 5px;
     animation: emergencyPulse 1.2s ease-in-out infinite alternate;
     word-break: break-word;
 }
