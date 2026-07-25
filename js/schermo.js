@@ -1,6 +1,6 @@
 import { db, ensureAuth } from './firebase-config.js';
 import { ref, onValue, get, update } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
-import { formatTime, TASKS_LIST, escapeHtml } from './game-logic.js';
+import { formatTime, TASKS_LIST, escapeHtml, normalizePlayers } from './game-logic.js';
 
 function getRoomCodeFromUrl() {
     try {
@@ -918,7 +918,7 @@ function startConnection() {
                     console.warn("Errore generazione QR code in onValue:", e);
                 }
             }
-            const players = data.players || {};
+            const players = normalizePlayers(data.players);
             const votes = data.votes || {};
             const maxPlayers = data.config ? data.config.maxPlayers : null;
 

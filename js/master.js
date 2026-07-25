@@ -1,7 +1,7 @@
 import { db, auth, ensureAuth } from './firebase-config.js';
 import { ref, get, set, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
-import { getRandomTasks, ROUND_TIMES, formatTime, escapeHtml, sanitizePlayerKey } from './game-logic.js';
+import { getRandomTasks, ROUND_TIMES, formatTime, escapeHtml, sanitizePlayerKey, normalizePlayers } from './game-logic.js';
 
 // Get room code
 const urlParams = new URLSearchParams(window.location.search);
@@ -579,7 +579,7 @@ ensureAuth().then((currentUser) => {
 
             currentState = data.state || {};
             roomConfig = data.config || {};
-            currentPlayers = data.players || {};
+            currentPlayers = normalizePlayers(data.players);
             currentVotes = data.votes || {};
             currentKicked = data.kickedPlayers || {};
             
@@ -1171,24 +1171,7 @@ if (btnStartRandom) {
             if (btnStartRandom) btnStartRandom.disabled = true;
 
             const snapshot = await get(ref(db, `rooms/${roomCode}/players`));
-            const rawPlayers = snapshot.val() || {};
-            const playersMap = {};
-
-            if (Array.isArray(rawPlayers)) {
-                rawPlayers.forEach((p, idx) => {
-                    if (p && (p.name || p.role)) {
-                        const key = sanitizePlayerKey(p.name || `player_${idx}`);
-                        playersMap[key] = p;
-                    }
-                });
-            } else {
-                for (const k in rawPlayers) {
-                    if (rawPlayers[k] && (rawPlayers[k].name || rawPlayers[k].role || typeof rawPlayers[k] === 'object')) {
-                        const cleanKey = sanitizePlayerKey(rawPlayers[k].name || k);
-                        playersMap[cleanKey] = rawPlayers[k];
-                    }
-                }
-            }
+            const playersMap = normalizePlayers(snapshot.val());
 
             const playerNames = Object.keys(playersMap);
             
@@ -1361,24 +1344,7 @@ if (btnReset) {
         try {
             await ensureAuth();
             const snapshot = await get(ref(db, `rooms/${roomCode}/players`));
-            const rawPlayers = snapshot.val() || {};
-            const playersMap = {};
-
-            if (Array.isArray(rawPlayers)) {
-                rawPlayers.forEach((p, idx) => {
-                    if (p && (p.name || p.role)) {
-                        const key = sanitizePlayerKey(p.name || `player_${idx}`);
-                        playersMap[key] = p;
-                    }
-                });
-            } else {
-                for (const k in rawPlayers) {
-                    if (rawPlayers[k] && (rawPlayers[k].name || rawPlayers[k].role || typeof rawPlayers[k] === 'object')) {
-                        const cleanKey = sanitizePlayerKey(rawPlayers[k].name || k);
-                        playersMap[cleanKey] = rawPlayers[k];
-                    }
-                }
-            }
+            const playersMap = normalizePlayers(snapshot.val());
             
             for (const key in playersMap) {
                 const existingObj = playersMap[key] || {};

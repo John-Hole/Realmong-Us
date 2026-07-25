@@ -55,12 +55,26 @@ export function escapeHtml(value) {
 
 // Sanitize player names to be safe as Firebase RTDB keys (removing ., #, $, /, [, ])
 export function sanitizePlayerKey(name) {
-    if (name === null || name === undefined || String(name).trim() === '') return 'player_unknown';
-    const sanitized = String(name).replace(/[\.\#\$\/\[\]]/g, '_').trim();
-    if (/^\d+$/.test(sanitized)) {
-        return `p_${sanitized}`;
+    if (!name) return 'player_unknown';
+    return String(name).replace(/[\.#\$\/\[\]]/g, '_').trim();
+}
+
+// Normalize players data from Firebase RTDB.
+// Firebase coerces objects with sequential numeric keys (e.g. "1","2","3") into Arrays.
+// This function always returns a clean Object keyed by player name.
+export function normalizePlayers(raw) {
+    if (!raw) return {};
+    if (Array.isArray(raw)) {
+        const obj = {};
+        raw.forEach((p, idx) => {
+            if (p && typeof p === 'object') {
+                const key = p.name || String(idx);
+                obj[key] = p;
+            }
+        });
+        return obj;
     }
-    return sanitized;
+    return raw;
 }
 
 // Helper to extract room code from URL parameters or session
@@ -80,5 +94,3 @@ export function getRoomCodeFromUrl() {
     }
     return null;
 }
-
-

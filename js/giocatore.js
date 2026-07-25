@@ -1,6 +1,6 @@
 import { db, ensureAuth } from './firebase-config.js';
 import { ref, update, onValue, onDisconnect, get, set, remove } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
-import { escapeHtml, sanitizePlayerKey } from './game-logic.js';
+import { escapeHtml, sanitizePlayerKey, normalizePlayers } from './game-logic.js';
 
 const urlParams = new URLSearchParams(window.location.search);
 let roomCode = (urlParams.get('room') || sessionStorage.getItem('current_room') || localStorage.getItem('current_room') || '').trim().toUpperCase();
@@ -181,16 +181,11 @@ roomUnsubscribe = onValue(roomRef, (snapshot) => {
     try { if (myPlayerRef) onDisconnect(myPlayerRef).cancel(); } catch(e){}
     try { if (myVoteRef) onDisconnect(myVoteRef).cancel(); } catch(e){}
 
-    let playerObj = null;
-    if (data.players) {
-        if (Array.isArray(data.players)) {
-            playerObj = data.players.find(p => p && p.name && p.name.toLowerCase() === myPlayerName.toLowerCase());
-        } else {
-            playerObj = data.players[myPlayerKey] ||
-                        data.players[myPlayerName] ||
-                        Object.values(data.players).find(p => p && p.name && p.name.toLowerCase() === myPlayerName.toLowerCase());
-        }
-    }
+    const normalizedPlayers = normalizePlayers(data.players);
+    let playerObj = normalizedPlayers[myPlayerKey] ||
+                    normalizedPlayers[myPlayerName] ||
+                    Object.values(normalizedPlayers).find(p => p && p.name && p.name.toLowerCase() === myPlayerName.toLowerCase()) ||
+                    null;
 
     if (playerObj) {
         myData = playerObj;
@@ -219,7 +214,7 @@ roomUnsubscribe = onValue(roomRef, (snapshot) => {
 
         if (notInRoomScreen) notInRoomScreen.classList.add('hidden');
         if (playerNameDisplay) playerNameDisplay.textContent = myData.name || myPlayerName;
-        updateUI(currentState, data.players);
+        updateUI(currentState, normalizedPlayers);
     } else {
         myData = null;
 
@@ -1136,7 +1131,7 @@ async function rejoinRoom() {
             return;
         }
 
-        const playersMap = roomData.players || {};
+        const playersMap = normalizePlayers(roomData.players);
         const existingObj = playersMap[myPlayerKey] || playersMap[myPlayerName];
 
         if (existingObj && existingObj.token) {
