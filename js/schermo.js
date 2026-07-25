@@ -125,6 +125,7 @@ function startConnection() {
     
     // Load default SVG Map of Oratorio
     loadSVGMap();
+    renderTasks(null, true);
 
     let previousStatus = null;
     let timerInterval = null;
@@ -207,6 +208,13 @@ function startConnection() {
                 `;
                 playersListContainer.appendChild(div);
             }
+        }
+
+        if (playerCount === 0) {
+            const emptyDiv = document.createElement('div');
+            emptyDiv.style.cssText = 'color: #94a3b8; text-align: center; padding: 2rem 1rem; font-family: var(--font-ui), sans-serif; font-size: 0.95rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;';
+            emptyDiv.textContent = 'In attesa di giocatori...';
+            playersListContainer.appendChild(emptyDiv);
         }
         
         const countDisplay = document.getElementById('waiting-players-count');
