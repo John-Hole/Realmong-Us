@@ -3,18 +3,24 @@ import { ref, onValue, get, update } from "https://www.gstatic.com/firebasejs/10
 import { formatTime, TASKS_LIST, escapeHtml } from './game-logic.js';
 
 function getRoomCodeFromUrl() {
-    const searchParams = new URLSearchParams(window.location.search);
-    let code = searchParams.get('room');
-    if (!code) {
-        const match = window.location.href.match(/[?&]room=([^&/#]+)/i);
-        if (match && match[1]) {
-            code = match[1];
-        }
+    try {
+        const searchParams = new URLSearchParams(window.location.search);
+        let code = searchParams.get('room');
+        if (code && code.trim()) return code.trim().toUpperCase();
+
+        const match = window.location.href.match(/[?&]room=([a-zA-Z0-9]+)/i);
+        if (match && match[1]) return match[1].trim().toUpperCase();
+
+        const cached = sessionStorage.getItem('current_room') || localStorage.getItem('current_room');
+        if (cached && cached.trim()) return cached.trim().toUpperCase();
+    } catch (e) {
+        console.error("Error parsing room code:", e);
     }
-    return code ? code.trim().toUpperCase() : null;
+    return null;
 }
 
 let roomCode = getRoomCodeFromUrl();
+console.log("Maxischermo roomCode rilevato:", roomCode);
 
 function enableFullscreen() {
     if (!document.fullscreenElement) {
@@ -50,6 +56,8 @@ if (!roomCode) {
             }
             console.log('Tentativo di connessione alla stanza:', code);
             roomCode = code;
+            sessionStorage.setItem('current_room', roomCode);
+            localStorage.setItem('current_room', roomCode);
             enableFullscreen();
 
             const url = new URL(window.location);
@@ -60,6 +68,8 @@ if (!roomCode) {
         });
     }
 } else {
+    sessionStorage.setItem('current_room', roomCode);
+    localStorage.setItem('current_room', roomCode);
     startConnection();
 }
 
