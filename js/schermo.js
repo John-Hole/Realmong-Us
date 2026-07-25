@@ -24,31 +24,40 @@ document.addEventListener('click', () => {
 }, { once: false });
 
 if (!roomCode) {
-    document.getElementById('join-overlay').classList.remove('hidden');
-    document.getElementById('btn-join-room').addEventListener('click', () => {
-        const code = document.getElementById('join-room-input').value.trim().toUpperCase();
-        if(!code) {
-            alert("Inserisci il codice della stanza!");
-            return;
-        }
-        console.log('Tentativo di connessione alla stanza:', code);
-        roomCode = code;
-        
-        enableFullscreen();
+    const joinOverlay = document.getElementById('join-overlay');
+    if (joinOverlay) {
+        joinOverlay.classList.remove('hidden');
+        joinOverlay.style.display = 'flex';
+    }
+    const btnJoin = document.getElementById('btn-join-room');
+    if (btnJoin) {
+        btnJoin.addEventListener('click', () => {
+            const code = document.getElementById('join-room-input').value.trim().toUpperCase();
+            if(!code) {
+                alert("Inserisci il codice della stanza!");
+                return;
+            }
+            console.log('Tentativo di connessione alla stanza:', code);
+            roomCode = code;
+            enableFullscreen();
 
-        // Update URL without reloading
-        const url = new URL(window.location);
-        url.searchParams.set('room', code);
-        window.history.replaceState({}, '', url);
-        
-        startConnection();
-    });
+            const url = new URL(window.location);
+            url.searchParams.set('room', code);
+            window.history.replaceState({}, '', url);
+            
+            startConnection();
+        });
+    }
 } else {
     startConnection();
 }
 
 function startConnection() {
-    document.getElementById('join-overlay').classList.add('hidden');
+    const joinOverlay = document.getElementById('join-overlay');
+    if (joinOverlay) {
+        joinOverlay.classList.add('hidden');
+        joinOverlay.style.display = 'none';
+    }
     
     // Attempt fullscreen
     enableFullscreen();

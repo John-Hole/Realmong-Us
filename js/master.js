@@ -242,7 +242,7 @@ if (cfgVoting) {
 }
 
 if (btnProjector) {
-    btnProjector.href = `schermo?room=${roomCode}`;
+    btnProjector.href = `schermo.html?room=${roomCode}`;
 }
 
 // Update UI text
