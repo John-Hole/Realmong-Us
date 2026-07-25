@@ -107,172 +107,171 @@ if (btnHideDead) {
 }
 
 // Ensure Auth is fully initialized before attempting RTDB reads or calls
-ensureAuth().then(async () => {
-    if (gameScreen) gameScreen.classList.remove('hidden');
-    if (waitingScreen) waitingScreen.classList.remove('hidden');
-    
-    const waitingPlayerName = document.getElementById('waiting-player-name');
-    const waitingRoomCode = document.getElementById('waiting-room-code');
-    if (waitingPlayerName) waitingPlayerName.textContent = myPlayerName;
-    if (waitingRoomCode) waitingRoomCode.textContent = `Stanza: ${roomCode}`;
-    if (playerNameDisplay) playerNameDisplay.textContent = myPlayerName;
+await ensureAuth();
 
-    // Auto-register/rejoin player node in room if opened via direct URL or script
-    await rejoinRoom();
+if (gameScreen) gameScreen.classList.remove('hidden');
+if (waitingScreen) waitingScreen.classList.remove('hidden');
 
-    myPlayerRef = ref(db, `rooms/${roomCode}/players/${myPlayerKey}`);
-    myVoteRef = ref(db, `rooms/${roomCode}/votes/${myPlayerKey}`);
-    try { onDisconnect(myPlayerRef).cancel(); } catch(e){}
-    try { onDisconnect(myVoteRef).cancel(); } catch(e){}
+const waitingPlayerName = document.getElementById('waiting-player-name');
+const waitingRoomCode = document.getElementById('waiting-room-code');
+if (waitingPlayerName) waitingPlayerName.textContent = myPlayerName;
+if (waitingRoomCode) waitingRoomCode.textContent = `Stanza: ${roomCode}`;
+if (playerNameDisplay) playerNameDisplay.textContent = myPlayerName;
 
-    const roomRef = ref(db, `rooms/${roomCode}`);
-    if (roomUnsubscribe) {
-        try { roomUnsubscribe(); } catch(e){}
+// Auto-register/rejoin player node in room if opened via direct URL or script
+await rejoinRoom();
+
+myPlayerRef = ref(db, `rooms/${roomCode}/players/${myPlayerKey}`);
+myVoteRef = ref(db, `rooms/${roomCode}/votes/${myPlayerKey}`);
+try { onDisconnect(myPlayerRef).cancel(); } catch(e){}
+try { onDisconnect(myVoteRef).cancel(); } catch(e){}
+
+const roomRef = ref(db, `rooms/${roomCode}`);
+if (roomUnsubscribe) {
+    try { roomUnsubscribe(); } catch(e){}
+}
+roomUnsubscribe = onValue(roomRef, (snapshot) => {
+    if (!snapshot.exists()) {
+        myData = null;
+        if (crewmateUI) crewmateUI.classList.add('hidden');
+        if (scientistUI) scientistUI.classList.add('hidden');
+        if (killSection) killSection.classList.add('hidden');
+        const reportSec = document.getElementById('report-section');
+        if (reportSec) reportSec.classList.add('hidden');
+        if (waitingScreen) waitingScreen.classList.add('hidden');
+        if (votingUI) votingUI.classList.add('hidden');
+        if (roleScreen) roleScreen.classList.add('hidden');
+        if (overlayMeeting) overlayMeeting.classList.add('hidden');
+        if (overlayDead) overlayDead.classList.add('hidden');
+
+        if (notInRoomScreen) {
+            notInRoomScreen.classList.remove('hidden');
+            const msgEl = document.getElementById('not-in-room-msg');
+            if (msgEl) msgEl.textContent = `La stanza "${roomCode}" non esiste o è stata eliminata.`;
+            if (btnRejoinRoom) {
+                btnRejoinRoom.disabled = true;
+                btnRejoinRoom.textContent = "STANZA NON ESISTENTE";
+                btnRejoinRoom.style.background = "#555";
+                btnRejoinRoom.style.color = "#aaa";
+            }
+        }
+        return;
     }
-    roomUnsubscribe = onValue(roomRef, (snapshot) => {
-        if (!snapshot.exists()) {
-            myData = null;
-            if (crewmateUI) crewmateUI.classList.add('hidden');
-            if (scientistUI) scientistUI.classList.add('hidden');
-            if (killSection) killSection.classList.add('hidden');
-            const reportSec = document.getElementById('report-section');
-            if (reportSec) reportSec.classList.add('hidden');
-            if (waitingScreen) waitingScreen.classList.add('hidden');
-            if (votingUI) votingUI.classList.add('hidden');
-            if (roleScreen) roleScreen.classList.add('hidden');
-            if (overlayMeeting) overlayMeeting.classList.add('hidden');
-            if (overlayDead) overlayDead.classList.add('hidden');
 
-            if (notInRoomScreen) {
-                notInRoomScreen.classList.remove('hidden');
-                const msgEl = document.getElementById('not-in-room-msg');
-                if (msgEl) msgEl.textContent = `La stanza "${roomCode}" non esiste o è stata eliminata.`;
-                if (btnRejoinRoom) {
+    const data = snapshot.val();
+
+    // 7-day expiration check (Soft alert without multi-client deletion conflict)
+    if (data.createdAt && (Date.now() - data.createdAt > 7 * 24 * 60 * 60 * 1000)) {
+        alert("La stanza è scaduta (superati 7 giorni dalla creazione).");
+        window.location.href = "/";
+        return;
+    }
+
+    currentState = data.state;
+    roomConfig = data.config;
+    currentVotes = data.votes || {};
+    
+    if (previousStatus === 'waiting' && currentState.game_status === 'playing') {
+        hasSeenRoleThisRound = false; 
+        hasSeenDeadOverlay = false;
+    }
+
+    // Keep player nodes persistent during both waiting and active game
+    try { if (myPlayerRef) onDisconnect(myPlayerRef).cancel(); } catch(e){}
+    try { if (myVoteRef) onDisconnect(myVoteRef).cancel(); } catch(e){}
+
+    const playerObj = (data.players && (data.players[myPlayerKey] || data.players[myPlayerName])) ? (data.players[myPlayerKey] || data.players[myPlayerName]) : null;
+
+    if (playerObj) {
+        myData = playerObj;
+
+        // Session Token Validation
+        const localToken = sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerKey}`) ||
+                           localStorage.getItem(`realmong_token_${roomCode}_${myPlayerKey}`) ||
+                           sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`) ||
+                           localStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`);
+        if (myData.token) {
+            if (!localToken) {
+                sessionStorage.setItem(`realmong_token_${roomCode}_${myPlayerKey}`, myData.token);
+            } else if (myData.token !== localToken) {
+                alert("Accesso non autorizzato: questa sessione di gioco appartiene a un altro utente o a un'altra scheda.");
+                window.location.href = "/";
+                return;
+            }
+        } else if (localToken) {
+            // Sync token to RTDB if missing (e.g. legacy rooms)
+            update(ref(db, `rooms/${roomCode}/players/${myPlayerKey}`), { token: localToken }).catch(() => {});
+        }
+
+        if (notInRoomScreen) notInRoomScreen.classList.add('hidden');
+        if (playerNameDisplay) playerNameDisplay.textContent = myData.name || myPlayerName;
+        updateUI(currentState, data.players);
+    } else {
+        myData = null;
+
+        // Check if player was kicked
+        const isKicked = data.kickedPlayers && Object.keys(data.kickedPlayers).some(
+            p => p.toLowerCase() === myPlayerName.toLowerCase()
+        );
+
+        if (isKicked) {
+            if (playerStatusIcon) playerStatusIcon.textContent = "🚫";
+            if (playerNameDisplay) playerNameDisplay.textContent = "ESPULSO";
+        } else {
+            if (playerStatusIcon) playerStatusIcon.textContent = "❌";
+            if (playerNameDisplay) playerNameDisplay.textContent = "FUORI";
+        }
+
+        // Hide all game UIs
+        crewmateUI.classList.add('hidden');
+        scientistUI.classList.add('hidden');
+        killSection.classList.add('hidden');
+        document.getElementById('report-section').classList.add('hidden');
+        waitingScreen.classList.add('hidden');
+        votingUI.classList.add('hidden');
+        roleScreen.classList.add('hidden');
+        overlayMeeting.classList.add('hidden');
+        overlayDead.classList.add('hidden');
+
+        // Show Not-In-Room UI & check game status
+        const localToken = sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`) ||
+                           localStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`);
+        const canRejoinMidGame = !!localToken;
+
+        if (notInRoomScreen) {
+            notInRoomScreen.classList.remove('hidden');
+            if (btnRejoinRoom) {
+                if (isKicked) {
                     btnRejoinRoom.disabled = true;
-                    btnRejoinRoom.textContent = "STANZA NON ESISTENTE";
+                    btnRejoinRoom.textContent = "SEI STATO ESPULSO";
                     btnRejoinRoom.style.background = "#555";
                     btnRejoinRoom.style.color = "#aaa";
-                }
-            }
-            return;
-        }
-
-        const data = snapshot.val();
-
-        // 7-day expiration check (Soft alert without multi-client deletion conflict)
-        if (data.createdAt && (Date.now() - data.createdAt > 7 * 24 * 60 * 60 * 1000)) {
-            alert("La stanza è scaduta (superati 7 giorni dalla creazione).");
-            window.location.href = "/";
-            return;
-        }
-
-        currentState = data.state;
-        roomConfig = data.config;
-        currentVotes = data.votes || {};
-        
-        if (previousStatus === 'waiting' && currentState.game_status === 'playing') {
-            hasSeenRoleThisRound = false; 
-            hasSeenDeadOverlay = false;
-        }
-
-        // Keep player nodes persistent during both waiting and active game
-        try { if (myPlayerRef) onDisconnect(myPlayerRef).cancel(); } catch(e){}
-        try { if (myVoteRef) onDisconnect(myVoteRef).cancel(); } catch(e){}
-
-        const playerObj = (data.players && (data.players[myPlayerKey] || data.players[myPlayerName])) ? (data.players[myPlayerKey] || data.players[myPlayerName]) : null;
-
-        if (playerObj) {
-            myData = playerObj;
-
-            // Session Token Validation
-            const localToken = sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerKey}`) ||
-                               localStorage.getItem(`realmong_token_${roomCode}_${myPlayerKey}`) ||
-                               sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`) ||
-                               localStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`);
-            if (myData.token) {
-                if (!localToken) {
-                    sessionStorage.setItem(`realmong_token_${roomCode}_${myPlayerKey}`, myData.token);
-                } else if (myData.token !== localToken) {
-                    alert("Accesso non autorizzato: questa sessione di gioco appartiene a un altro utente o a un'altra scheda.");
-                    window.location.href = "/";
-                    return;
-                }
-            } else if (localToken) {
-                // Sync token to RTDB if missing (e.g. legacy rooms)
-                update(ref(db, `rooms/${roomCode}/players/${myPlayerKey}`), { token: localToken }).catch(() => {});
-            }
-
-            if (notInRoomScreen) notInRoomScreen.classList.add('hidden');
-            if (playerNameDisplay) playerNameDisplay.textContent = myData.name || myPlayerName;
-            updateUI(currentState, data.players);
-        } else {
-            myData = null;
-
-                // Check if player was kicked
-                const isKicked = data.kickedPlayers && Object.keys(data.kickedPlayers).some(
-                    p => p.toLowerCase() === myPlayerName.toLowerCase()
-                );
-
-                if (isKicked) {
-                    if (playerStatusIcon) playerStatusIcon.textContent = "🚫";
-                    if (playerNameDisplay) playerNameDisplay.textContent = "ESPULSO";
+                } else if (currentState && currentState.game_status !== 'waiting' && !canRejoinMidGame) {
+                    btnRejoinRoom.disabled = true;
+                    btnRejoinRoom.textContent = "PARTITA GIÀ AVVIATA";
+                    btnRejoinRoom.style.background = "#555";
+                    btnRejoinRoom.style.color = "#aaa";
                 } else {
-                    if (playerStatusIcon) playerStatusIcon.textContent = "❌";
-                    if (playerNameDisplay) playerNameDisplay.textContent = "FUORI";
-                }
-
-                // Hide all game UIs
-                crewmateUI.classList.add('hidden');
-                scientistUI.classList.add('hidden');
-                killSection.classList.add('hidden');
-                document.getElementById('report-section').classList.add('hidden');
-                waitingScreen.classList.add('hidden');
-                votingUI.classList.add('hidden');
-                roleScreen.classList.add('hidden');
-                overlayMeeting.classList.add('hidden');
-                overlayDead.classList.add('hidden');
-
-                // Show Not-In-Room UI & check game status
-                const localToken = sessionStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`) ||
-                                   localStorage.getItem(`realmong_token_${roomCode}_${myPlayerName}`);
-                const canRejoinMidGame = !!localToken;
-
-                if (notInRoomScreen) {
-                    notInRoomScreen.classList.remove('hidden');
-                    if (btnRejoinRoom) {
-                        if (isKicked) {
-                            btnRejoinRoom.disabled = true;
-                            btnRejoinRoom.textContent = "SEI STATO ESPULSO";
-                            btnRejoinRoom.style.background = "#555";
-                            btnRejoinRoom.style.color = "#aaa";
-                        } else if (currentState && currentState.game_status !== 'waiting' && !canRejoinMidGame) {
-                            btnRejoinRoom.disabled = true;
-                            btnRejoinRoom.textContent = "PARTITA GIÀ AVVIATA";
-                            btnRejoinRoom.style.background = "#555";
-                            btnRejoinRoom.style.color = "#aaa";
-                        } else {
-                            btnRejoinRoom.disabled = false;
-                            btnRejoinRoom.textContent = "RIENTRA / ENTRA IN STANZA";
-                            btnRejoinRoom.style.background = "var(--accent-green)";
-                            btnRejoinRoom.style.color = "black";
-                        }
-                    }
-                }
-
-                // Auto-rejoin if not kicked and (in waiting state OR possesses valid session token)
-                if (!isKicked && (!currentState || currentState.game_status === 'waiting' || canRejoinMidGame) && !isAutoRejoining) {
-                    isAutoRejoining = true;
-                    rejoinRoom().finally(() => {
-                        setTimeout(() => { isAutoRejoining = false; }, 2000);
-                    });
+                    btnRejoinRoom.disabled = false;
+                    btnRejoinRoom.textContent = "RIENTRA / ENTRA IN STANZA";
+                    btnRejoinRoom.style.background = "var(--accent-green)";
+                    btnRejoinRoom.style.color = "black";
                 }
             }
-            
-            previousStatus = currentState ? currentState.game_status : null;
         }
-    }, (error) => {
-        console.error("Errore listener Firebase RTDB:", error);
-    });
+
+        // Auto-rejoin if not kicked and (in waiting state OR possesses valid session token)
+        if (!isKicked && (!currentState || currentState.game_status === 'waiting' || canRejoinMidGame) && !isAutoRejoining) {
+            isAutoRejoining = true;
+            rejoinRoom().finally(() => {
+                setTimeout(() => { isAutoRejoining = false; }, 2000);
+            });
+        }
+    }
+    
+    previousStatus = currentState ? currentState.game_status : null;
+}, (error) => {
+    console.error("Errore listener Firebase RTDB:", error);
 });
 
 function updateUI(state, playersMap) {
