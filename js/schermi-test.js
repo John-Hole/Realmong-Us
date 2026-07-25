@@ -407,12 +407,19 @@ document.addEventListener('DOMContentLoaded', () => {
             triggerTypewriterAnimation("Mario Rossi è stato espulso...");
         } else if (cardId === 'screen-victory') {
             renderVictoryTeamMock(currentVictoryTeam);
-        } else if (cardId === 'screen-role' || cardId === 'screen-meeting') {
-            const text = card.querySelector('.role-animation-text, .alert-text');
+        } else if (cardId === 'screen-role') {
+            const text = card.querySelector('.role-animation-text');
             if (text) {
                 text.style.animation = 'none';
-                void text.offsetWidth; // Force reflow
+                void text.offsetWidth;
                 text.style.animation = 'roleReveal 5s ease-in-out forwards';
+            }
+        } else if (cardId === 'screen-meeting') {
+            const text = card.querySelector('.emergency-text-anim');
+            if (text) {
+                text.style.animation = 'none';
+                void text.offsetWidth;
+                text.style.animation = 'emergencyTextPulse 1.2s ease-in-out infinite alternate';
             }
         }
     }

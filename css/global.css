@@ -188,15 +188,16 @@ h1, h2, h3 {
 .discussion-clean-title {
     font-family: var(--font-ui), sans-serif;
     font-weight: 800;
-    font-size: clamp(2.2rem, 5.5vw, 4.2rem);
+    font-size: clamp(1.4rem, 4.5vw, 4rem);
     color: #ffffff;
     text-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
     text-align: center;
     text-transform: uppercase;
     letter-spacing: 4px;
     margin-bottom: 0.5rem;
+    white-space: nowrap;
     animation: floatMotion 2.5s ease-in-out infinite alternate;
-    word-break: break-word;
+    word-break: normal;
 }
 
 @keyframes floatMotion {
@@ -204,14 +205,41 @@ h1, h2, h3 {
     100% { transform: translateY(-8px); }
 }
 
+.emergency-text-anim {
+    font-family: var(--font-ui), sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.4rem, 4.5vw, 4.5rem);
+    color: #ff0033;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    white-space: nowrap;
+    animation: emergencyTextPulse 1.2s ease-in-out infinite alternate;
+    word-break: normal;
+}
+
+@keyframes emergencyTextPulse {
+    0% {
+        transform: scale(0.96);
+        opacity: 0.85;
+        text-shadow: 0 0 10px rgba(255, 0, 51, 0.5);
+    }
+    100% {
+        transform: scale(1.04);
+        opacity: 1;
+        text-shadow: 0 0 25px rgba(255, 0, 51, 0.95), 0 0 45px rgba(255, 0, 51, 0.7);
+    }
+}
+
 .ejected-typewriter-text {
     font-family: var(--font-ui), sans-serif;
     font-weight: 800;
-    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-size: clamp(1.2rem, 3.8vw, 3.2rem);
     color: #ffffff;
     text-align: center;
-    letter-spacing: 3px;
-    word-break: break-word;
+    letter-spacing: 2px;
+    white-space: nowrap;
+    word-break: normal;
 }
 
 .ejected-typewriter-text::after {
