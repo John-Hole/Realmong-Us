@@ -754,7 +754,7 @@ function renderMasterTimer() {
 
     if (status === 'waiting') {
         if (currentTimerPill) currentTimerPill.classList.add('hidden');
-        liveClockText = "⏳ IN ATTESA";
+        liveClockText = "--:--";
         modalTimerText = "⏳ IN ATTESA";
         timerColor = "#94a3b8";
     } else if (status === 'playing') {
@@ -762,14 +762,14 @@ function renderMasterTimer() {
         if (currentState.timer_paused) {
             const remSec = formatTime(currentState.timer_remaining || 0);
             headerTimerText = remSec;
-            liveClockText = `⏸️ PAUSA (${remSec})`;
+            liveClockText = remSec;
             modalTimerText = `PAUSA (${remSec})`;
             timerColor = "#f59e0b";
         } else {
             const left = Math.max(0, (currentState.timer || 0) - Date.now());
             const remSec = formatTime(left);
             headerTimerText = remSec;
-            liveClockText = `▶️ ${remSec}`;
+            liveClockText = remSec;
             modalTimerText = `▶️ ${remSec}`;
             timerColor = left <= 30000 ? "#ef4444" : "#38bdf8";
 
@@ -780,31 +780,31 @@ function renderMasterTimer() {
         }
     } else if (status === 'emergency') {
         if (currentTimerPill) currentTimerPill.classList.add('hidden');
-        liveClockText = "🚨 EMERGENZA";
+        liveClockText = "--:--";
         modalTimerText = "🚨 EMERGENZA";
         timerColor = "#ef4444";
     } else if (status === 'discussion') {
         if (currentTimerPill) currentTimerPill.classList.add('hidden');
-        liveClockText = "💬 DISCUSSIONE";
+        liveClockText = "--:--";
         modalTimerText = "💬 DISCUSSIONE";
         timerColor = "#ffeb3b";
     } else if (status === 'voting') {
         if (currentTimerPill) currentTimerPill.classList.remove('hidden');
         if (!currentState.voting_endtime || currentState.voting_endtime === 0) {
             headerTimerText = "Libera";
-            liveClockText = "🗳️ VOTAZIONE LIBERA";
+            liveClockText = "--:--";
             modalTimerText = "🗳️ VOTAZIONE LIBERA";
         } else {
             const remaining = Math.max(0, currentState.voting_endtime - Date.now());
             const sec = Math.ceil(remaining / 1000);
             headerTimerText = `${sec}s`;
-            liveClockText = `🗳️ VOTAZIONE: ${sec}s`;
+            liveClockText = formatTime(remaining);
             modalTimerText = `🗳️ VOTAZIONE: ${sec}s`;
         }
         timerColor = "#9c27b0";
     } else if (status === 'impostors_win' || status === 'crewmates_win') {
         if (currentTimerPill) currentTimerPill.classList.add('hidden');
-        liveClockText = "🏆 FINE PARTITA";
+        liveClockText = "--:--";
         modalTimerText = "🏆 FINE PARTITA";
         timerColor = "#64748b";
     }
@@ -816,6 +816,8 @@ function renderMasterTimer() {
     if (masterLiveClockEl) {
         masterLiveClockEl.textContent = liveClockText;
         masterLiveClockEl.style.color = timerColor;
+        masterLiveClockEl.style.textShadow = `0 0 12px ${timerColor}80, 0 0 24px ${timerColor}40`;
+        masterLiveClockEl.style.borderColor = `${timerColor}60`;
     }
     if (masterModalClockEl) {
         masterModalClockEl.textContent = modalTimerText;
