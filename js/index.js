@@ -132,6 +132,7 @@ const defaultBaseTasks = [
 
 const baseTemplate = {
     name: "Standard Realmong",
+    impostorCount: 2,
     impostors: 2,
     killCooldown: 120,
     maxMeetingsPerPlayer: 1,
@@ -143,7 +144,7 @@ const baseTemplate = {
         { round: 2, duration: 900 },
         { round: 3, duration: 600 }
     ],
-    maxPlayers: null,
+    maxPlayers: 'unlimited',
     enableMap: true,
     enableTasks: true,
     taskType: 'custom',
@@ -602,8 +603,10 @@ function createTemplateCard(id, data, isCustom) {
     const details = document.createElement('div');
     details.style.fontSize = '0.8rem';
     details.style.color = '#aaa';
+    const impCount = data.impostorCount || data.impostors || 1;
+    const maxP = (!data.maxPlayers || data.maxPlayers === 'unlimited') ? '∞' : data.maxPlayers;
     details.innerHTML = `
-        <p style="margin: 0.25rem 0;">Impostori: <strong style="color: white;">${data.impostorCount}</strong> | Limite: <strong style="color: white;">${data.maxPlayers === 'unlimited' ? '∞' : data.maxPlayers}</strong></p>
+        <p style="margin: 0.25rem 0;">Impostori: <strong style="color: white;">${impCount}</strong> | Limite: <strong style="color: white;">${maxP}</strong></p>
         <p style="margin: 0.25rem 0;">Discussione: <strong style="color: white;">${discText}</strong> | Votazione: <strong style="color: white;">${votText}</strong></p>
         <p style="margin: 0.25rem 0;">Mappa: <strong style="color: white;">${mapLabel}</strong> | Task: <strong style="color: white;">${taskLabel}</strong></p>
     `;
@@ -681,7 +684,7 @@ function openCreateSettings(id, data, isDuplicate = false, isBase = false) {
         }
 
         createTemplateName.value = (data.name || "") + (isDuplicate ? " (Copia)" : "");
-        createImpostors.value = data.impostorCount || 1;
+        createImpostors.value = data.impostorCount || data.impostors || 1;
         createKillCooldown.value = data.killCooldown || 120;
         createMaxMeetings.value = data.maxMeetings !== undefined ? data.maxMeetings : 1;
         if (createDiscussionDuration) createDiscussionDuration.value = data.discussionDuration !== undefined ? data.discussionDuration : 0;
