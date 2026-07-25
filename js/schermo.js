@@ -113,25 +113,29 @@ function startConnection() {
     if (headerEl) headerEl.textContent = roomCode;
     if (lobbyCodeDisplay) lobbyCodeDisplay.textContent = roomCode;
 
-    // Render QR Code immediately
-    const qrContainer = document.getElementById("qrcode");
-    if (qrContainer && typeof QRCode !== 'undefined' && roomCode) {
-        qrContainer.innerHTML = '';
-        const joinUrl = `${window.location.origin}/?room=${roomCode}`;
-        new QRCode(qrContainer, {
-            text: joinUrl,
-            width: 150,
-            height: 150,
-            colorDark: "#000000",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.L
-        });
-    }
-    
-    // Load default SVG Map of Oratorio
+    // Render default SVG Map & initial UI components first
     loadSVGMap();
     renderTasks(null, true);
     renderPlayers(null, null, null);
+
+    // Render QR Code safely
+    const qrContainer = document.getElementById("qrcode");
+    if (qrContainer && typeof QRCode !== 'undefined' && roomCode) {
+        try {
+            qrContainer.innerHTML = '';
+            const joinUrl = `${window.location.origin}/?room=${roomCode}`;
+            new QRCode(qrContainer, {
+                text: joinUrl,
+                width: 150,
+                height: 150,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.L
+            });
+        } catch (e) {
+            console.warn("Errore generazione iniziale QR code:", e);
+        }
+    }
 
     let previousStatus = null;
     let timerInterval = null;
@@ -829,18 +833,22 @@ function startConnection() {
 
             if (!qrInitialized && typeof QRCode !== 'undefined') {
                 qrInitialized = true;
-                const qrContainer = document.getElementById("qrcode");
-                if (qrContainer) {
-                    qrContainer.innerHTML = '';
-                    const joinUrl = `${window.location.origin}/?room=${roomCode}`;
-                    new QRCode(qrContainer, {
-                        text: joinUrl,
-                        width: 150,
-                        height: 150,
-                        colorDark: "#000000",
-                        colorLight: "#ffffff",
-                        correctLevel: QRCode.CorrectLevel.L // Simplified low matrix density
-                    });
+                try {
+                    const qrContainer = document.getElementById("qrcode");
+                    if (qrContainer) {
+                        qrContainer.innerHTML = '';
+                        const joinUrl = `${window.location.origin}/?room=${roomCode}`;
+                        new QRCode(qrContainer, {
+                            text: joinUrl,
+                            width: 150,
+                            height: 150,
+                            colorDark: "#000000",
+                            colorLight: "#ffffff",
+                            correctLevel: QRCode.CorrectLevel.L // Simplified low matrix density
+                        });
+                    }
+                } catch (e) {
+                    console.warn("Errore generazione QR code in onValue:", e);
                 }
             }
             const players = data.players || {};
