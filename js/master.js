@@ -1166,87 +1166,107 @@ if (btnVotingSub30) {
 // Actions
 if (btnStartRandom) {
     btnStartRandom.addEventListener('click', async () => {
-    const snapshot = await get(ref(db, `rooms/${roomCode}/players`));
-    const playersMap = snapshot.val() || {};
-    const playerNames = Object.keys(playersMap);
-    
-    if(playerNames.length === 0) {
-        return alert("Non ci sono giocatori nella stanza!");
-    }
+        try {
+            await ensureAuth();
+            if (btnStartRandom) btnStartRandom.disabled = true;
 
-    if(!confirm("Sei sicuro di voler avviare il gioco con i giocatori attuali?")) return;
-    
-    // Logic for impostors
-    let numImpostors = (roomConfig && roomConfig.impostorCount) ? roomConfig.impostorCount : 1;
-    if (playerNames.length <= numImpostors) {
-        numImpostors = 1; // Fallback rule as requested
-        alert("Il numero di giocatori è troppo basso per il numero di impostori scelto. Forzato a 1 Impostore.");
-    }
-    
-    const hasScientist = roomConfig && roomConfig.scientistEnabled;
-
-    const shuffledPlayers = [...playerNames].sort(() => 0.5 - Math.random());
-    const randomImpostors = shuffledPlayers.slice(0, numImpostors);
-    const randomScientist = hasScientist && shuffledPlayers.length > numImpostors ? shuffledPlayers[numImpostors] : null;
-
-    const enableTasks = roomConfig ? (roomConfig.enableTasks !== false) : true;
-    const taskType = roomConfig ? (roomConfig.taskType || (roomConfig.mapMode === 'text' ? 'custom' : 'default')) : 'default';
-
-    let tasksSource = null;
-    if (enableTasks && taskType === 'custom' && roomConfig && roomConfig.tasks && roomConfig.tasks.length > 0) {
-        tasksSource = roomConfig.tasks.map(t => {
-            const titleText = t.name || t.obj || '';
-            const hasSeparateObj = Boolean(t.obj && t.obj.trim() !== '' && t.obj.trim() !== (t.name || '').trim());
-            if (hasSeparateObj) {
-                return `${t.num}. ${titleText}: ${t.obj}${t.pos ? ` | ${t.pos}` : ''}`;
+            const snapshot = await get(ref(db, `rooms/${roomCode}/players`));
+            const playersMap = snapshot.val() || {};
+            const playerNames = Object.keys(playersMap);
+            
+            if (playerNames.length === 0) {
+                if (btnStartRandom) btnStartRandom.disabled = false;
+                return alert("Non ci sono giocatori nella stanza!");
             }
-            return `${t.num}. ${titleText}${t.pos ? ` | ${t.pos}` : ''}`;
-        });
-    }
 
-    playerNames.forEach(name => {
-        let role = 'crewmate';
-        if (randomImpostors.includes(name)) role = 'impostor';
-        else if (name === randomScientist) role = 'scientist';
+            if (!confirm("Sei sicuro di voler avviare il gioco con i giocatori attuali?")) {
+                if (btnStartRandom) btnStartRandom.disabled = false;
+                return;
+            }
+            
+            // Logic for impostors
+            let numImpostors = (roomConfig && roomConfig.impostorCount) ? roomConfig.impostorCount : 1;
+            if (playerNames.length <= numImpostors) {
+                numImpostors = 1; // Fallback rule as requested
+                alert("Il numero di giocatori è troppo basso per il numero di impostori scelto. Forzato a 1 Impostore.");
+            }
+            
+            const hasScientist = roomConfig && roomConfig.scientistEnabled;
 
-        const tasksObj = {};
-        if (enableTasks) {
-            const assignedTasksList = getRandomTasks(tasksSource);
-            assignedTasksList.forEach((taskDesc, i) => {
-                tasksObj[`task_${i}`] = {
-                    desc: taskDesc,
-                    completed: false
+            const shuffledPlayers = [...playerNames].sort(() => 0.5 - Math.random());
+            const randomImpostors = shuffledPlayers.slice(0, numImpostors);
+            const randomScientist = hasScientist && shuffledPlayers.length > numImpostors ? shuffledPlayers[numImpostors] : null;
+
+            const enableTasks = roomConfig ? (roomConfig.enableTasks !== false) : true;
+            const taskType = roomConfig ? (roomConfig.taskType || (roomConfig.mapMode === 'text' ? 'custom' : 'default')) : 'default';
+
+            let tasksSource = null;
+            if (enableTasks && taskType === 'custom' && roomConfig && roomConfig.tasks && roomConfig.tasks.length > 0) {
+                tasksSource = roomConfig.tasks.map(t => {
+                    const titleText = t.name || t.obj || '';
+                    const hasSeparateObj = Boolean(t.obj && t.obj.trim() !== '' && t.obj.trim() !== (t.name || '').trim());
+                    if (hasSeparateObj) {
+                        return `${t.num}. ${titleText}: ${t.obj}${t.pos ? ` | ${t.pos}` : ''}`;
+                    }
+                    return `${t.num}. ${titleText}${t.pos ? ` | ${t.pos}` : ''}`;
+                });
+            }
+
+            playerNames.forEach(key => {
+                const existingObj = playersMap[key] || {};
+                let role = 'crewmate';
+                if (randomImpostors.includes(key)) role = 'impostor';
+                else if (key === randomScientist) role = 'scientist';
+
+                const tasksObj = {};
+                if (enableTasks) {
+                    const assignedTasksList = getRandomTasks(tasksSource);
+                    assignedTasksList.forEach((taskDesc, i) => {
+                        tasksObj[`task_${i}`] = {
+                            desc: taskDesc,
+                            completed: false
+                        };
+                    });
+                }
+
+                const existingToken = existingObj.token || (currentPlayers && currentPlayers[key] ? currentPlayers[key].token : null);
+                const existingName = existingObj.name || (currentPlayers && currentPlayers[key] ? currentPlayers[key].name : key);
+
+                playersMap[key] = {
+                    ...existingObj,
+                    name: existingName,
+                    role: role,
+                    status: 'alive',
+                    tasks: tasksObj,
+                    meetings_called: 0,
+                    ...(existingToken ? { token: existingToken } : {})
                 };
             });
+
+            const roundDuration = getRoundDuration(1);
+
+            const updates = {};
+            updates['state/round'] = 1;
+            updates['state/last_ejected'] = null;
+            updates['votes'] = null;
+            
+            updates['state/game_status'] = 'playing';
+            updates['state/timer_paused'] = false;
+            updates['state/timer'] = Date.now() + roundDuration;
+
+            // Add player updates to the same atomic payload
+            for (const key in playersMap) {
+                updates[`players/${key}`] = playersMap[key];
+            }
+
+            await update(roomRef, updates);
+            addLog("🚀 La partita è stata avviata con successo!");
+        } catch (error) {
+            console.error("Errore durante l'avvio della partita:", error);
+            alert("Impossibile avviare la partita: " + (error.message || error));
+        } finally {
+            if (btnStartRandom) btnStartRandom.disabled = false;
         }
-
-        const existingToken = (currentPlayers && currentPlayers[name]) ? currentPlayers[name].token : null;
-        playersMap[name] = {
-            role: role,
-            status: 'alive',
-            tasks: tasksObj,
-            meetings_called: 0,
-            ...(existingToken ? { token: existingToken } : {})
-        };
-    });
-
-    const roundDuration = getRoundDuration(1);
-
-    const updates = {};
-    updates['state/round'] = 1;
-    updates['state/last_ejected'] = null;
-    updates['votes'] = null;
-    
-    updates['state/game_status'] = 'playing';
-    updates['state/timer_paused'] = false;
-    updates['state/timer'] = Date.now() + roundDuration;
-
-    // Add player updates to the same atomic payload
-    for (const name in playersMap) {
-        updates[`players/${name}`] = playersMap[name];
-    }
-
-    await update(roomRef, updates);
     });
 }
 
@@ -1324,33 +1344,47 @@ if (btnReset) {
     btnReset.addEventListener('click', async () => {
         if(!confirm("ATTENZIONE: Questo formatterà l'intera partita e riporterà allo stato di attesa. Confermi?")) return;
         
-        const snapshot = await get(ref(db, `rooms/${roomCode}/players`));
-        const playersMap = snapshot.val() || {};
-        
-        for(const name in playersMap) {
-            playersMap[name] = {
-                role: 'crewmate',
-                status: 'alive',
-                tasks: {},
-                meetings_called: 0
+        try {
+            await ensureAuth();
+            const snapshot = await get(ref(db, `rooms/${roomCode}/players`));
+            const playersMap = snapshot.val() || {};
+            
+            for(const key in playersMap) {
+                const existingObj = playersMap[key] || {};
+                const existingToken = existingObj.token || (currentPlayers && currentPlayers[key] ? currentPlayers[key].token : null);
+                const existingName = existingObj.name || (currentPlayers && currentPlayers[key] ? currentPlayers[key].name : key);
+
+                playersMap[key] = {
+                    ...existingObj,
+                    name: existingName,
+                    role: 'crewmate',
+                    status: 'alive',
+                    tasks: {},
+                    meetings_called: 0,
+                    ...(existingToken ? { token: existingToken } : {})
+                };
             }
+
+            const updates = {};
+            updates['state/game_status'] = 'waiting';
+            updates['state/round'] = 1;
+            updates['state/timer'] = 0;
+            updates['state/timer_paused'] = false;
+            updates['state/timer_remaining'] = 0;
+            updates['state/last_ejected'] = null;
+            updates['votes'] = null;
+            updates['kickedPlayers'] = null;
+
+            for (const key in playersMap) {
+                updates[`players/${key}`] = playersMap[key];
+            }
+
+            await update(roomRef, updates);
+            addLog("🔄 La partita è stata resettata.");
+        } catch (err) {
+            console.error("Errore durante il reset della partita:", err);
+            alert("Impossibile resettare la partita: " + err.message);
         }
-
-        const updates = {};
-        updates['state/game_status'] = 'waiting';
-        updates['state/round'] = 1;
-        updates['state/timer'] = 0;
-        updates['state/timer_paused'] = false;
-        updates['state/timer_remaining'] = 0;
-        updates['state/last_ejected'] = null;
-        updates['votes'] = null;
-        updates['kickedPlayers'] = null;
-
-        for (const name in playersMap) {
-            updates[`players/${name}`] = playersMap[name];
-        }
-
-        await update(roomRef, updates);
     });
 }
 
