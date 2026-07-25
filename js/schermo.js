@@ -574,10 +574,13 @@ function startConnection() {
             });
             update(ref(db), dbUpdates).catch(err => console.error("Firebase update status error:", err));
 
-            // Hide overlay after 4.5s and refresh sidebar player list
+            // Hide overlay after 4.5s and refresh discussion overlay
             setTimeout(() => {
                 overlayDeadReveal.classList.add('hidden');
                 isDeadRevealActive = false;
+                if (currentGameState === 'discussion') {
+                    showDiscussionOverlay(latestPlayersData || playersData);
+                }
                 renderPlayers(latestPlayersData || playersData, latestVotesData || votesData, latestMaxPlayers || maxPlayers);
             }, 4500);
         } else {
@@ -591,6 +594,9 @@ function startConnection() {
             setTimeout(() => {
                 overlayDeadReveal.classList.add('hidden');
                 isDeadRevealActive = false;
+                if (currentGameState === 'discussion') {
+                    showDiscussionOverlay(latestPlayersData || playersData);
+                }
                 renderPlayers(latestPlayersData || playersData, latestVotesData || votesData, latestMaxPlayers || maxPlayers);
             }, 2500);
         }
@@ -726,6 +732,67 @@ function startConnection() {
 
     function hideVotingResultsOverlay() {
         const overlay = document.getElementById('overlay-voting-results');
+        if (overlay) overlay.classList.add('hidden');
+    }
+
+    function showDiscussionOverlay(playersData) {
+        const overlay = document.getElementById('overlay-discussion');
+        const container = document.getElementById('discussion-cards-container');
+        if (!overlay || !container) return;
+
+        container.innerHTML = '';
+        
+        const playerList = [];
+        if (playersData) {
+            for (const pName in playersData) {
+                playerList.push({
+                    name: pName,
+                    data: playersData[pName]
+                });
+            }
+        }
+
+        // Sort: Alive players first, then Dead players, then alphabetically
+        playerList.sort((a, b) => {
+            const aDead = a.data && (a.data.status === 'dead' || a.data.status === 'ghost' || a.data.status === 'killed_revealed' || a.data.status === 'killed_hidden');
+            const bDead = b.data && (b.data.status === 'dead' || b.data.status === 'ghost' || b.data.status === 'killed_revealed' || b.data.status === 'killed_hidden');
+            if (aDead !== bDead) return aDead ? 1 : -1;
+            return a.name.localeCompare(b.name);
+        });
+
+        playerList.forEach(item => {
+            const card = document.createElement('div');
+            const isDead = item.data && (item.data.status === 'dead' || item.data.status === 'ghost' || item.data.status === 'killed_revealed' || item.data.status === 'killed_hidden');
+            
+            card.className = `discussion-card ${isDead ? 'dead-card' : 'alive-card'}`;
+
+            const avatarIcon = isDead ? '💀' : '👨‍🚀';
+            const statusBadge = isDead 
+                ? `<span class="discussion-badge dead-badge">💀 MORTO</span>` 
+                : `<span class="discussion-badge alive-badge">💚 VIVO</span>`;
+            const statusDetail = isDead ? 'Non può parlare né votare' : 'Può parlare e votare';
+
+            card.innerHTML = `
+                <div class="discussion-card-top">
+                    <div class="discussion-card-user">
+                        <span class="discussion-card-avatar">${avatarIcon}</span>
+                        <span class="discussion-card-name">${escapeHtml(item.name)}</span>
+                    </div>
+                    ${statusBadge}
+                </div>
+                <div class="discussion-card-bottom">
+                    <span class="discussion-card-detail">${statusDetail}</span>
+                </div>
+            `;
+
+            container.appendChild(card);
+        });
+
+        overlay.classList.remove('hidden');
+    }
+
+    function hideDiscussionOverlay() {
+        const overlay = document.getElementById('overlay-discussion');
         if (overlay) overlay.classList.add('hidden');
     }
 
@@ -906,12 +973,13 @@ function startConnection() {
                     overlayDeadReveal.classList.add('hidden');
                 }
 
-                if (status !== 'impostors_win' && status !== 'crewmates_win') {
-                    hideVictoryOverlay();
+                if (status !== 'emergency' && overlayMeeting) {
+                    overlayMeeting.classList.remove('emergency-active');
                 }
 
                 if (status === 'waiting') {
                     hideVotingResultsOverlay();
+                    hideDiscussionOverlay();
                     if(overlayMeeting) overlayMeeting.classList.add('hidden');
                     if(overlayEjected) overlayEjected.classList.add('hidden');
                     
@@ -923,6 +991,7 @@ function startConnection() {
                 } 
                 else if (status === 'playing') {
                     hideVotingResultsOverlay();
+                    hideDiscussionOverlay();
                     if(overlayMeeting) overlayMeeting.classList.add('hidden');
                     
                     const mainDashboard = document.getElementById('main-dashboard-layout');
@@ -956,11 +1025,18 @@ function startConnection() {
                 }
                 else if (status === 'emergency') {
                     hideVotingResultsOverlay();
+                    hideDiscussionOverlay();
                     clearTimerFlashing();
-                    if(overlayMeeting) overlayMeeting.classList.remove('hidden');
+                    if(overlayMeeting) {
+                        overlayMeeting.classList.remove('hidden');
+                        overlayMeeting.classList.add('emergency-active');
+                    }
                     if(overlayText) {
-                        overlayText.textContent = "RIUNIONE CHIAMATA...";
+                        overlayText.textContent = "EMERGENZA!";
                         overlayText.className = "emergency-text-anim";
+                        overlayText.style.animation = "";
+                        overlayText.style.textShadow = "";
+                        overlayText.style.filter = "";
                     }
                     clearInterval(timerInterval);
                     if (globalTimer) globalTimer.textContent = "EMERGENZA";
@@ -983,6 +1059,7 @@ function startConnection() {
                     if (previousStatus !== 'discussion' && !isDeadRevealActive) {
                         showDeadRevealOverlay(players, votes, maxPlayers);
                     } else if (!isDeadRevealActive) {
+                        showDiscussionOverlay(players);
                         renderPlayers(players, votes, maxPlayers);
                     }
                     // Stop siren if it was playing during emergency
@@ -993,6 +1070,7 @@ function startConnection() {
                 }
                 else if (status === 'voting') {
                     hideVotingResultsOverlay();
+                    hideDiscussionOverlay();
                     if(overlayMeeting) overlayMeeting.classList.add('hidden');
                     const headerCard = globalTimer ? globalTimer.closest('.center-header-card') : null;
                     clearInterval(timerInterval);
@@ -1029,6 +1107,7 @@ function startConnection() {
                 }
                 else if (status === 'voting_results') {
                     clearTimerFlashing();
+                    hideDiscussionOverlay();
                     if(overlayMeeting) overlayMeeting.classList.add('hidden');
                     if(overlayEjected) overlayEjected.classList.add('hidden');
                     if (globalTimer) {
@@ -1040,6 +1119,7 @@ function startConnection() {
                 }
                 else if (status === 'impostors_win' || status === 'crewmates_win') {
                     hideVotingResultsOverlay();
+                    hideDiscussionOverlay();
                     if(overlayMeeting) overlayMeeting.classList.add('hidden');
                     if(overlayEjected) overlayEjected.classList.add('hidden');
                     clearTimerFlashing();

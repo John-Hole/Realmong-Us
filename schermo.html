@@ -57,7 +57,7 @@
 
     <!-- Generic Overlays: Emergency & Ejected (Solid Black Background) -->
     <div id="overlay-meeting" class="overlay-screen hidden" style="z-index: 3000; background: #000000; display: flex; align-items: center; justify-content: center; padding: 1rem;">
-        <h1 id="overlay-text" class="emergency-text-anim">RIUNIONE CHIAMATA...</h1>
+        <h1 id="overlay-text" class="emergency-text-anim">EMERGENZA!</h1>
     </div>
 
     <div id="overlay-ejected" class="overlay-screen hidden" style="z-index: 3000; background: #000000; display: flex; align-items: center; justify-content: center; padding: 2rem;">
@@ -90,12 +90,16 @@
         </div>
     </div>
 
-    <!-- Meeting / Discussion Screen (Solid Dark Background) -->
-    <div id="meeting-screen" class="overlay-screen hidden" style="z-index: 2500; background: #0b0e14; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem;">
-        <h1 class="discussion-clean-title">DISCUSSIONE IN CORSO</h1>
-        <p style="font-family: var(--font-ui), sans-serif; font-weight: 600; font-size: 1.2rem; color: #a0aec0; margin-bottom: 2rem; letter-spacing: 2px;">CHI È L'IMPOSTORE?</p>
-        <div id="meeting-votes-container" style="display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: center; max-width: 900px; width: 100%;">
-            <!-- Player vote cards populated here -->
+    <!-- Discussion Screen Overlay (Solid Dark Background) -->
+    <div id="overlay-discussion" class="overlay-screen hidden" style="z-index: 2800; background: radial-gradient(circle at center, #111425 0%, #070810 100%); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 2rem 1.5rem;">
+        <div class="discussion-container">
+            <div class="discussion-header-box">
+                <h1 class="discussion-header">DISCUSSIONE IN CORSO</h1>
+                <p class="discussion-subheader">CONFRONTATI CON GLI ALTRI GIOCATORI PRIMA CHE INIZINO LE VOTAZIONI</p>
+            </div>
+            <div id="discussion-cards-container" class="discussion-cards-grid">
+                <!-- Injected by JS -->
+            </div>
         </div>
     </div>
 

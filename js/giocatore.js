@@ -291,41 +291,85 @@ function updateUI(state, playersMap) {
         overlayDead.classList.add('hidden');
     }
 
-    const overlayMeetingH1 = overlayMeeting.querySelector('h1');
-    const overlayMeetingP = overlayMeeting.querySelector('p');
-
-    if (overlayMeetingH1) {
-        overlayMeetingH1.style.textShadow = "none";
-        overlayMeetingH1.style.filter = "none";
-        overlayMeetingH1.style.animation = "none";
-        overlayMeetingH1.style.whiteSpace = "nowrap";
-        overlayMeetingH1.style.color = "#ff0033";
-    }
+    const overlayMeetingH1 = overlayMeeting ? overlayMeeting.querySelector('h1') : null;
+    const overlayMeetingP = overlayMeeting ? overlayMeeting.querySelector('p') : null;
 
     if (state.game_status === 'emergency') {
-        overlayMeeting.classList.remove('hidden');
+        if (overlayMeeting) {
+            overlayMeeting.classList.remove('hidden');
+            overlayMeeting.classList.add('emergency-active');
+        }
         overlayDead.classList.add('hidden');
         roleScreen.classList.add('hidden');
         gameScreen.classList.add('hidden');
         waitingScreen.classList.add('hidden');
         votingUI.classList.add('hidden');
-        overlayMeetingH1.textContent = "EMERGENZA!";
-        overlayMeetingP.textContent = "Il gioco è in pausa. Raggiungi il punto di raduno!";
+        if (overlayMeetingH1) {
+            overlayMeetingH1.textContent = "EMERGENZA!";
+            overlayMeetingH1.className = "emergency-text-anim";
+            overlayMeetingH1.style.animation = "";
+            overlayMeetingH1.style.textShadow = "";
+            overlayMeetingH1.style.filter = "";
+        }
+        if (overlayMeetingP) {
+            overlayMeetingP.textContent = "Il gioco è in pausa. Raggiungi il punto di raduno!";
+        }
         
         if (previousStatus !== 'emergency' && sirenAudio) {
             sirenAudio.volume = 1.0;
             sirenAudio.play().catch(e => console.log("Audio blocked", e));
         }
         return;
-    } else if (state.game_status === 'discussion') {
+    } else {
+        if (overlayMeeting) overlayMeeting.classList.remove('emergency-active');
+        if (overlayMeetingH1) {
+            overlayMeetingH1.className = "alert-text";
+            overlayMeetingH1.style.animation = "";
+            overlayMeetingH1.style.textShadow = "";
+            overlayMeetingH1.style.filter = "";
+        }
+    }
+
+    if (discussionPlayersMobile) {
+        discussionPlayersMobile.classList.toggle('hidden', state.game_status !== 'discussion');
+    }
+
+    if (state.game_status === 'discussion') {
         overlayMeeting.classList.remove('hidden');
         overlayDead.classList.add('hidden');
         roleScreen.classList.add('hidden');
         gameScreen.classList.add('hidden');
         waitingScreen.classList.add('hidden');
         votingUI.classList.add('hidden');
-        overlayMeetingH1.textContent = "DISCUSSIONE IN CORSO";
-        overlayMeetingP.textContent = "Discuti! Guarda il maxischermo per i dettagli.";
+        if (overlayMeetingH1) overlayMeetingH1.textContent = "DISCUSSIONE IN CORSO";
+        if (overlayMeetingP) overlayMeetingP.textContent = "Discuti con gli altri! Ecco chi è vivo e chi è morto:";
+        
+        if (discussionPlayersMobile) {
+            discussionPlayersMobile.innerHTML = '';
+
+            const sortedList = [];
+            if (playersMap) {
+                for (const pName in playersMap) {
+                    sortedList.push({ name: pName, data: playersMap[pName] });
+                }
+            }
+
+            sortedList.sort((a, b) => {
+                const aDead = a.data && (a.data.status === 'dead' || a.data.status === 'ghost' || a.data.status === 'killed_revealed' || a.data.status === 'killed_hidden');
+                const bDead = b.data && (b.data.status === 'dead' || b.data.status === 'ghost' || b.data.status === 'killed_revealed' || b.data.status === 'killed_hidden');
+                if (aDead !== bDead) return aDead ? 1 : -1;
+                return a.name.localeCompare(b.name);
+            });
+
+            sortedList.forEach(item => {
+                const isDead = item.data && (item.data.status === 'dead' || item.data.status === 'ghost' || item.data.status === 'killed_revealed' || item.data.status === 'killed_hidden');
+                const pill = document.createElement('span');
+                pill.className = `discussion-mobile-pill ${isDead ? 'dead' : 'alive'}`;
+                pill.innerHTML = isDead ? `💀 ${escapeHtml(item.name)} (MORTO)` : `👨‍🚀 ${escapeHtml(item.name)} (VIVO)`;
+                discussionPlayersMobile.appendChild(pill);
+            });
+        }
+
         // Stop siren if it was playing during emergency
         if (sirenAudio) {
             sirenAudio.pause();
@@ -353,8 +397,8 @@ function updateUI(state, playersMap) {
         gameScreen.classList.add('hidden');
         waitingScreen.classList.add('hidden');
         votingUI.classList.add('hidden');
-        overlayMeetingH1.textContent = "ESITO VOTI";
-        overlayMeetingP.textContent = "Votazione conclusa! Guarda il maxischermo per vedere chi ha votato chi!";
+        if (overlayMeetingH1) overlayMeetingH1.textContent = "ESITO VOTI";
+        if (overlayMeetingP) overlayMeetingP.textContent = "Votazione conclusa! Guarda il maxischermo per vedere chi ha votato chi!";
         return;
     } else if (state.game_status === 'crewmates_win') {
         overlayMeeting.classList.remove('hidden');
@@ -363,8 +407,8 @@ function updateUI(state, playersMap) {
         gameScreen.classList.add('hidden');
         waitingScreen.classList.add('hidden');
         votingUI.classList.add('hidden');
-        overlayMeetingH1.textContent = "VITTORIA CREWMATE!";
-        overlayMeetingP.textContent = "I Crewmate hanno completato tutte le task!";
+        if (overlayMeetingH1) overlayMeetingH1.textContent = "VITTORIA CREWMATE!";
+        if (overlayMeetingP) overlayMeetingP.textContent = "I Crewmate hanno completato tutte le task!";
         return;
     } else if (state.game_status === 'impostors_win') {
         overlayMeeting.classList.remove('hidden');
@@ -373,8 +417,8 @@ function updateUI(state, playersMap) {
         gameScreen.classList.add('hidden');
         waitingScreen.classList.add('hidden');
         votingUI.classList.add('hidden');
-        overlayMeetingH1.textContent = "VITTORIA IMPOSTORI!";
-        overlayMeetingP.textContent = "Gli Impostori hanno eliminato i Crewmate!";
+        if (overlayMeetingH1) overlayMeetingH1.textContent = "VITTORIA IMPOSTORI!";
+        if (overlayMeetingP) overlayMeetingP.textContent = "Gli Impostori hanno eliminato i Crewmate!";
         return;
     } else {
         overlayMeeting.classList.add('hidden');
