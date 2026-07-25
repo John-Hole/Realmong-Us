@@ -345,7 +345,10 @@ function startConnection() {
         if (!svgContainer) return;
 
         try {
-            const response = await fetch('public/assets/MappaOratotorio.svg');
+            let response = await fetch('assets/MappaOratotorio.svg');
+            if (!response.ok) {
+                response = await fetch('public/assets/MappaOratotorio.svg');
+            }
             if (!response.ok) throw new Error("HTTP error " + response.status);
             const svgText = await response.text();
             svgContainer.innerHTML = svgText;

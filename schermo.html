@@ -8,6 +8,29 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/global.css?v=12">
+    <!-- Immediate Inline Room Code Initializer -->
+    <script>
+      (function() {
+        try {
+          var match = window.location.search.match(/[?&]room=([a-zA-Z0-9]+)/i) || window.location.href.match(/[?&]room=([a-zA-Z0-9]+)/i);
+          var code = match ? match[1].toUpperCase() : (sessionStorage.getItem('current_room') || localStorage.getItem('current_room'));
+          if (code) {
+            sessionStorage.setItem('current_room', code);
+            localStorage.setItem('current_room', code);
+            var updateUI = function() {
+              var el = document.getElementById('header-room-code');
+              if (el) el.textContent = code;
+              var lobbyEl = document.getElementById('waiting-room-code');
+              if (lobbyEl) lobbyEl.textContent = code;
+            };
+            if (document.readyState === 'loading') {
+              document.addEventListener('DOMContentLoaded', updateUI);
+            } else {
+              updateUI();
+            }
+        } catch(e) {}
+      })();
+    </script>
     <!-- QR Code Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
