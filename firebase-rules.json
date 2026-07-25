@@ -8,7 +8,7 @@
     },
     "images": {
       "$roomId": {
-        ".read": true,
+        ".read": "auth != null",
         ".write": "auth != null"
       }
     },
@@ -69,7 +69,7 @@
       }
     },
     "publicMetadata": {
-      ".read": true,
+      ".read": "auth != null",
       ".write": false
     },
     ".read": false,
