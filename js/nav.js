@@ -43,7 +43,7 @@
             <button id="btn-show-auth" class="btn btn-sm btn-nav-auth" style="display: ${isUserLoggedIn ? 'none' : 'inline-block'};"><span class="auth-text-desktop">ACCEDI / REGISTRATI</span><span class="auth-text-mobile">ACCEDI<br>REGISTRATI</span></button>
         `;
     } else if (isMaster || isGiocatore || isSchermo || isScienziato) {
-        rightSideHTML = `<button onclick="if(confirm('Vuoi uscire dalla schermata generale?')) window.location.href='/'" class="btn btn-danger btn-sm" style="padding: 0.5rem 1rem; font-size: 0.8rem; border-radius: 50px;">ESCI</button>`;
+        rightSideHTML = `<button id="nav-btn-exit" class="btn btn-danger btn-sm" style="padding: 0.5rem 1rem; font-size: 0.8rem; border-radius: 50px; cursor: pointer; position: relative; z-index: 10000;">ESCI</button>`;
     }
 
     const navHTML = `
@@ -170,6 +170,17 @@
         } else {
             window.location.href = '/';
         }
+    }
+
+    const btnExit = document.getElementById('nav-btn-exit');
+    if (btnExit) {
+        btnExit.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (confirm("Vuoi abbandonare la pagina e tornare alla homepage?")) {
+                window.location.href = '/';
+            }
+        });
     }
 
     document.querySelectorAll('#nav-btn-logout-top, #nav-btn-logout-side, #nav-btn-logout').forEach(btn => {
