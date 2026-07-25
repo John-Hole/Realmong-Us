@@ -75,6 +75,11 @@ if (!roomCode) {
 
 function startConnection() {
     let roomRef = null;
+    let isDeadRevealActive = false;
+    let currentGameState = 'waiting';
+    let latestPlayersData = null;
+    let latestVotesData = null;
+    let latestMaxPlayers = null;
 
     const joinOverlay = document.getElementById('join-overlay');
     if (joinOverlay) {
@@ -489,12 +494,6 @@ function startConnection() {
         updateTick();
         timerInterval = setInterval(updateTick, 500);
     }
-
-    let isDeadRevealActive = false;
-    let currentGameState = 'waiting';
-    let latestPlayersData = null;
-    let latestVotesData = null;
-    let latestMaxPlayers = null;
 
     // Initialize players list & limit
     function renderPlayers(playersData, votesData, maxPlayers) {
