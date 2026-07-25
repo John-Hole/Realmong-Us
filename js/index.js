@@ -1265,17 +1265,27 @@ btnJoinRoom.addEventListener('click', async () => {
             }
         }
 
-        if (roomData.state && roomData.state.game_status !== 'waiting') {
+        const playerKey = sanitizePlayerKey(name);
+        const existingToken = sessionStorage.getItem(`realmong_token_${code}_${playerKey}`) ||
+                              localStorage.getItem(`realmong_token_${code}_${playerKey}`);
+
+        if (roomData.state && roomData.state.game_status !== 'waiting' && !existingToken) {
             return alert("Impossibile accedere: partita già in corso!");
         }
 
-        const playerKey = sanitizePlayerKey(name);
         if (roomData.players) {
-            const isDuplicate = Object.keys(roomData.players).some(
+            const existingPlayerKey = Object.keys(roomData.players).find(
                 p => p.toLowerCase() === playerKey.toLowerCase() || (roomData.players[p] && roomData.players[p].name && roomData.players[p].name.toLowerCase() === name.toLowerCase())
             );
-            if (isDuplicate) {
-                return alert(`Il nome "${name}" è già in uso in questa stanza! Per favore scegli un altro nome.`);
+            if (existingPlayerKey) {
+                const existingPlayerObj = roomData.players[existingPlayerKey];
+                if (existingToken && existingPlayerObj && existingPlayerObj.token === existingToken) {
+                    // Same session token, allow rejoining directly!
+                    window.location.href = `giocatore?room=${code}&player=${encodeURIComponent(name)}`;
+                    return;
+                } else {
+                    return alert(`Il nome "${name}" è già in uso in questa stanza! Per favore scegli un altro nome.`);
+                }
             }
         }
         
