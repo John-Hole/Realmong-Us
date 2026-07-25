@@ -53,6 +53,8 @@ if (!roomCode) {
 }
 
 function startConnection() {
+    let roomRef = null;
+
     const joinOverlay = document.getElementById('join-overlay');
     if (joinOverlay) {
         joinOverlay.classList.add('hidden');
@@ -870,7 +872,7 @@ function startConnection() {
     // Initial render
     renderPlayers(null, null, null);
 
-    const roomRef = ref(db, `rooms/${roomCode}`);
+    roomRef = ref(db, `rooms/${roomCode}`);
     ensureAuth().then(() => {
         onValue(roomRef, (snapshot) => {
         if (snapshot.exists()) {
