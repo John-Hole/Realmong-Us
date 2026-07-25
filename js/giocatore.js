@@ -3,14 +3,37 @@ import { ref, update, onValue, onDisconnect, get, set, remove } from "https://ww
 import { escapeHtml, sanitizePlayerKey } from './game-logic.js';
 
 const urlParams = new URLSearchParams(window.location.search);
-const roomCode = urlParams.get('room');
-let myPlayerName = urlParams.get('player');
-let myPlayerKey = sanitizePlayerKey(myPlayerName);
+let roomCode = (urlParams.get('room') || sessionStorage.getItem('current_room') || localStorage.getItem('current_room') || '').trim().toUpperCase();
+let myPlayerName = (urlParams.get('player') || sessionStorage.getItem('current_player') || localStorage.getItem('current_player') || '').trim();
+
+if (!roomCode) {
+    const inputRoom = prompt("Inserisci il codice della stanza:");
+    if (inputRoom) roomCode = inputRoom.trim().toUpperCase();
+}
+
+if (!myPlayerName) {
+    const inputName = prompt("Inserisci il tuo nome da giocatore:");
+    if (inputName) myPlayerName = inputName.trim();
+}
 
 if (!roomCode || !myPlayerName) {
     alert("Manca il codice stanza o il nome giocatore.");
     window.location.href = "/";
+} else {
+    try {
+        sessionStorage.setItem('current_room', roomCode);
+        localStorage.setItem('current_room', roomCode);
+        sessionStorage.setItem('current_player', myPlayerName);
+        localStorage.setItem('current_player', myPlayerName);
+
+        const newUrl = new URL(window.location.href);
+        newUrl.searchParams.set('room', roomCode);
+        newUrl.searchParams.set('player', myPlayerName);
+        window.history.replaceState({}, '', newUrl);
+    } catch (e) {}
 }
+
+let myPlayerKey = sanitizePlayerKey(myPlayerName);
 
 // Elements
 const roleScreen = document.getElementById('role-screen');
