@@ -326,6 +326,7 @@ function startConnection() {
 
         for (const name in playersData) {
             const pData = playersData[name];
+            if (!pData) continue;
             // Count tasks for all non-impostors (crewmates, scientists, etc.)
             if (pData.role !== 'impostor' && pData.tasks) { 
                 const tasksObj = pData.tasks;

@@ -263,11 +263,15 @@ let previousPlayers = null;
 const roomRef = ref(db, `rooms/${roomCode}`);
 
 function getRoundDuration(roundNum) {
+    let dur = 10 * 60 * 1000;
     if (roomConfig && roomConfig.roundTimes && Array.isArray(roomConfig.roundTimes) && roomConfig.roundTimes.length > 0) {
-        const idx = Math.min(roundNum - 1, roomConfig.roundTimes.length - 1);
-        return roomConfig.roundTimes[idx];
+        const idx = Math.min(Math.max(0, roundNum - 1), roomConfig.roundTimes.length - 1);
+        dur = Number(roomConfig.roundTimes[idx]);
+    } else {
+        dur = Number(ROUND_TIMES[Math.min(Math.max(0, roundNum - 1), ROUND_TIMES.length - 1)]);
     }
-    return ROUND_TIMES[Math.min(roundNum - 1, ROUND_TIMES.length - 1)];
+    if (isNaN(dur) || dur <= 0) dur = 10 * 60 * 1000;
+    return dur;
 }
 
 let masterRoundTimes = [10, 7, 5];
@@ -401,6 +405,7 @@ function updateMonitor(players) {
 
     for (const name in players) {
         const p = players[name];
+        if (!p) continue;
         const div = document.createElement('div');
         div.className = 'master-player-row';
 
