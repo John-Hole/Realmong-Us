@@ -172,50 +172,20 @@ h1, h2, h3 {
     padding: 1rem;
 }
 
-.alert-text {
-    font-family: var(--font-ui), sans-serif;
-    font-weight: 800;
-    font-size: clamp(1.4rem, 4.5vw, 4.5rem);
-    color: #ff0033;
-    text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 4px;
-    white-space: nowrap;
-    animation: emergencyTextPulse 1.2s ease-in-out infinite alternate;
-    word-break: normal;
-}
-
-.discussion-clean-title {
-    font-family: var(--font-ui), sans-serif;
-    font-weight: 800;
-    font-size: clamp(1.4rem, 4.5vw, 4rem);
-    color: #ffffff;
-    text-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
-    text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 4px;
-    margin-bottom: 0.5rem;
-    white-space: nowrap;
-    animation: floatMotion 2.5s ease-in-out infinite alternate;
-    word-break: normal;
-}
-
-@keyframes floatMotion {
-    0% { transform: translateY(0); }
-    100% { transform: translateY(-8px); }
-}
-
-.emergency-text-anim {
-    font-family: var(--font-ui), sans-serif;
-    font-weight: 800;
-    font-size: clamp(1.4rem, 4.5vw, 4.5rem);
-    color: #ff0033;
-    text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 4px;
-    white-space: nowrap;
-    animation: emergencyTextPulse 1.2s ease-in-out infinite alternate;
-    word-break: normal;
+.alert-text, .emergency-text-anim {
+    font-family: var(--font-ui), sans-serif !important;
+    font-weight: 800 !important;
+    font-size: clamp(1.1rem, 4.2vw, 2.8rem) !important;
+    color: #ff0033 !important;
+    text-shadow: none !important;
+    filter: none !important;
+    box-shadow: none !important;
+    animation: none !important;
+    text-align: center !important;
+    text-transform: uppercase !important;
+    letter-spacing: 2px !important;
+    white-space: nowrap !important;
+    word-break: normal !important;
 }
 
 @keyframes emergencyTextPulse {

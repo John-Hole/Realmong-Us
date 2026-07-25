@@ -259,6 +259,14 @@ function updateUI(state, playersMap) {
     const overlayMeetingH1 = overlayMeeting.querySelector('h1');
     const overlayMeetingP = overlayMeeting.querySelector('p');
 
+    if (overlayMeetingH1) {
+        overlayMeetingH1.style.textShadow = "none";
+        overlayMeetingH1.style.filter = "none";
+        overlayMeetingH1.style.animation = "none";
+        overlayMeetingH1.style.whiteSpace = "nowrap";
+        overlayMeetingH1.style.color = "#ff0033";
+    }
+
     if (state.game_status === 'emergency') {
         overlayMeeting.classList.remove('hidden');
         overlayDead.classList.add('hidden');
@@ -266,9 +274,7 @@ function updateUI(state, playersMap) {
         gameScreen.classList.add('hidden');
         waitingScreen.classList.add('hidden');
         votingUI.classList.add('hidden');
-        overlayMeetingH1.className = "emergency-text-anim";
         overlayMeetingH1.textContent = "EMERGENZA!";
-        overlayMeetingH1.style.color = "#ff0033";
         overlayMeetingP.textContent = "Il gioco è in pausa. Raggiungi il punto di raduno!";
         
         if (previousStatus !== 'emergency' && sirenAudio) {
@@ -283,8 +289,7 @@ function updateUI(state, playersMap) {
         gameScreen.classList.add('hidden');
         waitingScreen.classList.add('hidden');
         votingUI.classList.add('hidden');
-        overlayMeetingH1.textContent = "DISCUSSIONE";
-        overlayMeetingH1.style.color = "#ffeb3b";
+        overlayMeetingH1.textContent = "DISCUSSIONE IN CORSO";
         overlayMeetingP.textContent = "Discuti! Guarda il maxischermo per i dettagli.";
         // Stop siren if it was playing during emergency
         if (sirenAudio) {
@@ -313,8 +318,7 @@ function updateUI(state, playersMap) {
         gameScreen.classList.add('hidden');
         waitingScreen.classList.add('hidden');
         votingUI.classList.add('hidden');
-        overlayMeetingH1.textContent = "📊 ESITO VOTI";
-        overlayMeetingH1.style.color = "#c084fc";
+        overlayMeetingH1.textContent = "ESITO VOTI";
         overlayMeetingP.textContent = "Votazione conclusa! Guarda il maxischermo per vedere chi ha votato chi!";
         return;
     } else if (state.game_status === 'crewmates_win') {
@@ -324,8 +328,7 @@ function updateUI(state, playersMap) {
         gameScreen.classList.add('hidden');
         waitingScreen.classList.add('hidden');
         votingUI.classList.add('hidden');
-        overlayMeetingH1.textContent = "🏆 VITTORIA CREWMATE!";
-        overlayMeetingH1.style.color = "var(--accent-cyan)";
+        overlayMeetingH1.textContent = "VITTORIA CREWMATE!";
         overlayMeetingP.textContent = "I Crewmate hanno completato tutte le task!";
         return;
     } else if (state.game_status === 'impostors_win') {
@@ -335,8 +338,7 @@ function updateUI(state, playersMap) {
         gameScreen.classList.add('hidden');
         waitingScreen.classList.add('hidden');
         votingUI.classList.add('hidden');
-        overlayMeetingH1.textContent = "🏆 VITTORIA IMPOSTORI!";
-        overlayMeetingH1.style.color = "var(--accent-red)";
+        overlayMeetingH1.textContent = "VITTORIA IMPOSTORI!";
         overlayMeetingP.textContent = "Gli Impostori hanno eliminato i Crewmate!";
         return;
     } else {
