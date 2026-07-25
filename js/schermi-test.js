@@ -288,6 +288,56 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // D. Victory Team Toggle Mock
     let currentVictoryTeam = 'crewmates';
+
+    function renderVictoryTeamMock(team = 'crewmates') {
+        const container = document.getElementById('victory-team-cards');
+        if (!container) return;
+        container.innerHTML = '';
+
+        const members = team === 'crewmates' ? [
+            { name: 'Mario Rossi', role: 'CREWMATE', icon: '👨‍🚀' },
+            { name: 'Elena V.', role: 'CREWMATE', icon: '👩‍🚀' },
+            { name: 'Giuseppe B.', role: 'CREWMATE', icon: '👨‍🚀' },
+            { name: 'Sofia M.', role: 'CREWMATE', icon: '👩‍🚀' },
+            { name: 'Marco T.', role: 'CREWMATE', icon: '👨‍🚀' }
+        ] : [
+            { name: 'Luca S.', role: 'IMPOSTORE', icon: '👺' },
+            { name: 'Stefano C.', role: 'IMPOSTORE', icon: '👺' }
+        ];
+
+        members.forEach(m => {
+            const card = document.createElement('div');
+            card.className = 'victory-member-card';
+            card.style.background = team === 'crewmates' 
+                ? 'linear-gradient(145deg, rgba(0, 242, 254, 0.15), rgba(10, 15, 30, 0.95))' 
+                : 'linear-gradient(145deg, rgba(255, 68, 68, 0.2), rgba(30, 10, 10, 0.95))';
+            card.style.border = team === 'crewmates' ? '2px solid #00f2fe' : '2px solid #ff4444';
+            card.style.borderRadius = '16px';
+            card.style.padding = '1.2rem 1.8rem';
+            card.style.minWidth = '190px';
+            card.style.display = 'flex';
+            card.style.flexDirection = 'column';
+            card.style.alignItems = 'center';
+            card.style.gap = '0.6rem';
+            card.style.boxShadow = team === 'crewmates' 
+                ? '0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 242, 254, 0.3)' 
+                : '0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 68, 68, 0.4)';
+
+            card.innerHTML = `
+                <div style="font-size: 3rem; filter: drop-shadow(0 0 10px ${team === 'crewmates' ? 'rgba(0,242,254,0.5)' : 'rgba(255,68,68,0.6)'})">
+                    ${m.icon}
+                </div>
+                <div style="font-family: var(--font-ui), sans-serif; font-weight: 800; font-size: 1.2rem; color: #ffffff; text-transform: uppercase; letter-spacing: 1px;">
+                    ${m.name}
+                </div>
+                <div style="font-family: var(--font-ui), sans-serif; font-size: 0.75rem; font-weight: 800; padding: 0.25rem 0.7rem; border-radius: 12px; letter-spacing: 1.5px; ${team === 'crewmates' ? 'background: rgba(0,242,254,0.2); color: #00f2fe; border: 1px solid #00f2fe;' : 'background: rgba(255,68,68,0.25); color: #ff6666; border: 1px solid #ff4444;'}">
+                    ${m.role}
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
     function toggleVictoryTeam() {
         const title = document.getElementById('victory-title');
         const subtitle = document.getElementById('victory-subtitle');
@@ -309,6 +359,7 @@ document.addEventListener('DOMContentLoaded', () => {
             subtitle.textContent = 'I CREWMATES HANNO COMPLETATO TUTTE LE TASK';
             overlay.style.background = 'radial-gradient(circle, rgba(0,242,254,0.2) 0%, rgba(5,8,20,0.98) 70%)';
         }
+        renderVictoryTeamMock(currentVictoryTeam);
     }
 
     const btnToggleVictory = document.querySelector('.btn-toggle-victory-team');
@@ -354,6 +405,8 @@ document.addEventListener('DOMContentLoaded', () => {
             renderDiscussionMock();
         } else if (cardId === 'screen-ejected') {
             triggerTypewriterAnimation("Mario Rossi è stato espulso...");
+        } else if (cardId === 'screen-victory') {
+            renderVictoryTeamMock(currentVictoryTeam);
         } else if (cardId === 'screen-role') {
             const text = card.querySelector('.role-animation-text');
             if (text) {
@@ -405,5 +458,6 @@ document.addEventListener('DOMContentLoaded', () => {
     renderDeadRevealMock();
     renderDiscussionMock();
     renderVotingResultsMock();
+    renderVictoryTeamMock(currentVictoryTeam);
     triggerTypewriterAnimation("Mario Rossi è stato espulso...");
 });

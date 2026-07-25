@@ -405,9 +405,13 @@
                 </div>
             </div>
             <div class="lab-screen-stage">
-                <div class="overlay-screen" id="mock-victory-overlay" style="z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle, rgba(0,242,254,0.2) 0%, rgba(5,8,20,0.98) 70%);">
+                <div class="overlay-screen" id="mock-victory-overlay" style="z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle, rgba(0,242,254,0.2) 0%, rgba(5,8,20,0.98) 70%); padding: 2rem;">
                     <h1 class="victory-title-anim" id="victory-title" style="color: #00f2fe; font-size: clamp(3rem, 7vw, 5.5rem); font-family: var(--font-ui), sans-serif; font-weight: 800; text-shadow: 0 0 30px rgba(0,242,254,0.6); text-transform: uppercase; letter-spacing: 5px;">VITTORIA CREWMATES</h1>
                     <p class="victory-subtitle-anim" id="victory-subtitle" style="font-size: 1.4rem; color: #e0e6ed; font-family: var(--font-ui), sans-serif; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; margin-top: 1rem;">I CREWMATES HANNO COMPLETATO TUTTE LE TASK</p>
+                    
+                    <div id="victory-team-cards" style="display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: center; margin-top: 2.5rem; max-width: 900px; width: 100%;">
+                        <!-- Populated by JS -->
+                    </div>
                 </div>
             </div>
         </section>
