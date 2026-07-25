@@ -169,23 +169,20 @@ document.addEventListener('DOMContentLoaded', () => {
         container.innerHTML = '';
 
         const mockPlayersData = {
-            'Mario Rossi': { status: 'alive' },
-            'Elena V.': { status: 'alive' },
-            'Giuseppe B.': { status: 'alive' },
-            'Sofia M.': { status: 'alive' },
-            'Marco T.': { status: 'alive' },
-            'Luca S.': { status: 'killed_revealed' }
+            'Giocatore 1': { status: 'alive' },
+            'Giocatore 2': { status: 'alive' },
+            'Giocatore 3': { status: 'alive' },
+            'Giocatore 4': { status: 'alive' },
+            'Giocatore 5': { status: 'alive' },
+            'Giocatore 6': { status: 'alive' },
+            'Giocatore 7': { status: 'alive' },
+            'Giocatore 8': { status: 'alive' },
+            'Giocatore 9': { status: 'alive' },
+            'Giocatore 10': { status: 'alive' }
         };
 
-        const mockVotesData = {
-            'Giuseppe B.': 'Mario Rossi',
-            'Sofia M.': 'Mario Rossi',
-            'Elena V.': 'Mario Rossi',
-            'Marco T.': 'Elena V.',
-            'Mario Rossi': 'SKIP'
-        };
-
-        const ejectedPlayer = 'Mario Rossi';
+        const mockVotesData = {};
+        const ejectedPlayer = null;
 
         const votesByTarget = {};
         for (const pName in mockPlayersData) {
