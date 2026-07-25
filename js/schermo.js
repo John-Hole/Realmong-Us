@@ -1056,4 +1056,3 @@ function startConnection() {
     });
     }).catch(err => console.error("Errore autenticazione maxischermo:", err));
 }
-}
