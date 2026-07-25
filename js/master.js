@@ -1361,9 +1361,26 @@ if (btnReset) {
         try {
             await ensureAuth();
             const snapshot = await get(ref(db, `rooms/${roomCode}/players`));
-            const playersMap = snapshot.val() || {};
+            const rawPlayers = snapshot.val() || {};
+            const playersMap = {};
+
+            if (Array.isArray(rawPlayers)) {
+                rawPlayers.forEach((p, idx) => {
+                    if (p && (p.name || p.role)) {
+                        const key = sanitizePlayerKey(p.name || `player_${idx}`);
+                        playersMap[key] = p;
+                    }
+                });
+            } else {
+                for (const k in rawPlayers) {
+                    if (rawPlayers[k] && (rawPlayers[k].name || rawPlayers[k].role || typeof rawPlayers[k] === 'object')) {
+                        const cleanKey = sanitizePlayerKey(rawPlayers[k].name || k);
+                        playersMap[cleanKey] = rawPlayers[k];
+                    }
+                }
+            }
             
-            for(const key in playersMap) {
+            for (const key in playersMap) {
                 const existingObj = playersMap[key] || {};
                 const existingToken = existingObj.token || (currentPlayers && currentPlayers[key] ? currentPlayers[key].token : null);
                 const existingName = existingObj.name || (currentPlayers && currentPlayers[key] ? currentPlayers[key].name : key);
@@ -1388,10 +1405,7 @@ if (btnReset) {
             updates['state/last_ejected'] = null;
             updates['votes'] = null;
             updates['kickedPlayers'] = null;
-
-            for (const key in playersMap) {
-                updates[`players/${key}`] = playersMap[key];
-            }
+            updates['players'] = playersMap;
 
             await update(roomRef, updates);
             addLog("🔄 La partita è stata resettata.");
