@@ -266,8 +266,9 @@ function updateUI(state, playersMap) {
         gameScreen.classList.add('hidden');
         waitingScreen.classList.add('hidden');
         votingUI.classList.add('hidden');
+        overlayMeetingH1.className = "emergency-text-anim";
         overlayMeetingH1.textContent = "EMERGENZA!";
-        overlayMeetingH1.style.color = "var(--accent-red)";
+        overlayMeetingH1.style.color = "#ff0033";
         overlayMeetingP.textContent = "Il gioco è in pausa. Raggiungi il punto di raduno!";
         
         if (previousStatus !== 'emergency' && sirenAudio) {
