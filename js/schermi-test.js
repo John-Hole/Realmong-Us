@@ -121,47 +121,41 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // B. Meeting Discussion Grid Mock
+    // B. Meeting Discussion Grid Mock (Show ONLY living players, no tags)
     function renderDiscussionMock() {
         const container = document.getElementById('mock-discussion-votes-grid');
         if (!container) return;
         container.innerHTML = '';
 
-        const players = [
-            { name: 'Mario Rossi', status: 'alive' },
-            { name: 'Elena V.', status: 'alive' },
-            { name: 'Giuseppe B.', status: 'alive' },
-            { name: 'Sofia M.', status: 'alive' },
-            { name: 'Luca S.', status: 'killed_revealed' },
-            { name: 'Marco T.', status: 'alive' }
+        const livingPlayers = [
+            { name: 'Mario Rossi' },
+            { name: 'Elena V.' },
+            { name: 'Giuseppe B.' },
+            { name: 'Sofia M.' },
+            { name: 'Marco T.' }
         ];
 
-        players.forEach(p => {
-            const isDead = p.status === 'killed_revealed' || p.status === 'dead';
+        livingPlayers.forEach(p => {
             const pCard = document.createElement('div');
             pCard.className = 'discussion-player-card';
-            pCard.style.background = isDead ? 'rgba(20, 20, 25, 0.6)' : 'linear-gradient(145deg, rgba(20, 28, 45, 0.9), rgba(10, 15, 25, 0.95))';
-            pCard.style.border = isDead ? '1px solid rgba(255, 255, 255, 0.1)' : '2px solid rgba(0, 242, 254, 0.4)';
+            pCard.style.background = 'linear-gradient(145deg, rgba(20, 28, 45, 0.9), rgba(10, 15, 25, 0.95))';
+            pCard.style.border = '2px solid rgba(0, 242, 254, 0.4)';
             pCard.style.borderRadius = '14px';
-            pCard.style.padding = '1.2rem 1.8rem';
-            pCard.style.minWidth = '210px';
+            pCard.style.padding = '1.25rem 2rem';
+            pCard.style.minWidth = '200px';
             pCard.style.display = 'flex';
             pCard.style.flexDirection = 'column';
             pCard.style.alignItems = 'center';
-            pCard.style.gap = '0.6rem';
-            pCard.style.opacity = isDead ? '0.45' : '1';
-            pCard.style.boxShadow = isDead ? 'none' : '0 8px 25px rgba(0, 0, 0, 0.6), 0 0 15px rgba(0, 242, 254, 0.15)';
+            pCard.style.gap = '0.75rem';
+            pCard.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.6), 0 0 15px rgba(0, 242, 254, 0.15)';
             pCard.style.transition = 'all 0.3s ease';
 
             pCard.innerHTML = `
-                <div style="font-size: 2.8rem; filter: drop-shadow(0 0 10px ${isDead ? 'rgba(0,0,0,0.5)' : 'rgba(0,242,254,0.3)'})">
-                    ${isDead ? '💀' : '👨‍🚀'}
+                <div style="font-size: 3rem; filter: drop-shadow(0 0 10px rgba(0,242,254,0.3))">
+                    👨‍🚀
                 </div>
-                <div style="font-family: var(--font-ui), sans-serif; font-weight: 800; font-size: 1.1rem; color: ${isDead ? '#888' : '#ffffff'}; text-transform: uppercase; letter-spacing: 1px;">
+                <div style="font-family: var(--font-ui), sans-serif; font-weight: 800; font-size: 1.2rem; color: #ffffff; text-transform: uppercase; letter-spacing: 1px;">
                     ${p.name}
-                </div>
-                <div style="font-family: var(--font-ui), sans-serif; font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 12px; letter-spacing: 1px; ${isDead ? 'background: rgba(255,68,68,0.15); color: #ff6666; border: 1px solid rgba(255,68,68,0.3);' : 'background: rgba(0,242,254,0.15); color: #00f2fe; border: 1px solid rgba(0,242,254,0.3);'}">
-                    ${isDead ? '💀 DEFUNTO' : '🟢 IN VITA'}
                 </div>
             `;
             container.appendChild(pCard);
