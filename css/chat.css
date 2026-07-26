@@ -1,8 +1,16 @@
+.discussion-container {
+    width: 95% !important;
+    max-width: 1100px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+}
+
 .discussion-cards-grid {
-    display: grid !important;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 460px)) !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
     justify-content: center !important;
-    gap: 1.5rem !important;
+    gap: 1.2rem !important;
     width: 100% !important;
     box-sizing: border-box !important;
 }
@@ -13,8 +21,9 @@
     display: flex !important;
     flex-direction: column !important;
     gap: 0.8rem !important;
-    width: 100% !important;
-    max-width: none !important;
+    min-width: 250px !important;
+    flex: 1 1 280px !important;
+    max-width: 400px !important;
     box-sizing: border-box !important;
     position: relative !important;
     overflow: hidden !important;
