@@ -394,7 +394,10 @@ function updateUI(state, playersMap) {
         gameScreen.classList.add('hidden');
         waitingScreen.classList.add('hidden');
         votingUI.classList.add('hidden');
-        if (overlayMeetingH1) overlayMeetingH1.textContent = "ESITO VOTI";
+        if (overlayMeetingH1) {
+            overlayMeetingH1.textContent = "ESITO VOTI";
+            overlayMeetingH1.style.fontFamily = "var(--font-ui), sans-serif";
+        }
         if (overlayMeetingP) overlayMeetingP.textContent = "Votazione conclusa! Guarda il maxischermo per vedere chi ha votato chi!";
         return;
     } else if (state.game_status === 'crewmates_win') {

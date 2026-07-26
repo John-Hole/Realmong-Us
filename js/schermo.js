@@ -812,7 +812,7 @@ function startConnection() {
             const pStatus = item.data && typeof item.data === 'object' ? item.data.status : 'alive';
             const isDead = pStatus === 'dead' || pStatus === 'ghost' || pStatus === 'killed_revealed' || pStatus === 'killed_hidden';
             
-            card.className = `discussion-card ${isDead ? 'dead-card' : 'alive-card'}`;
+            card.className = `chat-card ${isDead ? 'dead-card' : 'alive-card'}`;
 
             const avatarIcon = isDead ? '💀' : '👨‍🚀';
 
@@ -820,32 +820,32 @@ function startConnection() {
             let statusDetail = '';
 
             if (isDead) {
-                statusBadge = `<span class="discussion-badge dead-badge">💀 MORTO</span>`;
+                statusBadge = `<span class="chat-badge dead-badge">💀 MORTO</span>`;
                 statusDetail = 'Non può parlare né votare';
             } else if (targetVotes && Object.keys(targetVotes).length > 0) {
                 const hasVoted = targetVotes[item.name] !== undefined || (item.data && targetVotes[item.data.id] !== undefined);
                 if (hasVoted) {
-                    statusBadge = `<span class="discussion-badge voted-badge">✓ VOTATO</span>`;
+                    statusBadge = `<span class="chat-badge voted-badge">✓ VOTATO</span>`;
                     statusDetail = 'Ha espresso il suo voto';
                 } else {
-                    statusBadge = `<span class="discussion-badge waiting-badge">⏳ IN ATTESA</span>`;
+                    statusBadge = `<span class="chat-badge waiting-badge">⏳ IN ATTESA</span>`;
                     statusDetail = 'Sta decidendo chi votare';
                 }
             } else {
-                statusBadge = `<span class="discussion-badge alive-badge">💚 VIVO</span>`;
+                statusBadge = `<span class="chat-badge alive-badge">💚 VIVO</span>`;
                 statusDetail = 'Può parlare e votare';
             }
 
             card.innerHTML = `
-                <div class="discussion-card-top">
-                    <div class="discussion-card-user">
-                        <span class="discussion-card-avatar">${avatarIcon}</span>
-                        <span class="discussion-card-name">${escapeHtml(item.name)}</span>
+                <div class="chat-card-top">
+                    <div class="chat-card-user">
+                        <span class="chat-card-avatar">${avatarIcon}</span>
+                        <span class="chat-card-name">${escapeHtml(item.name)}</span>
                     </div>
                     ${statusBadge}
                 </div>
-                <div class="discussion-card-bottom">
-                    <span class="discussion-card-detail">${statusDetail}</span>
+                <div class="chat-card-bottom">
+                    <span class="chat-card-detail">${statusDetail}</span>
                 </div>
             `;
 
