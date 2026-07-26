@@ -123,16 +123,23 @@
 }
 .discussion-header-box {
     margin-bottom: 0.5rem !important;
+    text-align: center !important;
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
 .discussion-header {
     font-family: var(--font-pixel, monospace), sans-serif !important;
-    font-size: clamp(2rem, 4.5vw, 3.5rem) !important;
+    font-size: clamp(1.5rem, 4vw, 3rem) !important;
     color: #ffea00 !important;
     letter-spacing: 4px !important;
     text-transform: uppercase !important;
     text-shadow: 0 0 20px rgba(255, 234, 0, 0.8), 0 0 40px rgba(255, 234, 0, 0.4) !important;
     margin: 0 !important;
+    white-space: nowrap !important;
 }
 
 .discussion-subheader {
