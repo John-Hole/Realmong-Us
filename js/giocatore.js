@@ -412,18 +412,20 @@ function updateUI(state, playersMap) {
         waitingScreen.classList.add('hidden');
         votingUI.classList.add('hidden');
         if (overlayVictory) {
-            overlayVictory.style.background = 'radial-gradient(circle, rgba(0,242,254,0.2) 0%, rgba(5,8,20,1) 70%)';
+            overlayVictory.style.background = '#000000';
             overlayVictory.style.display = 'flex';
             overlayVictory.classList.remove('hidden');
         }
         if (victoryTitle) {
             victoryTitle.textContent = "VITTORIA CREWMATE!";
             victoryTitle.style.color = '#00f2fe';
+            victoryTitle.style.fontFamily = "'Orbitron', sans-serif";
             victoryTitle.style.textShadow = '0 0 25px rgba(0, 242, 254, 0.6)';
         }
         if (victorySubtitle) {
             victorySubtitle.textContent = "I CREWMATE HANNO COMPLETATO TUTTE LE TASK!";
             victorySubtitle.style.color = '#e0e6ed';
+            victorySubtitle.style.fontFamily = "'Orbitron', sans-serif";
         }
         return;
     } else if (state.game_status === 'impostors_win') {
@@ -434,18 +436,20 @@ function updateUI(state, playersMap) {
         waitingScreen.classList.add('hidden');
         votingUI.classList.add('hidden');
         if (overlayVictory) {
-            overlayVictory.style.background = 'radial-gradient(circle, rgba(255,68,68,0.25) 0%, rgba(15,5,5,1) 70%)';
+            overlayVictory.style.background = '#000000';
             overlayVictory.style.display = 'flex';
             overlayVictory.classList.remove('hidden');
         }
         if (victoryTitle) {
             victoryTitle.textContent = "VITTORIA IMPOSTORI!";
             victoryTitle.style.color = '#ff4444';
+            victoryTitle.style.fontFamily = "'Orbitron', sans-serif";
             victoryTitle.style.textShadow = '0 0 25px rgba(255, 68, 68, 0.6)';
         }
         if (victorySubtitle) {
             victorySubtitle.textContent = "GLI IMPOSTORI HANNO CONQUISTATO LA NAVE!";
             victorySubtitle.style.color = '#e0e6ed';
+            victorySubtitle.style.fontFamily = "'Orbitron', sans-serif";
         }
         return;
     } else {

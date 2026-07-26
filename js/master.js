@@ -391,7 +391,7 @@ function processPlayerLogs(oldPlayers, newPlayers) {
         // Check tasks
         if (oldP.tasks && newP.tasks) {
             for (const t in newP.tasks) {
-                if (newP.tasks[t].completed && !oldP.tasks[t].completed) {
+                if (newP.tasks[t].completed && (!oldP.tasks[t] || !oldP.tasks[t].completed)) {
                     addLog(`✅ <span style="color:#4caf50;">${escapeHtml(name)}</span> ha completato una task: ${escapeHtml(newP.tasks[t].desc)}`);
                 }
             }
@@ -1012,7 +1012,7 @@ async function resolveMeeting(players, votes, state) {
 
             await update(roomRef, updates);
             addLog(`⏭️ Votazione terminata in SKIP. Partita ripresa immediatamente.`);
-            await checkWinConditions(state, players);
+            await checkWinCondition(state, players);
         } else {
             const resultsEndTime = Date.now() + 7000;
 
@@ -1069,7 +1069,7 @@ async function finalizeMeetingToPlaying() {
 
         await update(roomRef, updates);
         addLog(`🚀 Transizione a gioco avviata, esito espulsione in corso.`);
-        await checkWinConditions(currentState, players);
+        await checkWinCondition(currentState, players);
     } catch (err) {
         console.error("Errore durante la finalizzazione del meeting:", err);
     } finally {

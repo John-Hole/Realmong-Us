@@ -1048,6 +1048,7 @@ function startConnection() {
 
                 if (status === 'waiting') {
                     hideVotingResultsOverlay();
+                    hideVictoryOverlay();
                     hideDiscussionOverlay();
                     if(overlayMeeting) overlayMeeting.classList.add('hidden');
                     if(overlayEjected) overlayEjected.classList.add('hidden');
@@ -1060,6 +1061,7 @@ function startConnection() {
                 } 
                 else if (status === 'playing') {
                     hideVotingResultsOverlay();
+                    hideVictoryOverlay();
                     hideDiscussionOverlay();
                     if(overlayMeeting) overlayMeeting.classList.add('hidden');
                     
