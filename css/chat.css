@@ -121,3 +121,22 @@
     color: #94a3b8 !important;
     font-weight: 600 !important;
 }
+.discussion-header-box {
+    margin-bottom: 0.5rem !important;
+}
+
+.discussion-header {
+    font-family: var(--font-pixel, monospace), sans-serif !important;
+    font-size: clamp(2rem, 4.5vw, 3.5rem) !important;
+    color: #ffea00 !important;
+    letter-spacing: 4px !important;
+    text-transform: uppercase !important;
+    text-shadow: 0 0 20px rgba(255, 234, 0, 0.8), 0 0 40px rgba(255, 234, 0, 0.4) !important;
+    margin: 0 !important;
+}
+
+.discussion-subheader {
+    font-family: var(--font-ui), sans-serif !important;
+    font-weight: 600 !important;
+    letter-spacing: 2px !important;
+}
