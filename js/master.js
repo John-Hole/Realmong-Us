@@ -955,7 +955,8 @@ async function resolveMeeting(players, votes, state) {
             ejected = 'SKIP';
         }
 
-        const resultsEndTime = Date.now() + 7000; // 7 secondi di visione dell'esito voti
+        const duration = (ejected === 'SKIP') ? 2000 : 7000;
+        const resultsEndTime = Date.now() + duration;
 
         const updates = {};
         updates['state/game_status'] = 'voting_results';
@@ -964,7 +965,7 @@ async function resolveMeeting(players, votes, state) {
         updates['state/results_endtime'] = resultsEndTime;
 
         await update(roomRef, updates);
-        addLog(`🗳️ Votazione conclusa! Esito voti in visione per 7s...`);
+        addLog(`🗳️ Votazione conclusa! Esito: ${ejected === 'SKIP' ? 'SKIP' : ejected}`);
     } catch (err) {
         console.error("Errore durante la risoluzione del meeting:", err);
         resolvingMeeting = false;

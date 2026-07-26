@@ -1027,8 +1027,9 @@ function startConnection() {
                 }
 
                 const overlayDeadReveal = document.getElementById('overlay-dead-reveal');
-                if (status !== 'discussion' && overlayDeadReveal && !isDeadRevealActive) {
+                if (status !== 'discussion' && overlayDeadReveal) {
                     overlayDeadReveal.classList.add('hidden');
+                    isDeadRevealActive = false;
                 }
 
                 if (status !== 'emergency' && overlayMeeting) {
