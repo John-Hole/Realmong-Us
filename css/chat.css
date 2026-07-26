@@ -122,7 +122,8 @@
     font-weight: 600 !important;
 }
 .discussion-header-box {
-    margin-bottom: 0.5rem !important;
+    margin-bottom: 2.5rem !important;
+    gap: 1.5rem !important;
     text-align: center !important;
     width: 100% !important;
     display: flex !important;
