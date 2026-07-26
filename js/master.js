@@ -927,7 +927,9 @@ async function checkVotes(state, players, votes) {
     for (const name in players) {
         if (players[name] && players[name].status === 'alive') {
             aliveCount++;
-            if (votes && votes[name] !== undefined && votes[name] !== null) {
+            const playerObj = players[name];
+            const hasVoted = votes && (votes[name] !== undefined || (playerObj.id && votes[playerObj.id] !== undefined) || (playerObj.name && votes[playerObj.name] !== undefined));
+            if (hasVoted) {
                 aliveVotedCount++;
             }
         }

@@ -785,7 +785,7 @@ function renderVotingUI(playersMap) {
 
 async function castVote(voteTarget) {
     const updates = {};
-    updates[`rooms/${roomCode}/votes/${myPlayerName}`] = voteTarget;
+    updates[`rooms/${roomCode}/votes/${myPlayerKey}`] = voteTarget;
     await update(ref(db), updates);
 }
 
