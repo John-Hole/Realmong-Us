@@ -1727,6 +1727,21 @@ body.schermo-body, body.teatro-body {
     padding: 0.2rem;
 }
 
+.players-grid-list.overlay-wrap {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.players-grid-list.overlay-wrap .player-card {
+    flex: 1 1 280px;
+    max-width: 380px;
+    min-width: 250px;
+}
+
 /* CLEAN PLAYER CARD - REMOVED THICK SIDE BORDER */
 .player-card {
     background: rgba(255, 255, 255, 0.03);
