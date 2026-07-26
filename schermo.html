@@ -6,6 +6,7 @@
     <title>Realmong Us - Maxischermo</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/global.css?v=1.2">
     <link rel="stylesheet" href="css/chat.css?v=1.1">
@@ -66,7 +67,7 @@
     </div>
     
     <!-- Dead Reveal Overlay (Solid Dark Black Background) -->
-    <div id="overlay-dead-reveal" class="overlay-screen hidden" style="z-index: 3000; background: #05050a; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem;">
+    <div id="overlay-dead-reveal" class="overlay-screen hidden" style="z-index: 3000; background: #000000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem;">
         <div class="dead-reveal-container">
             <div class="dead-reveal-header-box">
                 <h1 id="dead-reveal-title" class="dead-reveal-header" style="font-family: var(--font-ui), sans-serif; font-weight: 800; letter-spacing: 4px;">RAPPORTO VITTIME</h1>
@@ -79,7 +80,7 @@
     </div>
 
     <!-- Voting Results Overlay (Solid Dark Black Background) -->
-    <div id="overlay-voting-results" class="overlay-screen hidden" style="z-index: 3000; background: #05050c; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem;">
+    <div id="overlay-voting-results" class="overlay-screen hidden" style="z-index: 3000; background: #000000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem;">
         <div class="voting-results-container">
             <div class="voting-results-header-box">
                 <h1 class="voting-results-header" style="font-family: var(--font-ui), sans-serif; font-weight: 800; letter-spacing: 4px;">RISULTATI VOTAZIONE</h1>
@@ -92,7 +93,7 @@
     </div>
 
     <!-- Discussion Screen Overlay (Solid Dark Background) -->
-    <div id="overlay-discussion" class="overlay-screen hidden" style="z-index: 2800; background: radial-gradient(circle at center, #111425 0%, #070810 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem 1.5rem; text-align: center;">
+    <div id="overlay-discussion" class="overlay-screen hidden" style="z-index: 2800; background: #000000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem 1.5rem; text-align: center;">
         <div class="discussion-container">
             <div class="discussion-header-box">
                 <h1 class="discussion-header">DISCUSSIONE IN CORSO</h1>
@@ -105,7 +106,7 @@
     </div>
 
     <!-- Victory Overlay (Fine Partita) -->
-    <div id="overlay-victory" class="overlay-screen hidden" style="z-index: 3000; display: none; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle, rgba(0,242,254,0.2) 0%, rgba(5,8,20,1) 70%); padding: 2rem;">
+    <div id="overlay-victory" class="overlay-screen hidden" style="z-index: 3000; display: none; flex-direction: column; align-items: center; justify-content: center; background: #000000; padding: 2rem;">
         <h1 class="victory-title-anim" id="victory-title" style="color: #00f2fe; font-size: clamp(2.5rem, 6.5vw, 5rem); font-family: var(--font-ui), sans-serif; font-weight: 800; text-shadow: 0 0 30px rgba(0,242,254,0.6); text-transform: uppercase; letter-spacing: 5px; white-space: nowrap;">VITTORIA CREWMATES</h1>
         <p class="victory-subtitle-anim" id="victory-subtitle" style="font-size: 1.2rem; color: #e0e6ed; font-family: var(--font-ui), sans-serif; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; margin-top: 1rem; text-align: center;">I CREWMATES HANNO COMPLETATO TUTTE LE TASK</p>
         

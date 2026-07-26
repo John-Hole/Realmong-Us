@@ -872,13 +872,13 @@ function startConnection() {
         const isCrewmates = (status === 'crewmates_win');
         
         if (isCrewmates) {
-            victoryOverlay.style.background = 'radial-gradient(circle, rgba(0,242,254,0.2) 0%, rgba(5,8,20,1) 70%)';
+            victoryOverlay.style.background = '#000000';
             title.textContent = 'VITTORIA CREWMATES';
             title.style.color = '#00f2fe';
             title.style.textShadow = '0 0 30px rgba(0, 242, 254, 0.6)';
             subtitle.textContent = 'I CREWMATES HANNO COMPLETATO TUTTE LE TASK';
         } else {
-            victoryOverlay.style.background = 'radial-gradient(circle, rgba(255,68,68,0.25) 0%, rgba(15,5,5,1) 70%)';
+            victoryOverlay.style.background = '#000000';
             title.textContent = 'VITTORIA IMPOSTORI';
             title.style.color = '#ff4444';
             title.style.textShadow = '0 0 30px rgba(255, 68, 68, 0.6)';
