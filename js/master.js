@@ -955,19 +955,50 @@ async function resolveMeeting(players, votes, state) {
             ejected = 'SKIP';
         }
 
-        const duration = (ejected === 'SKIP') ? 2000 : 7000;
-        const resultsEndTime = Date.now() + duration;
+        if (ejected === 'SKIP') {
+            let nextRound = (state.round || 1) + 1;
 
-        const updates = {};
-        updates['state/game_status'] = 'voting_results';
-        updates['state/last_ejected'] = ejected;
-        updates['state/last_votes'] = votes || {};
-        updates['state/results_endtime'] = resultsEndTime;
+            // Convert killed_hidden to killed_revealed
+            for (const name in players) {
+                if (players[name] && players[name].status === 'killed_hidden') {
+                    players[name].status = 'killed_revealed';
+                }
+            }
 
-        await update(roomRef, updates);
-        addLog(`🗳️ Votazione conclusa! Esito: ${ejected === 'SKIP' ? 'SKIP' : ejected}`);
+            const roundDuration = getRoundDuration(nextRound);
+            const endTime = Date.now() + roundDuration;
+
+            const updates = {};
+            updates['state/game_status'] = 'playing';
+            updates['state/round'] = nextRound;
+            updates['state/timer'] = endTime;
+            updates['state/timer_paused'] = false;
+            updates['state/timer_remaining'] = 0;
+            updates['state/last_ejected'] = 'SKIP';
+            updates['votes'] = null;
+
+            for (const name in players) {
+                updates[`players/${name}`] = players[name];
+            }
+
+            await update(roomRef, updates);
+            addLog(`⏭️ Votazione terminata in SKIP. Partita ripresa immediatamente.`);
+            await checkWinConditions(state, players);
+        } else {
+            const resultsEndTime = Date.now() + 7000;
+
+            const updates = {};
+            updates['state/game_status'] = 'voting_results';
+            updates['state/last_ejected'] = ejected;
+            updates['state/last_votes'] = votes || {};
+            updates['state/results_endtime'] = resultsEndTime;
+
+            await update(roomRef, updates);
+            addLog(`🗳️ Votazione conclusa! Espulso: ${ejected}. Esito in visione per 7s.`);
+        }
     } catch (err) {
         console.error("Errore durante la risoluzione del meeting:", err);
+    } finally {
         resolvingMeeting = false;
     }
 }
