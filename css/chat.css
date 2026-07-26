@@ -1,12 +1,20 @@
+.discussion-cards-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 460px)) !important;
+    justify-content: center !important;
+    gap: 1.5rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
 .chat-card {
     border-radius: 16px !important;
     padding: 1.1rem 1.4rem !important;
     display: flex !important;
     flex-direction: column !important;
     gap: 0.8rem !important;
-    min-width: 280px !important;
-    flex: 1 1 300px !important;
-    max-width: 460px !important;
+    width: 100% !important;
+    max-width: none !important;
     box-sizing: border-box !important;
     position: relative !important;
     overflow: hidden !important;
