@@ -785,59 +785,74 @@ function renderMasterTimer() {
     let modalTimerText = "00:00";
     let timerColor = "#38bdf8";
 
+    // Calcola il tempo rimanente del round principale (Sempre visibile in basso)
+    let mainTimerText = "--:--";
+    let mainLeft = 0;
+    if (status !== 'waiting') {
+        if (currentState.timer_paused) {
+            mainTimerText = formatTime(currentState.timer_remaining || 0);
+            mainLeft = currentState.timer_remaining || 0;
+        } else {
+            mainLeft = Math.max(0, (currentState.timer || 0) - Date.now());
+            mainTimerText = formatTime(mainLeft);
+        }
+    }
+
+    // Di default, l'orologio principale in basso mostra sempre il timer del round
+    liveClockText = mainTimerText;
+
     if (status === 'waiting') {
         if (currentTimerPill) currentTimerPill.classList.add('hidden');
         liveClockText = "--:--";
+        headerTimerText = "--:--";
         modalTimerText = "⏳ IN ATTESA";
         timerColor = "#94a3b8";
     } else if (status === 'playing') {
         if (currentTimerPill) currentTimerPill.classList.remove('hidden');
         if (currentState.timer_paused) {
-            const remSec = formatTime(currentState.timer_remaining || 0);
-            headerTimerText = remSec;
-            liveClockText = remSec;
-            modalTimerText = `PAUSA (${remSec})`;
+            headerTimerText = mainTimerText;
+            modalTimerText = `PAUSA (${mainTimerText})`;
             timerColor = "#f59e0b";
         } else {
-            const left = Math.max(0, (currentState.timer || 0) - Date.now());
-            const remSec = formatTime(left);
-            headerTimerText = remSec;
-            liveClockText = remSec;
-            modalTimerText = `▶️ ${remSec}`;
-            timerColor = left <= 30000 ? "#ef4444" : "#38bdf8";
+            headerTimerText = mainTimerText;
+            modalTimerText = `▶️ ${mainTimerText}`;
+            timerColor = mainLeft <= 30000 ? "#ef4444" : "#38bdf8";
 
             // When round timer reaches 00:00, automatically call emergency meeting!
-            if (left <= 0 && currentState.timer && currentState.timer > 0) {
+            if (mainLeft <= 0 && currentState.timer && currentState.timer > 0) {
                 callEmergencyMeeting();
             }
         }
     } else if (status === 'emergency') {
         if (currentTimerPill) currentTimerPill.classList.add('hidden');
-        liveClockText = "--:--";
-        modalTimerText = "🚨 EMERGENZA";
+        headerTimerText = "--:--";
+        modalTimerText = `🚨 EMERGENZA (${mainTimerText})`;
         timerColor = "#ef4444";
     } else if (status === 'discussion') {
         if (currentTimerPill) currentTimerPill.classList.add('hidden');
-        liveClockText = "--:--";
-        modalTimerText = "💬 DISCUSSIONE";
+        headerTimerText = "--:--";
+        modalTimerText = `💬 DISCUSSIONE (${mainTimerText})`;
         timerColor = "#ffeb3b";
     } else if (status === 'voting') {
         if (currentTimerPill) currentTimerPill.classList.remove('hidden');
         if (!currentState.voting_endtime || currentState.voting_endtime === 0) {
             headerTimerText = "Libera";
-            liveClockText = "--:--";
-            modalTimerText = "🗳️ VOTAZIONE LIBERA";
+            modalTimerText = `🗳️ VOTAZIONE LIBERA (${mainTimerText})`;
         } else {
-            const remaining = Math.max(0, currentState.voting_endtime - Date.now());
-            const sec = Math.ceil(remaining / 1000);
+            const remainingVoting = Math.max(0, currentState.voting_endtime - Date.now());
+            const sec = Math.ceil(remainingVoting / 1000);
             headerTimerText = `${sec}s`;
-            liveClockText = formatTime(remaining);
-            modalTimerText = `🗳️ VOTAZIONE: ${sec}s`;
+            modalTimerText = `🗳️ VOTAZIONE: ${sec}s (${mainTimerText})`;
         }
         timerColor = "#9c27b0";
+    } else if (status === 'voting_results') {
+        if (currentTimerPill) currentTimerPill.classList.add('hidden');
+        headerTimerText = "--:--";
+        modalTimerText = `📊 ESITO VOTI (${mainTimerText})`;
+        timerColor = "#c084fc";
     } else if (status === 'impostors_win' || status === 'crewmates_win') {
         if (currentTimerPill) currentTimerPill.classList.add('hidden');
-        liveClockText = "--:--";
+        headerTimerText = "--:--";
         modalTimerText = "🏆 FINE PARTITA";
         timerColor = "#64748b";
     }

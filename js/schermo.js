@@ -812,41 +812,29 @@ function startConnection() {
             const pStatus = item.data && typeof item.data === 'object' ? item.data.status : 'alive';
             const isDead = pStatus === 'dead' || pStatus === 'ghost' || pStatus === 'killed_revealed' || pStatus === 'killed_hidden';
             
-            card.className = `discussion-card ${isDead ? 'dead-card' : 'alive-card'}`;
+            card.className = `player-card ${isDead ? 'dead' : ''}`;
 
             const avatarIcon = isDead ? '💀' : '👨‍🚀';
 
-            let statusBadge = '';
-            let statusDetail = '';
+            let statusHtml = '';
 
             if (isDead) {
-                statusBadge = `<span class="discussion-badge dead-badge">💀 MORTO</span>`;
-                statusDetail = 'Non può parlare né votare';
+                statusHtml = '<span class="player-status dead-badge" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); padding: 2px 8px; border-radius: 10px; font-weight: 700; font-size: 0.75rem;">❌ DEFUNTO</span>';
             } else if (targetVotes && Object.keys(targetVotes).length > 0) {
                 const hasVoted = targetVotes[item.name] !== undefined || (item.data && targetVotes[item.data.id] !== undefined);
                 if (hasVoted) {
-                    statusBadge = `<span class="discussion-badge voted-badge">✓ VOTATO</span>`;
-                    statusDetail = 'Ha espresso il suo voto';
+                    statusHtml = '<span class="player-status voted-badge">VOTATO</span>';
                 } else {
-                    statusBadge = `<span class="discussion-badge waiting-badge">⏳ IN ATTESA</span>`;
-                    statusDetail = 'Sta decidendo chi votare';
+                    statusHtml = '<span class="player-status waiting-badge">IN ATTESA</span>';
                 }
             } else {
-                statusBadge = `<span class="discussion-badge alive-badge">💚 VIVO</span>`;
-                statusDetail = 'Può parlare e votare';
+                statusHtml = '<span class="player-status alive-badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); padding: 2px 8px; border-radius: 10px; font-weight: 700; font-size: 0.75rem;">💚 VIVO</span>';
             }
 
             card.innerHTML = `
-                <div class="discussion-card-top">
-                    <div class="discussion-card-user">
-                        <span class="discussion-card-avatar">${avatarIcon}</span>
-                        <span class="discussion-card-name">${escapeHtml(item.name)}</span>
-                    </div>
-                    ${statusBadge}
-                </div>
-                <div class="discussion-card-bottom">
-                    <span class="discussion-card-detail">${statusDetail}</span>
-                </div>
+                <div class="player-avatar">${avatarIcon}</div>
+                <span class="player-name">${escapeHtml(item.name)}</span>
+                ${statusHtml}
             `;
 
             container.appendChild(card);
@@ -1066,18 +1054,22 @@ function startConnection() {
                         }
                     }
                     
-                    const hasEjectedPlayer = data.state && data.state.last_ejected && data.state.last_ejected !== 'SKIP';
-                    if ((previousStatus === 'voting_results' || previousStatus === 'voting') && hasEjectedPlayer) {
-                        if(overlayEjected) {
+                    const isComingFromMeeting = previousStatus === 'voting_results' || previousStatus === 'voting' || previousStatus === 'discussion';
+                    const lastEjected = data.state ? data.state.last_ejected : null;
+                    const hasEjectedPlayer = lastEjected && lastEjected !== 'SKIP';
+
+                    if (isComingFromMeeting && hasEjectedPlayer) {
+                        if (overlayEjected) {
                             overlayEjected.classList.remove('hidden');
-                            const ejectedMsg = `${data.state.last_ejected} è stato espulso...`;
+                            const ejectedMsg = `${lastEjected} è stato espulso...`;
+
                             triggerEjectedTypewriter(ejectedText, ejectedMsg, 70);
                             setTimeout(() => {
                                 overlayEjected.classList.add('hidden');
                             }, 5000);
                         }
                     } else {
-                        if(overlayEjected) overlayEjected.classList.add('hidden');
+                        if (overlayEjected) overlayEjected.classList.add('hidden');
                     }
 
                     renderPlayers(players, votes, maxPlayers);
