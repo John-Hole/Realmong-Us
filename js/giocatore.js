@@ -335,6 +335,7 @@ function updateUI(state, playersMap) {
             overlayMeetingH1.style.animation = "";
             overlayMeetingH1.style.textShadow = "";
             overlayMeetingH1.style.filter = "";
+            overlayMeetingH1.style.fontFamily = "";
         }
     }
 
@@ -360,6 +361,7 @@ function updateUI(state, playersMap) {
             overlayMeetingH1.style.animation = "none";
             overlayMeetingH1.style.textShadow = "none";
             overlayMeetingH1.style.filter = "none";
+            overlayMeetingH1.style.fontFamily = "var(--font-ui), sans-serif";
         }
         if (overlayMeetingP) {
             overlayMeetingP.style.display = "none";
