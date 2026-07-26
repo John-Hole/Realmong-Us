@@ -300,8 +300,12 @@ function updateUI(state, playersMap) {
         overlayDead.classList.add('hidden');
     }
 
+    const overlayMeeting = document.getElementById('overlay-meeting');
     const overlayMeetingH1 = overlayMeeting ? overlayMeeting.querySelector('h1') : null;
     const overlayMeetingP = overlayMeeting ? overlayMeeting.querySelector('p') : null;
+    const overlayVictory = document.getElementById('overlay-victory');
+    const victoryTitle = document.getElementById('victory-title');
+    const victorySubtitle = document.getElementById('victory-subtitle');
 
     if (state.game_status === 'emergency') {
         if (overlayMeeting) {

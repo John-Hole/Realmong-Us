@@ -1,17 +1,5 @@
 {
   "cleanUrls": true,
-  "redirects": [
-    {
-      "source": "/schermi-test",
-      "destination": "/",
-      "permanent": true
-    },
-    {
-      "source": "/schermi-test.html",
-      "destination": "/",
-      "permanent": true
-    }
-  ],
   "headers": [
     {
       "source": "/(.*)",

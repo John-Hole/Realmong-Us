@@ -538,63 +538,75 @@ ensureAuth().then((currentUser) => {
         if (snapshot.exists()) {
             const data = snapshot.val();
             
-            // Host identity check
-            if (!checkedHost) {
-                checkedHost = true;
-                const user = auth.currentUser || currentUser;
-                let localMasterToken = null;
-                try {
-                    localMasterToken = sessionStorage.getItem(`realmong_master_token_${roomCode}`) ||
-                                       localStorage.getItem(`realmong_master_token_${roomCode}`);
-                } catch(e) {}
+            try {
+                // Host identity check
+                if (!checkedHost) {
+                    checkedHost = true;
+                    const user = auth.currentUser || currentUser;
+                    let localMasterToken = null;
+                    try {
+                        localMasterToken = sessionStorage.getItem(`realmong_master_token_${roomCode}`) ||
+                                           localStorage.getItem(`realmong_master_token_${roomCode}`);
+                    } catch(e) {}
 
-                const isTokenValid = data.masterToken && localMasterToken && data.masterToken === localMasterToken;
-                const isUidValid = user && user.uid && data.creatorId && data.creatorId !== 'unknown' && user.uid === data.creatorId;
+                    const isTokenValid = data.masterToken && localMasterToken && data.masterToken === localMasterToken;
+                    const isUidValid = user && user.uid && data.creatorId && data.creatorId !== 'unknown' && user.uid === data.creatorId;
 
-                if (!isTokenValid && !isUidValid) {
-                    alert("Accesso negato: Solo l'host creatore della stanza può accedere al pannello Master.");
+                    if (!isTokenValid && !isUidValid) {
+                        alert("Accesso negato: Solo l'host creatore della stanza può accedere al pannello Master.");
+                        window.location.href = "/";
+                        return;
+                    }
+
+                    // Sync masterToken locally if verified by UID
+                    if (isUidValid && data.masterToken && !localMasterToken) {
+                        try {
+                            sessionStorage.setItem(`realmong_master_token_${roomCode}`, data.masterToken);
+                            localStorage.setItem(`realmong_master_token_${roomCode}`, data.masterToken);
+                        } catch(e) {}
+                    }
+                }
+
+                // 7-day expiration check
+                if (data.createdAt && (Date.now() - data.createdAt > 7 * 24 * 60 * 60 * 1000)) {
+                    try {
+                        await remove(ref(db, `rooms/${roomCode}`));
+                        await remove(ref(db, `images/${roomCode}`));
+                    } catch (e) {}
+                    alert("Questa stanza è scaduta (superati 7 giorni dalla creazione) ed è stata eliminata.");
                     window.location.href = "/";
                     return;
                 }
 
-                // Sync masterToken locally if verified by UID
-                if (isUidValid && data.masterToken && !localMasterToken) {
-                    try {
-                        sessionStorage.setItem(`realmong_master_token_${roomCode}`, data.masterToken);
-                        localStorage.setItem(`realmong_master_token_${roomCode}`, data.masterToken);
-                    } catch(e) {}
-                }
-            }
-
-            // 7-day expiration check
-            if (data.createdAt && (Date.now() - data.createdAt > 7 * 24 * 60 * 60 * 1000)) {
+                currentState = data.state || {};
+                roomConfig = data.config || {};
+                currentPlayers = normalizePlayers(data.players);
+                currentVotes = data.votes || {};
+                currentKicked = data.kickedPlayers || {};
+                
+                syncTimeConfigUI();
+                updateUI(currentState, currentPlayers);
                 try {
-                    await remove(ref(db, `rooms/${roomCode}`));
-                    await remove(ref(db, `images/${roomCode}`));
-                } catch (e) {}
-                alert("Questa stanza è scaduta (superati 7 giorni dalla creazione) ed è stata eliminata.");
-                window.location.href = "/";
-                return;
-            }
-
-            currentState = data.state || {};
-            roomConfig = data.config || {};
-            currentPlayers = normalizePlayers(data.players);
-            currentVotes = data.votes || {};
-            currentKicked = data.kickedPlayers || {};
-            
-            syncTimeConfigUI();
-            updateUI(currentState, currentPlayers);
-            updateMonitor(currentPlayers);
-            updateKickedSection(currentKicked);
-            
-            processPlayerLogs(previousPlayers, currentPlayers);
-            previousPlayers = JSON.parse(JSON.stringify(currentPlayers));
-            
-            // As a Master, perform automatic checks
-            if (!resolvingMeeting) {
-                checkWinCondition(currentState, currentPlayers);
-                checkVotes(currentState, currentPlayers, currentVotes);
+                    updateMonitor(currentPlayers);
+                } catch(e) { console.error("Error in updateMonitor:", e); }
+                try {
+                    updateKickedSection(currentKicked);
+                } catch(e) { console.error("Error in updateKickedSection:", e); }
+                
+                processPlayerLogs(previousPlayers, currentPlayers);
+                previousPlayers = JSON.parse(JSON.stringify(currentPlayers));
+                
+                // As a Master, perform automatic checks
+                if (!resolvingMeeting) {
+                    checkWinCondition(currentState, currentPlayers);
+                    checkVotes(currentState, currentPlayers, currentVotes);
+                }
+            } catch (err) {
+                console.error("Errore critico in onValue (master):", err);
+                // Non interrompere l'aggiornamento UI se c'è un errore logico altrove
+                if (data && data.state) {
+                    try { updateUI(data.state, normalizePlayers(data.players || {})); } catch(e){}
+                }
             }
         } else {
             statusBadge.textContent = "STANZA NON TROVATA";

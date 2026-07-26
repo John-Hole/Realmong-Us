@@ -862,6 +862,12 @@ function startConnection() {
 
     // Victory Screen Overlay
     function showVictoryOverlay(status, playersData) {
+        const victoryOverlay = document.getElementById('overlay-victory');
+        const title = document.getElementById('victory-title');
+        const subtitle = document.getElementById('victory-subtitle');
+        const teamCardsContainer = document.getElementById('victory-team-cards');
+
+        if (!victoryOverlay || !title || !subtitle || !teamCardsContainer) return;
 
         const isCrewmates = (status === 'crewmates_win');
         
@@ -983,6 +989,10 @@ function startConnection() {
             latestPlayersData = players;
             latestVotesData = votes;
             latestMaxPlayers = maxPlayers;
+
+            if (data.state) {
+                currentGameState = data.state.game_status || 'waiting';
+            }
 
             // Real-time taskbar & players update on any room change
             updateTaskBar(players);
