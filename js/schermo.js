@@ -746,16 +746,16 @@ function startConnection() {
         if (headerEl && customTitle) {
             headerEl.textContent = customTitle;
             if (customTitle.startsWith("VOTAZIONE")) {
-                headerEl.style.color = "var(--accent-red)";
-                headerEl.style.textShadow = "0 0 25px rgba(239, 68, 68, 0.6), 0 0 50px rgba(239, 68, 68, 0.3)";
+                headerEl.style.setProperty('color', 'var(--accent-red)', 'important');
+                headerEl.style.setProperty('text-shadow', '0 0 25px rgba(239, 68, 68, 0.8), 0 0 50px rgba(239, 68, 68, 0.4)', 'important');
             } else {
-                headerEl.style.color = "#ffea00";
-                headerEl.style.textShadow = "0 0 25px rgba(255, 234, 0, 0.6), 0 0 50px rgba(255, 234, 0, 0.3)";
+                headerEl.style.setProperty('color', '#ffea00', 'important');
+                headerEl.style.setProperty('text-shadow', '0 0 25px rgba(255, 234, 0, 0.8), 0 0 50px rgba(255, 234, 0, 0.4)', 'important');
             }
         } else if (headerEl) {
             headerEl.textContent = "DISCUSSIONE IN CORSO";
-            headerEl.style.color = "#ffea00";
-            headerEl.style.textShadow = "0 0 25px rgba(255, 234, 0, 0.6), 0 0 50px rgba(255, 234, 0, 0.3)";
+            headerEl.style.setProperty('color', '#ffea00', 'important');
+            headerEl.style.setProperty('text-shadow', '0 0 25px rgba(255, 234, 0, 0.8), 0 0 50px rgba(255, 234, 0, 0.4)', 'important');
         }
 
         if (subheaderEl && customSub) {
@@ -822,8 +822,8 @@ function startConnection() {
             if (isDead) {
                 statusBadge = `<span class="chat-badge dead-badge">💀 MORTO</span>`;
                 statusDetail = 'Non può parlare né votare';
-            } else if (targetVotes && Object.keys(targetVotes).length > 0) {
-                const hasVoted = targetVotes[item.name] !== undefined || (item.data && targetVotes[item.data.id] !== undefined);
+            } else if (currentGameState === 'voting' || (targetVotes && Object.keys(targetVotes).length > 0)) {
+                const hasVoted = targetVotes && (targetVotes[item.name] !== undefined || (item.data && targetVotes[item.data.id] !== undefined));
                 if (hasVoted) {
                     statusBadge = `<span class="chat-badge voted-badge">✓ VOTATO</span>`;
                     statusDetail = 'Ha espresso il suo voto';
@@ -1133,10 +1133,12 @@ function startConnection() {
                 }
                 else if (status === 'voting') {
                     hideVotingResultsOverlay();
-                    hideDiscussionOverlay();
+                    showDiscussionOverlay(players, votes, "VOTAZIONE IN CORSO", "VOTATE I VOSTRI SOSPETTATI!");
                     if(overlayMeeting) overlayMeeting.classList.add('hidden');
                     const headerCard = globalTimer ? globalTimer.closest('.center-header-card') : null;
                     clearInterval(timerInterval);
+                    
+                    const discussionSub = document.querySelector('#overlay-discussion .discussion-subheader');
                     
                     if (!data.state.voting_endtime || data.state.voting_endtime === 0) {
                         if (globalTimer) {
@@ -1144,10 +1146,16 @@ function startConnection() {
                             globalTimer.textContent = `VOTAZIONE LIBERA`;
                             globalTimer.style.color = "var(--accent-red)";
                         }
+                        if (discussionSub) discussionSub.textContent = "TEMPO ILLIMITATO - VOTATE QUANDO SIETE PRONTI";
                     } else {
                         timerInterval = setInterval(() => {
                             const remaining = Math.max(0, data.state.voting_endtime - Date.now());
                             const sec = Math.ceil(remaining / 1000);
+                            
+                            if (discussionSub) {
+                                discussionSub.textContent = `VOTATE I VOSTRI SOSPETTATI! (TEMPO RIMANENTE: ${sec}s)`;
+                            }
+                            
                             if (globalTimer) {
                                 globalTimer.textContent = `VOTAZIONE: ${sec}s`;
                                 
