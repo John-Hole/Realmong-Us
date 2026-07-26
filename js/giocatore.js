@@ -405,27 +405,55 @@ function updateUI(state, playersMap) {
         if (overlayMeetingP) overlayMeetingP.textContent = "Votazione conclusa! Guarda il maxischermo per vedere chi ha votato chi!";
         return;
     } else if (state.game_status === 'crewmates_win') {
-        overlayMeeting.classList.remove('hidden');
+        if (overlayMeeting) overlayMeeting.classList.add('hidden');
         overlayDead.classList.add('hidden');
         roleScreen.classList.add('hidden');
         gameScreen.classList.add('hidden');
         waitingScreen.classList.add('hidden');
         votingUI.classList.add('hidden');
-        if (overlayMeetingH1) overlayMeetingH1.textContent = "VITTORIA CREWMATE!";
-        if (overlayMeetingP) overlayMeetingP.textContent = "I Crewmate hanno completato tutte le task!";
+        if (overlayVictory) {
+            overlayVictory.style.background = 'radial-gradient(circle, rgba(0,242,254,0.2) 0%, rgba(5,8,20,1) 70%)';
+            overlayVictory.style.display = 'flex';
+            overlayVictory.classList.remove('hidden');
+        }
+        if (victoryTitle) {
+            victoryTitle.textContent = "VITTORIA CREWMATE!";
+            victoryTitle.style.color = '#00f2fe';
+            victoryTitle.style.textShadow = '0 0 25px rgba(0, 242, 254, 0.6)';
+        }
+        if (victorySubtitle) {
+            victorySubtitle.textContent = "I CREWMATE HANNO COMPLETATO TUTTE LE TASK!";
+            victorySubtitle.style.color = '#e0e6ed';
+        }
         return;
     } else if (state.game_status === 'impostors_win') {
-        overlayMeeting.classList.remove('hidden');
+        if (overlayMeeting) overlayMeeting.classList.add('hidden');
         overlayDead.classList.add('hidden');
         roleScreen.classList.add('hidden');
         gameScreen.classList.add('hidden');
         waitingScreen.classList.add('hidden');
         votingUI.classList.add('hidden');
-        if (overlayMeetingH1) overlayMeetingH1.textContent = "VITTORIA IMPOSTORI!";
-        if (overlayMeetingP) overlayMeetingP.textContent = "Gli Impostori hanno eliminato i Crewmate!";
+        if (overlayVictory) {
+            overlayVictory.style.background = 'radial-gradient(circle, rgba(255,68,68,0.25) 0%, rgba(15,5,5,1) 70%)';
+            overlayVictory.style.display = 'flex';
+            overlayVictory.classList.remove('hidden');
+        }
+        if (victoryTitle) {
+            victoryTitle.textContent = "VITTORIA IMPOSTORI!";
+            victoryTitle.style.color = '#ff4444';
+            victoryTitle.style.textShadow = '0 0 25px rgba(255, 68, 68, 0.6)';
+        }
+        if (victorySubtitle) {
+            victorySubtitle.textContent = "GLI IMPOSTORI HANNO CONQUISTATO LA NAVE!";
+            victorySubtitle.style.color = '#e0e6ed';
+        }
         return;
     } else {
-        overlayMeeting.classList.add('hidden');
+        if (overlayMeeting) overlayMeeting.classList.add('hidden');
+        if (overlayVictory) {
+            overlayVictory.classList.add('hidden');
+            overlayVictory.style.display = 'none';
+        }
         votingUI.classList.add('hidden');
         gameScreen.classList.remove('hidden');
     }
