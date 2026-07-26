@@ -320,6 +320,7 @@ function updateUI(state, playersMap) {
             overlayMeetingH1.style.filter = "";
         }
         if (overlayMeetingP) {
+            overlayMeetingP.style.display = "block";
             overlayMeetingP.textContent = "Il gioco è in pausa. Raggiungi il punto di raduno!";
         }
         
@@ -338,7 +339,7 @@ function updateUI(state, playersMap) {
     }
 
     if (discussionPlayersMobile) {
-        discussionPlayersMobile.classList.toggle('hidden', state.game_status !== 'discussion');
+        discussionPlayersMobile.style.display = "none";
     }
 
     if (state.game_status === 'discussion') {
@@ -348,33 +349,20 @@ function updateUI(state, playersMap) {
         gameScreen.classList.add('hidden');
         waitingScreen.classList.add('hidden');
         votingUI.classList.add('hidden');
-        if (overlayMeetingH1) overlayMeetingH1.textContent = "DISCUSSIONE IN CORSO";
-        if (overlayMeetingP) overlayMeetingP.textContent = "Discuti con gli altri! Ecco chi è vivo e chi è morto:";
         
-        if (discussionPlayersMobile) {
-            discussionPlayersMobile.innerHTML = '';
-
-            const sortedList = [];
-            if (playersMap) {
-                for (const pName in playersMap) {
-                    sortedList.push({ name: pName, data: playersMap[pName] });
-                }
-            }
-
-            sortedList.sort((a, b) => {
-                const aDead = a.data && (a.data.status === 'dead' || a.data.status === 'ghost' || a.data.status === 'killed_revealed' || a.data.status === 'killed_hidden');
-                const bDead = b.data && (b.data.status === 'dead' || b.data.status === 'ghost' || b.data.status === 'killed_revealed' || b.data.status === 'killed_hidden');
-                if (aDead !== bDead) return aDead ? 1 : -1;
-                return a.name.localeCompare(b.name);
-            });
-
-            sortedList.forEach(item => {
-                const isDead = item.data && (item.data.status === 'dead' || item.data.status === 'ghost' || item.data.status === 'killed_revealed' || item.data.status === 'killed_hidden');
-                const pill = document.createElement('span');
-                pill.className = `discussion-mobile-pill ${isDead ? 'dead' : 'alive'}`;
-                pill.innerHTML = isDead ? `💀 ${escapeHtml(item.name)} (MORTO)` : `👨‍🚀 ${escapeHtml(item.name)} (VIVO)`;
-                discussionPlayersMobile.appendChild(pill);
-            });
+        if (overlayMeetingH1) {
+            overlayMeetingH1.textContent = "DISCUSSIONE IN CORSO";
+            overlayMeetingH1.className = "alert-text";
+            overlayMeetingH1.style.color = "var(--accent-red)";
+            overlayMeetingH1.style.fontSize = "clamp(1.4rem, 5.5vw, 2.8rem)";
+            overlayMeetingH1.style.letterSpacing = "2px";
+            overlayMeetingH1.style.whiteSpace = "nowrap";
+            overlayMeetingH1.style.animation = "none";
+            overlayMeetingH1.style.textShadow = "none";
+            overlayMeetingH1.style.filter = "none";
+        }
+        if (overlayMeetingP) {
+            overlayMeetingP.style.display = "none";
         }
 
         // Stop siren if it was playing during emergency

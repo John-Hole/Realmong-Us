@@ -1322,7 +1322,8 @@ if (btnEndDiscussion) {
         await update(roomRef, {
             'state/game_status': 'playing',
             'state/timer_paused': false,
-            'state/timer': newTimerEnd
+            'state/timer': newTimerEnd,
+            'state/last_ejected': null
         });
         addLog(`🛑 Discussione interrotta dal Master. Partita ripresa.`);
     });

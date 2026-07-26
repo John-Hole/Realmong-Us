@@ -735,42 +735,106 @@ function startConnection() {
         if (overlay) overlay.classList.add('hidden');
     }
 
-    function showDiscussionOverlay(playersData) {
+    function showDiscussionOverlay(playersData, votesData, customTitle, customSub) {
         const overlay = document.getElementById('overlay-discussion');
         const container = document.getElementById('discussion-cards-container');
         if (!overlay || !container) return;
 
+        const headerEl = overlay.querySelector('.discussion-header');
+        const subheaderEl = overlay.querySelector('.discussion-subheader');
+
+        if (headerEl && customTitle) {
+            headerEl.textContent = customTitle;
+            if (customTitle.startsWith("VOTAZIONE")) {
+                headerEl.style.color = "var(--accent-red)";
+                headerEl.style.textShadow = "0 0 25px rgba(239, 68, 68, 0.6), 0 0 50px rgba(239, 68, 68, 0.3)";
+            } else {
+                headerEl.style.color = "#ffea00";
+                headerEl.style.textShadow = "0 0 25px rgba(255, 234, 0, 0.6), 0 0 50px rgba(255, 234, 0, 0.3)";
+            }
+        } else if (headerEl) {
+            headerEl.textContent = "DISCUSSIONE IN CORSO";
+            headerEl.style.color = "#ffea00";
+            headerEl.style.textShadow = "0 0 25px rgba(255, 234, 0, 0.6), 0 0 50px rgba(255, 234, 0, 0.3)";
+        }
+
+        if (subheaderEl && customSub) {
+            subheaderEl.textContent = customSub;
+        } else if (subheaderEl) {
+            subheaderEl.textContent = "CONFRONTATI CON GLI ALTRI GIOCATORI PRIMA CHE INIZINO LE VOTAZIONI";
+        }
+
         container.innerHTML = '';
         
+        const targetData = playersData || latestPlayersData;
+        const targetVotes = votesData || latestVotesData;
         const playerList = [];
-        if (playersData) {
-            for (const pName in playersData) {
-                playerList.push({
-                    name: pName,
-                    data: playersData[pName]
+        
+        if (targetData) {
+            if (Array.isArray(targetData)) {
+                targetData.forEach((p, idx) => {
+                    if (p) {
+                        const displayName = (typeof p === 'object' && p.name) ? p.name : (p.id || `Giocatore ${idx + 1}`);
+                        playerList.push({ name: displayName, data: p });
+                    }
                 });
+            } else if (typeof targetData === 'object') {
+                for (const key in targetData) {
+                    const p = targetData[key];
+                    if (p) {
+                        const displayName = (typeof p === 'object' && p.name) ? p.name : key;
+                        playerList.push({ name: displayName, data: p });
+                    }
+                }
             }
         }
 
         // Sort: Alive players first, then Dead players, then alphabetically
         playerList.sort((a, b) => {
-            const aDead = a.data && (a.data.status === 'dead' || a.data.status === 'ghost' || a.data.status === 'killed_revealed' || a.data.status === 'killed_hidden');
-            const bDead = b.data && (b.data.status === 'dead' || b.data.status === 'ghost' || b.data.status === 'killed_revealed' || b.data.status === 'killed_hidden');
+            const aDead = a.data && (
+                a.data.status === 'dead' || 
+                a.data.status === 'ghost' || 
+                a.data.status === 'killed_revealed' || 
+                a.data.status === 'killed_hidden'
+            );
+            const bDead = b.data && (
+                b.data.status === 'dead' || 
+                b.data.status === 'ghost' || 
+                b.data.status === 'killed_revealed' || 
+                b.data.status === 'killed_hidden'
+            );
             if (aDead !== bDead) return aDead ? 1 : -1;
-            return a.name.localeCompare(b.name);
+            return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
         });
 
         playerList.forEach(item => {
             const card = document.createElement('div');
-            const isDead = item.data && (item.data.status === 'dead' || item.data.status === 'ghost' || item.data.status === 'killed_revealed' || item.data.status === 'killed_hidden');
+            const pStatus = item.data && typeof item.data === 'object' ? item.data.status : 'alive';
+            const isDead = pStatus === 'dead' || pStatus === 'ghost' || pStatus === 'killed_revealed' || pStatus === 'killed_hidden';
             
             card.className = `discussion-card ${isDead ? 'dead-card' : 'alive-card'}`;
 
             const avatarIcon = isDead ? '💀' : '👨‍🚀';
-            const statusBadge = isDead 
-                ? `<span class="discussion-badge dead-badge">💀 MORTO</span>` 
-                : `<span class="discussion-badge alive-badge">💚 VIVO</span>`;
-            const statusDetail = isDead ? 'Non può parlare né votare' : 'Può parlare e votare';
+
+            let statusBadge = '';
+            let statusDetail = '';
+
+            if (isDead) {
+                statusBadge = `<span class="discussion-badge dead-badge">💀 MORTO</span>`;
+                statusDetail = 'Non può parlare né votare';
+            } else if (targetVotes && Object.keys(targetVotes).length > 0) {
+                const hasVoted = targetVotes[item.name] !== undefined || (item.data && targetVotes[item.data.id] !== undefined);
+                if (hasVoted) {
+                    statusBadge = `<span class="discussion-badge voted-badge">✓ VOTATO</span>`;
+                    statusDetail = 'Ha espresso il suo voto';
+                } else {
+                    statusBadge = `<span class="discussion-badge waiting-badge">⏳ IN ATTESA</span>`;
+                    statusDetail = 'Sta decidendo chi votare';
+                }
+            } else {
+                statusBadge = `<span class="discussion-badge alive-badge">💚 VIVO</span>`;
+                statusDetail = 'Può parlare e votare';
+            }
 
             card.innerHTML = `
                 <div class="discussion-card-top">
@@ -796,14 +860,8 @@ function startConnection() {
         if (overlay) overlay.classList.add('hidden');
     }
 
-
-
+    // Victory Screen Overlay
     function showVictoryOverlay(status, playersData) {
-        const victoryOverlay = document.getElementById('overlay-victory');
-        const title = document.getElementById('victory-title');
-        const subtitle = document.getElementById('victory-subtitle');
-        const teamCardsContainer = document.getElementById('victory-team-cards');
-        if (!victoryOverlay || !title || !subtitle || !teamCardsContainer) return;
 
         const isCrewmates = (status === 'crewmates_win');
         
@@ -1007,17 +1065,18 @@ function startConnection() {
                         }
                     }
                     
-                    if (previousStatus === 'voting_results' || previousStatus === 'voting' || previousStatus === 'discussion' || previousStatus === 'emergency') {
+                    const hasEjectedPlayer = data.state && data.state.last_ejected && data.state.last_ejected !== 'SKIP';
+                    if ((previousStatus === 'voting_results' || previousStatus === 'voting') && hasEjectedPlayer) {
                         if(overlayEjected) {
                             overlayEjected.classList.remove('hidden');
-                            const ejectedMsg = data.state.last_ejected && data.state.last_ejected !== 'SKIP' 
-                                ? `${data.state.last_ejected} è stato espulso...` 
-                                : "Nessuno è stato espulso...";
+                            const ejectedMsg = `${data.state.last_ejected} è stato espulso...`;
                             triggerEjectedTypewriter(ejectedText, ejectedMsg, 70);
                             setTimeout(() => {
                                 overlayEjected.classList.add('hidden');
                             }, 5000);
                         }
+                    } else {
+                        if(overlayEjected) overlayEjected.classList.add('hidden');
                     }
 
                     renderPlayers(players, votes, maxPlayers);
