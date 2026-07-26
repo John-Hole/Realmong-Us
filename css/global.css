@@ -1728,18 +1728,18 @@ body.schermo-body, body.teatro-body {
 }
 
 .players-grid-list.overlay-wrap {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    max-width: 1200px;
-    width: 100%;
-    margin: 0 auto;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    max-width: 1200px !important;
+    width: 100% !important;
+    margin: 0 auto !important;
 }
 
 .players-grid-list.overlay-wrap .player-card {
-    flex: 1 1 280px;
-    max-width: 380px;
-    min-width: 250px;
+    flex: 1 1 280px !important;
+    max-width: 380px !important;
+    min-width: 250px !important;
 }
 
 /* CLEAN PLAYER CARD - REMOVED THICK SIDE BORDER */

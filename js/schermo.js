@@ -812,29 +812,41 @@ function startConnection() {
             const pStatus = item.data && typeof item.data === 'object' ? item.data.status : 'alive';
             const isDead = pStatus === 'dead' || pStatus === 'ghost' || pStatus === 'killed_revealed' || pStatus === 'killed_hidden';
             
-            card.className = `player-card ${isDead ? 'dead' : ''}`;
+            card.className = `discussion-card ${isDead ? 'dead-card' : 'alive-card'}`;
 
             const avatarIcon = isDead ? '💀' : '👨‍🚀';
 
-            let statusHtml = '';
+            let statusBadge = '';
+            let statusDetail = '';
 
             if (isDead) {
-                statusHtml = '<span class="player-status dead-badge" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); padding: 2px 8px; border-radius: 10px; font-weight: 700; font-size: 0.75rem;">❌ DEFUNTO</span>';
+                statusBadge = `<span class="discussion-badge dead-badge">💀 MORTO</span>`;
+                statusDetail = 'Non può parlare né votare';
             } else if (targetVotes && Object.keys(targetVotes).length > 0) {
                 const hasVoted = targetVotes[item.name] !== undefined || (item.data && targetVotes[item.data.id] !== undefined);
                 if (hasVoted) {
-                    statusHtml = '<span class="player-status voted-badge">VOTATO</span>';
+                    statusBadge = `<span class="discussion-badge voted-badge">✓ VOTATO</span>`;
+                    statusDetail = 'Ha espresso il suo voto';
                 } else {
-                    statusHtml = '<span class="player-status waiting-badge">IN ATTESA</span>';
+                    statusBadge = `<span class="discussion-badge waiting-badge">⏳ IN ATTESA</span>`;
+                    statusDetail = 'Sta decidendo chi votare';
                 }
             } else {
-                statusHtml = '<span class="player-status alive-badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); padding: 2px 8px; border-radius: 10px; font-weight: 700; font-size: 0.75rem;">💚 VIVO</span>';
+                statusBadge = `<span class="discussion-badge alive-badge">💚 VIVO</span>`;
+                statusDetail = 'Può parlare e votare';
             }
 
             card.innerHTML = `
-                <div class="player-avatar">${avatarIcon}</div>
-                <span class="player-name">${escapeHtml(item.name)}</span>
-                ${statusHtml}
+                <div class="discussion-card-top">
+                    <div class="discussion-card-user">
+                        <span class="discussion-card-avatar">${avatarIcon}</span>
+                        <span class="discussion-card-name">${escapeHtml(item.name)}</span>
+                    </div>
+                    ${statusBadge}
+                </div>
+                <div class="discussion-card-bottom">
+                    <span class="discussion-card-detail">${statusDetail}</span>
+                </div>
             `;
 
             container.appendChild(card);
